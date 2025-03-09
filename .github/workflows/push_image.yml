@@ -1,16 +1,19 @@
-name: Docker Image CI (stable versions)
+name: Docker
 
 on:
   push:
     branches:
       - main
 
+env:
+  IMAGE_NAME: certimate
+
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up QEMU
@@ -19,32 +22,25 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            woodchen/certimate
-
-      - name: Log in to DOCKERHUB
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+      - name: Build and push
+        uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
+          file: Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          platforms: linux/amd64
 
       - name: 部署到服务器
         uses: appleboy/ssh-action@master
         env:
-          DOCKER_IMAGE: woodchen/certimate:latest
+          DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/certimate:latest
           PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
         with:
           host: ${{ secrets.SERVER_IP }}

@@ -24,7 +24,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            woodchen/certimate:latest
+            woodchen/certimate
 
       - name: Log in to DOCKERHUB
         uses: docker/login-action@v3

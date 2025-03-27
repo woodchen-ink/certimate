@@ -24,7 +24,10 @@ import (
 	pAWSACM "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/aws-acm"
 	pAWSCloudFront "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/aws-cloudfront"
 	pAzureKeyVault "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/azure-keyvault"
+	pBaiduCloudAppBLB "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/baiducloud-appblb"
+	pBaiduCloudBLB "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/baiducloud-blb"
 	pBaiduCloudCDN "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/baiducloud-cdn"
+	pBaiduCloudCert "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/baiducloud-cert"
 	pBaishanCDN "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/baishan-cdn"
 	pBaotaPanelConsole "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/baotapanel-console"
 	pBaotaPanelSite "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/baotapanel-site"
@@ -36,6 +39,7 @@ import (
 	pGcoreCDN "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/gcore-cdn"
 	pHuaweiCloudCDN "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/huaweicloud-cdn"
 	pHuaweiCloudELB "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/huaweicloud-elb"
+	pHuaweiCloudSCM "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/huaweicloud-scm"
 	pHuaweiCloudWAF "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/huaweicloud-waf"
 	pJDCloudALB "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/jdcloud-alb"
 	pJDCloudCDN "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/jdcloud-cdn"
@@ -61,7 +65,9 @@ import (
 	pUCloudUCDN "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/ucloud-ucdn"
 	pUCloudUS3 "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/ucloud-us3"
 	pUpyunCDN "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/upyun-cdn"
+	pVolcEngineALB "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/volcengine-alb"
 	pVolcEngineCDN "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/volcengine-cdn"
+	pVolcEngineCertCenter "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/volcengine-certcenter"
 	pVolcEngineCLB "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/volcengine-clb"
 	pVolcEngineDCDN "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/volcengine-dcdn"
 	pVolcEngineImageX "github.com/usual2970/certimate/internal/pkg/core/deployer/providers/volcengine-imagex"
@@ -302,7 +308,7 @@ func createDeployer(options *deployerOptions) (deployer.Deployer, error) {
 			}
 		}
 
-	case domain.DeployProviderTypeBaiduCloudCDN:
+	case domain.DeployProviderTypeBaiduCloudAppBLB, domain.DeployProviderTypeBaiduCloudBLB, domain.DeployProviderTypeBaiduCloudCDN, domain.DeployProviderTypeBaiduCloudCert:
 		{
 			access := domain.AccessConfigForBaiduCloud{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -310,11 +316,42 @@ func createDeployer(options *deployerOptions) (deployer.Deployer, error) {
 			}
 
 			switch options.Provider {
+			case domain.DeployProviderTypeBaiduCloudAppBLB:
+				deployer, err := pBaiduCloudAppBLB.NewDeployer(&pBaiduCloudAppBLB.DeployerConfig{
+					AccessKeyId:     access.AccessKeyId,
+					SecretAccessKey: access.SecretAccessKey,
+					Region:          maputil.GetString(options.ProviderDeployConfig, "region"),
+					ResourceType:    pBaiduCloudAppBLB.ResourceType(maputil.GetString(options.ProviderDeployConfig, "resourceType")),
+					LoadbalancerId:  maputil.GetString(options.ProviderDeployConfig, "loadbalancerId"),
+					ListenerPort:    maputil.GetInt32(options.ProviderDeployConfig, "listenerPort"),
+					Domain:          maputil.GetString(options.ProviderDeployConfig, "domain"),
+				})
+				return deployer, err
+
+			case domain.DeployProviderTypeBaiduCloudBLB:
+				deployer, err := pBaiduCloudBLB.NewDeployer(&pBaiduCloudBLB.DeployerConfig{
+					AccessKeyId:     access.AccessKeyId,
+					SecretAccessKey: access.SecretAccessKey,
+					Region:          maputil.GetString(options.ProviderDeployConfig, "region"),
+					ResourceType:    pBaiduCloudBLB.ResourceType(maputil.GetString(options.ProviderDeployConfig, "resourceType")),
+					LoadbalancerId:  maputil.GetString(options.ProviderDeployConfig, "loadbalancerId"),
+					ListenerPort:    maputil.GetInt32(options.ProviderDeployConfig, "listenerPort"),
+					Domain:          maputil.GetString(options.ProviderDeployConfig, "domain"),
+				})
+				return deployer, err
+
 			case domain.DeployProviderTypeBaiduCloudCDN:
 				deployer, err := pBaiduCloudCDN.NewDeployer(&pBaiduCloudCDN.DeployerConfig{
 					AccessKeyId:     access.AccessKeyId,
 					SecretAccessKey: access.SecretAccessKey,
 					Domain:          maputil.GetString(options.ProviderDeployConfig, "domain"),
+				})
+				return deployer, err
+
+			case domain.DeployProviderTypeBaiduCloudCert:
+				deployer, err := pBaiduCloudCert.NewDeployer(&pBaiduCloudCert.DeployerConfig{
+					AccessKeyId:     access.AccessKeyId,
+					SecretAccessKey: access.SecretAccessKey,
 				})
 				return deployer, err
 
@@ -478,7 +515,7 @@ func createDeployer(options *deployerOptions) (deployer.Deployer, error) {
 			}
 		}
 
-	case domain.DeployProviderTypeHuaweiCloudCDN, domain.DeployProviderTypeHuaweiCloudELB, domain.DeployProviderTypeHuaweiCloudWAF:
+	case domain.DeployProviderTypeHuaweiCloudCDN, domain.DeployProviderTypeHuaweiCloudELB, domain.DeployProviderTypeHuaweiCloudSCM, domain.DeployProviderTypeHuaweiCloudWAF:
 		{
 			access := domain.AccessConfigForHuaweiCloud{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -504,6 +541,13 @@ func createDeployer(options *deployerOptions) (deployer.Deployer, error) {
 					CertificateId:   maputil.GetString(options.ProviderDeployConfig, "certificateId"),
 					LoadbalancerId:  maputil.GetString(options.ProviderDeployConfig, "loadbalancerId"),
 					ListenerId:      maputil.GetString(options.ProviderDeployConfig, "listenerId"),
+				})
+				return deployer, err
+
+			case domain.DeployProviderTypeHuaweiCloudSCM:
+				deployer, err := pHuaweiCloudSCM.NewDeployer(&pHuaweiCloudSCM.DeployerConfig{
+					AccessKeyId:     access.AccessKeyId,
+					SecretAccessKey: access.SecretAccessKey,
 				})
 				return deployer, err
 
@@ -848,7 +892,7 @@ func createDeployer(options *deployerOptions) (deployer.Deployer, error) {
 			}
 		}
 
-	case domain.DeployProviderTypeVolcEngineCDN, domain.DeployProviderTypeVolcEngineCLB, domain.DeployProviderTypeVolcEngineDCDN, domain.DeployProviderTypeVolcEngineImageX, domain.DeployProviderTypeVolcEngineLive, domain.DeployProviderTypeVolcEngineTOS:
+	case domain.DeployProviderTypeVolcEngineALB, domain.DeployProviderTypeVolcEngineCDN, domain.DeployProviderTypeVolcEngineCertCenter, domain.DeployProviderTypeVolcEngineCLB, domain.DeployProviderTypeVolcEngineDCDN, domain.DeployProviderTypeVolcEngineImageX, domain.DeployProviderTypeVolcEngineLive, domain.DeployProviderTypeVolcEngineTOS:
 		{
 			access := domain.AccessConfigForVolcEngine{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -856,11 +900,31 @@ func createDeployer(options *deployerOptions) (deployer.Deployer, error) {
 			}
 
 			switch options.Provider {
+			case domain.DeployProviderTypeVolcEngineALB:
+				deployer, err := pVolcEngineALB.NewDeployer(&pVolcEngineALB.DeployerConfig{
+					AccessKeyId:     access.AccessKeyId,
+					AccessKeySecret: access.SecretAccessKey,
+					Region:          maputil.GetString(options.ProviderDeployConfig, "region"),
+					ResourceType:    pVolcEngineALB.ResourceType(maputil.GetString(options.ProviderDeployConfig, "resourceType")),
+					LoadbalancerId:  maputil.GetString(options.ProviderDeployConfig, "loadbalancerId"),
+					ListenerId:      maputil.GetString(options.ProviderDeployConfig, "listenerId"),
+					Domain:          maputil.GetString(options.ProviderDeployConfig, "domain"),
+				})
+				return deployer, err
+
 			case domain.DeployProviderTypeVolcEngineCDN:
 				deployer, err := pVolcEngineCDN.NewDeployer(&pVolcEngineCDN.DeployerConfig{
 					AccessKeyId:     access.AccessKeyId,
 					AccessKeySecret: access.SecretAccessKey,
 					Domain:          maputil.GetString(options.ProviderDeployConfig, "domain"),
+				})
+				return deployer, err
+
+			case domain.DeployProviderTypeVolcEngineCertCenter:
+				deployer, err := pVolcEngineCertCenter.NewDeployer(&pVolcEngineCertCenter.DeployerConfig{
+					AccessKeyId:     access.AccessKeyId,
+					AccessKeySecret: access.SecretAccessKey,
+					Region:          maputil.GetString(options.ProviderDeployConfig, "region"),
 				})
 				return deployer, err
 
@@ -870,6 +934,7 @@ func createDeployer(options *deployerOptions) (deployer.Deployer, error) {
 					AccessKeySecret: access.SecretAccessKey,
 					Region:          maputil.GetString(options.ProviderDeployConfig, "region"),
 					ResourceType:    pVolcEngineCLB.ResourceType(maputil.GetString(options.ProviderDeployConfig, "resourceType")),
+					LoadbalancerId:  maputil.GetString(options.ProviderDeployConfig, "loadbalancerId"),
 					ListenerId:      maputil.GetString(options.ProviderDeployConfig, "listenerId"),
 				})
 				return deployer, err

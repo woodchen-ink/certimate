@@ -39,7 +39,7 @@ Certimate aims to provide users with a secure and user-friendly SSL certificate 
 - Supports single-domain, multi-domain, wildcard certificates, with options for RSA or ECC.
 - Supports various certificate formats such as PEM, PFX, JKS.
 - Supports more than 20+ domain registrars (e.g., Alibaba Cloud, Tencent Cloud, Cloudflare, etc. [Check out this link](https://docs.certimate.me/en/docs/reference/providers#supported-dns-providers));
-- Supports more than 60+ deployment targets (e.g., Kubernetes, CDN, WAF, load balancers, etc. [Check out this link](https://docs.certimate.me/en/docs/reference/providers#supported-host-providers));
+- Supports more than 70+ deployment targets (e.g., Kubernetes, CDN, WAF, load balancers, etc. [Check out this link](https://docs.certimate.me/en/docs/reference/providers#supported-host-providers));
 - Supports multiple notification channels including email, DingTalk, Feishu, WeCom, Webhook, and more;
 - Supports multiple ACME CAs including Let's Encrypt, ZeroSSL, Google Trust Services, and more;
 - More features waiting to be discovered.
@@ -69,7 +69,7 @@ Please visit the documentation site [docs.certimate.me](https://docs.certimate.m
 
 Related articles:
 
-- [使用 CNAME 实现 DNS-01 challenge](https://docs.certimate.me/blog/cname)
+- [使用 CNAME 完成 ACME DNS-01 质询](https://docs.certimate.me/blog/cname)
 - [v0.3.0：第二个不向后兼容的大版本](https://docs.certimate.me/blog/v0.3.0)
 - [v0.2.0：第一个不向后兼容的大版本](https://docs.certimate.me/blog/v0.2.0)
 - [Why Certimate?](https://docs.certimate.me/blog/why-certimate)

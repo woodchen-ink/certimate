@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"encoding/json"
 	"time"
 )
 
@@ -9,19 +8,10 @@ const CollectionNameAccess = "access"
 
 type Access struct {
 	Meta
-	Name      string     `json:"name" db:"name"`
-	Provider  string     `json:"provider" db:"provider"`
-	Config    string     `json:"config" db:"config"`
-	DeletedAt *time.Time `json:"deleted" db:"deleted"`
-}
-
-func (a *Access) UnmarshalConfigToMap() (map[string]any, error) {
-	config := make(map[string]any)
-	if err := json.Unmarshal([]byte(a.Config), &config); err != nil {
-		return nil, err
-	}
-
-	return config, nil
+	Name      string         `json:"name" db:"name"`
+	Provider  string         `json:"provider" db:"provider"`
+	Config    map[string]any `json:"config" db:"config"`
+	DeletedAt *time.Time     `json:"deleted" db:"deleted"`
 }
 
 type AccessConfigFor1Panel struct {
@@ -98,6 +88,10 @@ type AccessConfigForCMCCCloud struct {
 	AccessKeySecret string `json:"accessKeySecret"`
 }
 
+type AccessConfigForDeSEC struct {
+	Token string `json:"token"`
+}
+
 type AccessConfigForDNSLA struct {
 	ApiId     string `json:"apiId"`
 	ApiSecret string `json:"apiSecret"`
@@ -165,6 +159,11 @@ type AccessConfigForNS1 struct {
 	ApiKey string `json:"apiKey"`
 }
 
+type AccessConfigForPorkbun struct {
+	ApiKey       string `json:"apiKey"`
+	SecretApiKey string `json:"secretApiKey"`
+}
+
 type AccessConfigForPowerDNS struct {
 	ApiUrl string `json:"apiUrl"`
 	ApiKey string `json:"apiKey"`
@@ -208,6 +207,11 @@ type AccessConfigForUCloud struct {
 type AccessConfigForUpyun struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type AccessConfigForVercel struct {
+	ApiAccessToken string `json:"apiAccessToken"`
+	TeamId         string `json:"teamId,omitempty"`
 }
 
 type AccessConfigForVolcEngine struct {

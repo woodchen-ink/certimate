@@ -1,3 +1,5 @@
+import { type ApplyCAProviderType } from "./provider";
+
 export const SETTINGS_NAMES = Object.freeze({
   EMAILS: "emails",
   NOTIFY_TEMPLATES: "notifyTemplates",
@@ -40,7 +42,9 @@ export const NOTIFY_CHANNELS = Object.freeze({
   BARK: "bark",
   DINGTALK: "dingtalk",
   EMAIL: "email",
+  GOTIFY: "gotify",
   LARK: "lark",
+  PUSHPLUS: "pushplus",
   SERVERCHAN: "serverchan",
   TELEGRAM: "telegram",
   WEBHOOK: "webhook",
@@ -58,7 +62,9 @@ export type NotifyChannelsSettingsContent = {
   [NOTIFY_CHANNELS.BARK]?: BarkNotifyChannelConfig;
   [NOTIFY_CHANNELS.DINGTALK]?: DingTalkNotifyChannelConfig;
   [NOTIFY_CHANNELS.EMAIL]?: EmailNotifyChannelConfig;
+  [NOTIFY_CHANNELS.GOTIFY]?: GotifyNotifyChannelConfig;
   [NOTIFY_CHANNELS.LARK]?: LarkNotifyChannelConfig;
+  [NOTIFY_CHANNELS.PUSHPLUS]?: PushPlusNotifyChannelConfig;
   [NOTIFY_CHANNELS.SERVERCHAN]?: ServerChanNotifyChannelConfig;
   [NOTIFY_CHANNELS.TELEGRAM]?: TelegramNotifyChannelConfig;
   [NOTIFY_CHANNELS.WEBHOOK]?: WebhookNotifyChannelConfig;
@@ -88,8 +94,20 @@ export type DingTalkNotifyChannelConfig = {
   enabled?: boolean;
 };
 
+export type GotifyNotifyChannelConfig = {
+  url: string;
+  token: string;
+  priority: string;
+  enabled?: boolean;
+};
+
 export type LarkNotifyChannelConfig = {
   webhookUrl: string;
+  enabled?: boolean;
+};
+
+export type PushPlusNotifyChannelConfig = {
+  token: string;
   enabled?: boolean;
 };
 
@@ -123,7 +141,9 @@ export const notifyChannelsMap: Map<NotifyChannel["type"], NotifyChannel> = new 
   [
     [NOTIFY_CHANNELS.EMAIL, "common.notifier.email"],
     [NOTIFY_CHANNELS.DINGTALK, "common.notifier.dingtalk"],
+    [NOTIFY_CHANNELS.GOTIFY, "common.notifier.gotify"],
     [NOTIFY_CHANNELS.LARK, "common.notifier.lark"],
+    [NOTIFY_CHANNELS.PUSHPLUS, "common.notifier.pushplus"],
     [NOTIFY_CHANNELS.WECOM, "common.notifier.wecom"],
     [NOTIFY_CHANNELS.TELEGRAM, "common.notifier.telegram"],
     [NOTIFY_CHANNELS.SERVERCHAN, "common.notifier.serverchan"],
@@ -134,36 +154,11 @@ export const notifyChannelsMap: Map<NotifyChannel["type"], NotifyChannel> = new 
 // #endregion
 
 // #region Settings: SSLProvider
-export const SSLPROVIDERS = Object.freeze({
-  LETS_ENCRYPT: "letsencrypt",
-  LETS_ENCRYPT_STAGING: "letsencrypt_staging",
-  ZERO_SSL: "zerossl",
-  GOOGLE_TRUST_SERVICES: "gts",
-} as const);
-
-export type SSLProviders = (typeof SSLPROVIDERS)[keyof typeof SSLPROVIDERS];
-
 export type SSLProviderSettingsContent = {
-  provider: (typeof SSLPROVIDERS)[keyof typeof SSLPROVIDERS];
+  provider: ApplyCAProviderType;
   config: {
     [key: string]: Record<string, unknown> | undefined;
-    [SSLPROVIDERS.LETS_ENCRYPT]?: SSLProviderLetsEncryptConfig;
-    [SSLPROVIDERS.LETS_ENCRYPT_STAGING]?: SSLProviderLetsEncryptConfig;
-    [SSLPROVIDERS.ZERO_SSL]?: SSLProviderZeroSSLConfig;
-    [SSLPROVIDERS.GOOGLE_TRUST_SERVICES]?: SSLProviderGoogleTrustServicesConfig;
   };
-};
-
-export type SSLProviderLetsEncryptConfig = NonNullable<unknown>;
-
-export type SSLProviderZeroSSLConfig = {
-  eabKid: string;
-  eabHmacKey: string;
-};
-
-export type SSLProviderGoogleTrustServicesConfig = {
-  eabKid: string;
-  eabHmacKey: string;
 };
 // #endregion
 

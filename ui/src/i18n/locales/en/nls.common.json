@@ -16,6 +16,7 @@
   "common.text.operation_succeeded": "Operation succeeded",
   "common.text.operation_failed": "Operation failed",
   "common.text.request_error": "Request error",
+  "common.text.search": "Search ...",
 
   "common.menu.theme": "Change theme",
   "common.menu.locale": "Change language",
@@ -38,7 +39,9 @@
   "common.notifier.bark": "Bark",
   "common.notifier.dingtalk": "DingTalk",
   "common.notifier.email": "Email",
+  "common.notifier.gotify": "Gotify",
   "common.notifier.lark": "Lark",
+  "common.notifier.pushplus": "PushPlus",
   "common.notifier.serverchan": "ServerChan",
   "common.notifier.telegram": "Telegram",
   "common.notifier.webhook": "Webhook",

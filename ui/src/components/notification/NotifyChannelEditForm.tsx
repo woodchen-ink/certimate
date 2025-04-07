@@ -7,7 +7,9 @@ import { useAntdForm } from "@/hooks";
 import NotifyChannelEditFormBarkFields from "./NotifyChannelEditFormBarkFields";
 import NotifyChannelEditFormDingTalkFields from "./NotifyChannelEditFormDingTalkFields";
 import NotifyChannelEditFormEmailFields from "./NotifyChannelEditFormEmailFields";
+import NotifyChannelEditFormGotifyFields from "./NotifyChannelEditFormGotifyFields.tsx";
 import NotifyChannelEditFormLarkFields from "./NotifyChannelEditFormLarkFields";
+import NotifyChannelEditFormPushPlusFields from "./NotifyChannelEditFormPushPlusFields";
 import NotifyChannelEditFormServerChanFields from "./NotifyChannelEditFormServerChanFields";
 import NotifyChannelEditFormTelegramFields from "./NotifyChannelEditFormTelegramFields";
 import NotifyChannelEditFormWebhookFields from "./NotifyChannelEditFormWebhookFields";
@@ -48,8 +50,12 @@ const NotifyChannelEditForm = forwardRef<NotifyChannelEditFormInstance, NotifyCh
           return <NotifyChannelEditFormDingTalkFields />;
         case NOTIFY_CHANNELS.EMAIL:
           return <NotifyChannelEditFormEmailFields />;
+        case NOTIFY_CHANNELS.GOTIFY:
+          return <NotifyChannelEditFormGotifyFields />;
         case NOTIFY_CHANNELS.LARK:
           return <NotifyChannelEditFormLarkFields />;
+        case NOTIFY_CHANNELS.PUSHPLUS:
+          return <NotifyChannelEditFormPushPlusFields />;
         case NOTIFY_CHANNELS.SERVERCHAN:
           return <NotifyChannelEditFormServerChanFields />;
         case NOTIFY_CHANNELS.TELEGRAM:

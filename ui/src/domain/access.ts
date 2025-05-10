@@ -22,27 +22,34 @@ export interface AccessModel extends BaseModel {
       | AccessConfigForClouDNS
       | AccessConfigForCMCCCloud
       | AccessConfigForDeSEC
+      | AccessConfigForDingTalkBot
       | AccessConfigForDNSLA
       | AccessConfigForDogeCloud
       | AccessConfigForDynv6
       | AccessConfigForEdgio
+      | AccessConfigForEmail
       | AccessConfigForGcore
       | AccessConfigForGname
       | AccessConfigForGoDaddy
+      | AccessConfigForGoEdge
       | AccessConfigForGoogleTrustServices
       | AccessConfigForHuaweiCloud
       | AccessConfigForJDCloud
       | AccessConfigForKubernetes
+      | AccessConfigForLarkBot
+      | AccessConfigForMattermost
       | AccessConfigForNamecheap
       | AccessConfigForNameDotCom
       | AccessConfigForNameSilo
       | AccessConfigForPorkbun
       | AccessConfigForPowerDNS
+      | AccessConfigForProxmoxVE
       | AccessConfigForQiniu
       | AccessConfigForRainYun
       | AccessConfigForSafeLine
       | AccessConfigForSSH
       | AccessConfigForSSLCom
+      | AccessConfigForTelegram
       | AccessConfigForTencentCloud
       | AccessConfigForUCloud
       | AccessConfigForUpyun
@@ -50,9 +57,11 @@ export interface AccessModel extends BaseModel {
       | AccessConfigForVolcEngine
       | AccessConfigForWangsu
       | AccessConfigForWebhook
+      | AccessConfigForWeComBot
       | AccessConfigForWestcn
       | AccessConfigForZeroSSL
     );
+  reserve?: "ca" | "notification";
 }
 
 // #region AccessConfig
@@ -118,6 +127,7 @@ export type AccessConfigForCdnfly = {
   apiUrl: string;
   apiKey: string;
   apiSecret: string;
+  allowInsecureConnections?: boolean;
 };
 
 export type AccessConfigForCloudflare = {
@@ -139,6 +149,11 @@ export type AccessConfigForDeSEC = {
   token: string;
 };
 
+export type AccessConfigForDingTalkBot = {
+  webhookUrl: string;
+  secret?: string;
+};
+
 export type AccessConfigForDNSLA = {
   apiId: string;
   apiSecret: string;
@@ -158,6 +173,16 @@ export type AccessConfigForEdgio = {
   clientSecret: string;
 };
 
+export type AccessConfigForEmail = {
+  smtpHost: string;
+  smtpPort: number;
+  smtpTls: boolean;
+  username: string;
+  password: string;
+  defaultSenderAddress?: string;
+  defaultReceiverAddress?: string;
+};
+
 export type AccessConfigForGcore = {
   apiToken: string;
 };
@@ -170,6 +195,13 @@ export type AccessConfigForGname = {
 export type AccessConfigForGoDaddy = {
   apiKey: string;
   apiSecret: string;
+};
+
+export type AccessConfigForGoEdge = {
+  apiUrl: string;
+  accessKeyId: string;
+  accessKey: string;
+  allowInsecureConnections?: boolean;
 };
 
 export type AccessConfigForGoogleTrustServices = {
@@ -189,6 +221,17 @@ export type AccessConfigForJDCloud = {
 
 export type AccessConfigForKubernetes = {
   kubeConfig?: string;
+};
+
+export type AccessConfigForLarkBot = {
+  webhookUrl: string;
+};
+
+export type AccessConfigForMattermost = {
+  serverUrl: string;
+  username: string;
+  password: string;
+  defaultChannelId?: string;
 };
 
 export type AccessConfigForNamecheap = {
@@ -217,6 +260,14 @@ export type AccessConfigForPorkbun = {
 export type AccessConfigForPowerDNS = {
   apiUrl: string;
   apiKey: string;
+  allowInsecureConnections?: boolean;
+};
+
+export type AccessConfigForProxmoxVE = {
+  apiUrl: string;
+  apiToken: string;
+  apiTokenSecret?: string;
+  allowInsecureConnections?: boolean;
 };
 
 export type AccessConfigForQiniu = {
@@ -246,6 +297,11 @@ export type AccessConfigForSSH = {
 export type AccessConfigForSSLCom = {
   eabKid: string;
   eabHmacKey: string;
+};
+
+export type AccessConfigForTelegram = {
+  botToken: string;
+  defaultChatId?: number;
 };
 
 export type AccessConfigForTencentCloud = {
@@ -282,7 +338,15 @@ export type AccessConfigForWangsu = {
 
 export type AccessConfigForWebhook = {
   url: string;
+  method: string;
+  headers?: string;
   allowInsecureConnections?: boolean;
+  defaultDataForDeployment?: string;
+  defaultDataForNotification?: string;
+};
+
+export type AccessConfigForWeComBot = {
+  webhookUrl: string;
 };
 
 export type AccessConfigForWestcn = {

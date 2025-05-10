@@ -1,4 +1,4 @@
-﻿package baishancdn
+package baishancdn
 
 import (
 	"context"
@@ -10,10 +10,8 @@ import (
 	"strings"
 	"time"
 
-	xerrors "github.com/pkg/errors"
-
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
-	bssdk "github.com/usual2970/certimate/internal/pkg/vendors/baishan-sdk"
+	bssdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/baishan"
 )
 
 type DeployerConfig struct {
@@ -41,7 +39,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.ApiToken)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -60,7 +58,7 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.Domain == "" {
 		return nil, errors.New("config `domain` is required")
 	}
@@ -70,8 +68,8 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		// REF: https://portal.baishancloud.com/track/document/downloadPdf/1441
 		certificateId := ""
 		createCertificateReq := &bssdk.CreateCertificateRequest{
-			Certificate: certPem,
-			Key:         privkeyPem,
+			Certificate: certPEM,
+			Key:         privkeyPEM,
 			Name:        fmt.Sprintf("certimate_%d", time.Now().UnixMilli()),
 		}
 		createCertificateResp, err := d.sdkClient.CreateCertificate(createCertificateReq)
@@ -86,7 +84,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 			}
 
 			if certificateId == "" {
-				return nil, xerrors.Wrap(err, "failed to execute sdk request 'baishan.CreateCertificate'")
+				return nil, fmt.Errorf("failed to execute sdk request 'baishan.CreateCertificate': %w", err)
 			}
 		} else {
 			certificateId = createCertificateResp.Data.CertId.String()
@@ -101,7 +99,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		getDomainConfigResp, err := d.sdkClient.GetDomainConfig(getDomainConfigReq)
 		d.logger.Debug("sdk request 'baishan.GetDomainConfig'", slog.Any("request", getDomainConfigReq), slog.Any("response", getDomainConfigResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'baishan.GetDomainConfig'")
+			return nil, fmt.Errorf("failed to execute sdk request 'baishan.GetDomainConfig': %w", err)
 		} else if len(getDomainConfigResp.Data) == 0 {
 			return nil, errors.New("domain config not found")
 		}
@@ -122,21 +120,21 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		setDomainConfigResp, err := d.sdkClient.SetDomainConfig(setDomainConfigReq)
 		d.logger.Debug("sdk request 'baishan.SetDomainConfig'", slog.Any("request", setDomainConfigReq), slog.Any("response", setDomainConfigResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'baishan.SetDomainConfig'")
+			return nil, fmt.Errorf("failed to execute sdk request 'baishan.SetDomainConfig': %w", err)
 		}
 	} else {
 		// 替换证书
 		// REF: https://portal.baishancloud.com/track/document/downloadPdf/1441
 		createCertificateReq := &bssdk.CreateCertificateRequest{
 			CertificateId: &d.config.CertificateId,
-			Certificate:   certPem,
-			Key:           privkeyPem,
+			Certificate:   certPEM,
+			Key:           privkeyPEM,
 			Name:          fmt.Sprintf("certimate_%d", time.Now().UnixMilli()),
 		}
 		createCertificateResp, err := d.sdkClient.CreateCertificate(createCertificateReq)
 		d.logger.Debug("sdk request 'baishan.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'baishan.CreateCertificate'")
+			return nil, fmt.Errorf("failed to execute sdk request 'baishan.CreateCertificate': %w", err)
 		}
 	}
 

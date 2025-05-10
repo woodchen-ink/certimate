@@ -1,16 +1,15 @@
-﻿package onepanelconsole
+package onepanelconsole
 
 import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/url"
 
-	xerrors "github.com/pkg/errors"
-
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
-	opsdk "github.com/usual2970/certimate/internal/pkg/vendors/1panel-sdk"
+	opsdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/1panel"
 )
 
 type DeployerConfig struct {
@@ -39,7 +38,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.ApiUrl, config.ApiKey, config.AllowInsecureConnections)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -58,11 +57,11 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 设置面板 SSL 证书
 	updateSystemSSLReq := &opsdk.UpdateSystemSSLRequest{
-		Cert:    certPem,
-		Key:     privkeyPem,
+		Cert:    certPEM,
+		Key:     privkeyPEM,
 		SSL:     "enable",
 		SSLType: "import-paste",
 	}
@@ -74,13 +73,13 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	updateSystemSSLResp, err := d.sdkClient.UpdateSystemSSL(updateSystemSSLReq)
 	d.logger.Debug("sdk request '1panel.UpdateSystemSSL'", slog.Any("request", updateSystemSSLReq), slog.Any("response", updateSystemSSLResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request '1panel.UpdateSystemSSL'")
+		return nil, fmt.Errorf("failed to execute sdk request '1panel.UpdateSystemSSL': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil
 }
 
-func createSdkClient(apiUrl, apiKey string, allowInsecure bool) (*opsdk.Client, error) {
+func createSdkClient(apiUrl, apiKey string, skipTlsVerify bool) (*opsdk.Client, error) {
 	if _, err := url.Parse(apiUrl); err != nil {
 		return nil, errors.New("invalid 1panel api url")
 	}
@@ -90,7 +89,7 @@ func createSdkClient(apiUrl, apiKey string, allowInsecure bool) (*opsdk.Client, 
 	}
 
 	client := opsdk.NewClient(apiUrl, apiKey)
-	if allowInsecure {
+	if skipTlsVerify {
 		client.WithTLSConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 

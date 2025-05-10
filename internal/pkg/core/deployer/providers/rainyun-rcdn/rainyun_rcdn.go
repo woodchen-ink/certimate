@@ -1,17 +1,16 @@
-﻿package rainyunrcdn
+package rainyunrcdn
 
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"strconv"
-
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
 	uploadersp "github.com/usual2970/certimate/internal/pkg/core/uploader/providers/rainyun-sslcenter"
-	rainyunsdk "github.com/usual2970/certimate/internal/pkg/vendors/rainyun-sdk"
+	rainyunsdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/rainyun"
 )
 
 type DeployerConfig struct {
@@ -39,14 +38,14 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.ApiKey)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	uploader, err := uploadersp.NewUploader(&uploadersp.UploaderConfig{
 		ApiKey: config.ApiKey,
 	})
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -67,11 +66,11 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 上传证书到 SSL 证书
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to upload certificate file")
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -86,7 +85,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	rcdnInstanceSslBindResp, err := d.sdkClient.RcdnInstanceSslBind(d.config.InstanceId, rcdnInstanceSslBindReq)
 	d.logger.Debug("sdk request 'rcdn.InstanceSslBind'", slog.Any("instanceId", d.config.InstanceId), slog.Any("request", rcdnInstanceSslBindReq), slog.Any("response", rcdnInstanceSslBindResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'rcdn.InstanceSslBind'")
+		return nil, fmt.Errorf("failed to execute sdk request 'rcdn.InstanceSslBind': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil

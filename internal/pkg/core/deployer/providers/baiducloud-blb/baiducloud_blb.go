@@ -1,4 +1,4 @@
-﻿package baiducloudblb
+package baiducloudblb
 
 import (
 	"context"
@@ -10,12 +10,11 @@ import (
 
 	bceblb "github.com/baidubce/bce-sdk-go/services/blb"
 	"github.com/google/uuid"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
 	uploadersp "github.com/usual2970/certimate/internal/pkg/core/uploader/providers/baiducloud-cert"
-	"github.com/usual2970/certimate/internal/pkg/utils/sliceutil"
+	sliceutil "github.com/usual2970/certimate/internal/pkg/utils/slice"
 )
 
 type DeployerConfig struct {
@@ -54,7 +53,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	uploader, err := uploadersp.NewUploader(&uploadersp.UploaderConfig{
@@ -62,7 +61,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 		SecretAccessKey: config.SecretAccessKey,
 	})
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -82,11 +81,11 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 上传证书到 CAS
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to upload certificate file")
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -104,7 +103,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		}
 
 	default:
-		return nil, fmt.Errorf("unsupported resource type: %s", d.config.ResourceType)
+		return nil, fmt.Errorf("unsupported resource type '%s'", d.config.ResourceType)
 	}
 
 	return &deployer.DeployResult{}, nil
@@ -120,7 +119,7 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 	describeLoadBalancerDetailResp, err := d.sdkClient.DescribeLoadBalancerDetail(d.config.LoadbalancerId)
 	d.logger.Debug("sdk request 'blb.DescribeLoadBalancerAttribute'", slog.String("blbId", d.config.LoadbalancerId), slog.Any("response", describeLoadBalancerDetailResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'blb.DescribeLoadBalancerDetail'")
+		return fmt.Errorf("failed to execute sdk request 'blb.DescribeLoadBalancerDetail': %w", err)
 	}
 
 	// 获取全部 HTTPS/SSL 监听端口
@@ -153,8 +152,14 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 		var errs []error
 
 		for _, listener := range listeners {
-			if err := d.updateListenerCertificate(ctx, d.config.LoadbalancerId, listener.Type, listener.Port, cloudCertId); err != nil {
-				errs = append(errs, err)
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+
+			default:
+				if err := d.updateListenerCertificate(ctx, d.config.LoadbalancerId, listener.Type, listener.Port, cloudCertId); err != nil {
+					errs = append(errs, err)
+				}
 			}
 		}
 
@@ -182,7 +187,7 @@ func (d *DeployerProvider) deployToListener(ctx context.Context, cloudCertId str
 	describeAllListenersResp, err := d.sdkClient.DescribeAllListeners(d.config.LoadbalancerId, describeAllListenersRequest)
 	d.logger.Debug("sdk request 'blb.DescribeAllListeners'", slog.String("blbId", d.config.LoadbalancerId), slog.Any("request", describeAllListenersRequest), slog.Any("response", describeAllListenersResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'blb.DescribeAllListeners'")
+		return fmt.Errorf("failed to execute sdk request 'blb.DescribeAllListeners': %w", err)
 	}
 
 	// 获取全部 HTTPS/SSL 监听端口
@@ -210,8 +215,14 @@ func (d *DeployerProvider) deployToListener(ctx context.Context, cloudCertId str
 		var errs []error
 
 		for _, listener := range listeners {
-			if err := d.updateListenerCertificate(ctx, d.config.LoadbalancerId, listener.Type, listener.Port, cloudCertId); err != nil {
-				errs = append(errs, err)
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+
+			default:
+				if err := d.updateListenerCertificate(ctx, d.config.LoadbalancerId, listener.Type, listener.Port, cloudCertId); err != nil {
+					errs = append(errs, err)
+				}
 			}
 		}
 
@@ -230,7 +241,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 	case "SSL":
 		return d.updateSslListenerCertificate(ctx, cloudLoadbalancerId, cloudListenerPort, cloudCertId)
 	default:
-		return fmt.Errorf("unsupported listener type: %s", cloudListenerType)
+		return fmt.Errorf("unsupported listener type '%s'", cloudListenerType)
 	}
 }
 
@@ -244,7 +255,7 @@ func (d *DeployerProvider) updateHttpsListenerCertificate(ctx context.Context, c
 	describeHTTPSListenersResp, err := d.sdkClient.DescribeHTTPSListeners(cloudLoadbalancerId, describeHTTPSListenersReq)
 	d.logger.Debug("sdk request 'blb.DescribeHTTPSListeners'", slog.String("blbId", cloudLoadbalancerId), slog.Any("request", describeHTTPSListenersReq), slog.Any("response", describeHTTPSListenersResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'blb.DescribeHTTPSListeners'")
+		return fmt.Errorf("failed to execute sdk request 'blb.DescribeHTTPSListeners': %w", err)
 	} else if len(describeHTTPSListenersResp.ListenerList) == 0 {
 		return fmt.Errorf("listener %s:%d not found", cloudLoadbalancerId, cloudHttpsListenerPort)
 	}
@@ -262,7 +273,7 @@ func (d *DeployerProvider) updateHttpsListenerCertificate(ctx context.Context, c
 		err := d.sdkClient.UpdateHTTPSListener(cloudLoadbalancerId, updateHTTPSListenerReq)
 		d.logger.Debug("sdk request 'blb.UpdateHTTPSListener'", slog.Any("request", updateHTTPSListenerReq))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'blb.UpdateHTTPSListener'")
+			return fmt.Errorf("failed to execute sdk request 'blb.UpdateHTTPSListener': %w", err)
 		}
 	} else {
 		// 指定 SNI，需部署到扩展域名
@@ -289,7 +300,7 @@ func (d *DeployerProvider) updateHttpsListenerCertificate(ctx context.Context, c
 		err := d.sdkClient.UpdateHTTPSListener(cloudLoadbalancerId, updateHTTPSListenerReq)
 		d.logger.Debug("sdk request 'blb.UpdateHTTPSListener'", slog.Any("request", updateHTTPSListenerReq))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'blb.UpdateHTTPSListener'")
+			return fmt.Errorf("failed to execute sdk request 'blb.UpdateHTTPSListener': %w", err)
 		}
 	}
 
@@ -307,7 +318,7 @@ func (d *DeployerProvider) updateSslListenerCertificate(ctx context.Context, clo
 	err := d.sdkClient.UpdateSSLListener(cloudLoadbalancerId, updateSSLListenerReq)
 	d.logger.Debug("sdk request 'blb.UpdateSSLListener'", slog.Any("request", updateSSLListenerReq))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'blb.UpdateSSLListener'")
+		return fmt.Errorf("failed to execute sdk request 'blb.UpdateSSLListener': %w", err)
 	}
 
 	return nil

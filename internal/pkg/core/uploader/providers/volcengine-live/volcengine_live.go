@@ -7,12 +7,11 @@ import (
 	"strings"
 	"time"
 
-	xerrors "github.com/pkg/errors"
 	velive "github.com/volcengine/volc-sdk-golang/service/live/v20230101"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
 )
 
 type UploaderConfig struct {
@@ -55,9 +54,9 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +67,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	listCertResp, err := u.sdkClient.ListCertV2(ctx, listCertReq)
 	u.logger.Debug("sdk request 'live.ListCertV2'", slog.Any("request", listCertReq), slog.Any("response", listCertResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'live.ListCertV2'")
+		return nil, fmt.Errorf("failed to execute sdk request 'live.ListCertV2': %w", err)
 	}
 	if listCertResp.Result.CertList != nil {
 		for _, certDetail := range listCertResp.Result.CertList {
@@ -85,7 +84,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 
 			var isSameCert bool
 			certificate := strings.Join(describeCertDetailSecretResp.Result.SSL.Chain, "\n\n")
-			if certificate == certPem {
+			if certificate == certPEM {
 				isSameCert = true
 			} else {
 				oldCertX509, err := certutil.ParseCertificateFromPEM(certificate)
@@ -118,14 +117,14 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 		UseWay:      "https",
 		ProjectName: ve.String("default"),
 		Rsa: velive.CreateCertBodyRsa{
-			Prikey: privkeyPem,
-			Pubkey: certPem,
+			Prikey: privkeyPEM,
+			Pubkey: certPEM,
 		},
 	}
 	createCertResp, err := u.sdkClient.CreateCert(ctx, createCertReq)
 	u.logger.Debug("sdk request 'live.CreateCert'", slog.Any("request", createCertReq), slog.Any("response", createCertResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'live.CreateCert'")
+		return nil, fmt.Errorf("failed to execute sdk request 'live.CreateCert': %w", err)
 	}
 
 	certId = *createCertResp.Result.ChainID

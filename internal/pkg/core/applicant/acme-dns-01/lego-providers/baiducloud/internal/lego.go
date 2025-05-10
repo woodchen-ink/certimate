@@ -1,4 +1,4 @@
-﻿package lego_baiducloud
+package lego_baiducloud
 
 import (
 	"errors"
@@ -89,7 +89,7 @@ func (d *DNSProvider) Present(domain, token, keyAuth string) error {
 
 	authZone, err := dns01.FindZoneByFqdn(info.EffectiveFQDN)
 	if err != nil {
-		return fmt.Errorf("baiducloud: %w", err)
+		return fmt.Errorf("baiducloud: could not find zone for domain %q: %w", domain, err)
 	}
 
 	subDomain, err := dns01.ExtractSubDomain(info.EffectiveFQDN, authZone)
@@ -109,7 +109,7 @@ func (d *DNSProvider) CleanUp(domain, token, keyAuth string) error {
 
 	authZone, err := dns01.FindZoneByFqdn(info.EffectiveFQDN)
 	if err != nil {
-		return fmt.Errorf("baiducloud: %w", err)
+		return fmt.Errorf("baiducloud: could not find zone for domain %q: %w", domain, err)
 	}
 
 	subDomain, err := dns01.ExtractSubDomain(info.EffectiveFQDN, authZone)
@@ -128,7 +128,7 @@ func (d *DNSProvider) Timeout() (timeout, interval time.Duration) {
 	return d.config.PropagationTimeout, d.config.PollingInterval
 }
 
-func (d *DNSProvider) getDNSRecord(zoneName, subDomain string) (*bcedns.Record, error) {
+func (d *DNSProvider) findDNSRecord(zoneName, subDomain string) (*bcedns.Record, error) {
 	pageMarker := ""
 	pageSize := 1000
 	for {
@@ -159,7 +159,7 @@ func (d *DNSProvider) getDNSRecord(zoneName, subDomain string) (*bcedns.Record, 
 }
 
 func (d *DNSProvider) addOrUpdateDNSRecord(zoneName, subDomain, value string) error {
-	record, err := d.getDNSRecord(zoneName, subDomain)
+	record, err := d.findDNSRecord(zoneName, subDomain)
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func (d *DNSProvider) addOrUpdateDNSRecord(zoneName, subDomain, value string) er
 }
 
 func (d *DNSProvider) removeDNSRecord(zoneName, subDomain string) error {
-	record, err := d.getDNSRecord(zoneName, subDomain)
+	record, err := d.findDNSRecord(zoneName, subDomain)
 	if err != nil {
 		return err
 	}

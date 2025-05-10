@@ -1,4 +1,4 @@
-﻿package safeline
+package safeline
 
 import (
 	"context"
@@ -8,10 +8,8 @@ import (
 	"log/slog"
 	"net/url"
 
-	xerrors "github.com/pkg/errors"
-
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
-	safelinesdk "github.com/usual2970/certimate/internal/pkg/vendors/safeline-sdk"
+	safelinesdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/safeline"
 )
 
 type DeployerConfig struct {
@@ -43,7 +41,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.ApiUrl, config.ApiToken, config.AllowInsecureConnections)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -62,22 +60,22 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 根据部署资源类型决定部署方式
 	switch d.config.ResourceType {
 	case RESOURCE_TYPE_CERTIFICATE:
-		if err := d.deployToCertificate(ctx, certPem, privkeyPem); err != nil {
+		if err := d.deployToCertificate(ctx, certPEM, privkeyPEM); err != nil {
 			return nil, err
 		}
 
 	default:
-		return nil, fmt.Errorf("unsupported resource type: %s", d.config.ResourceType)
+		return nil, fmt.Errorf("unsupported resource type '%s'", d.config.ResourceType)
 	}
 
 	return &deployer.DeployResult{}, nil
 }
 
-func (d *DeployerProvider) deployToCertificate(ctx context.Context, certPem string, privkeyPem string) error {
+func (d *DeployerProvider) deployToCertificate(ctx context.Context, certPEM string, privkeyPEM string) error {
 	if d.config.CertificateId == 0 {
 		return errors.New("config `certificateId` is required")
 	}
@@ -87,20 +85,20 @@ func (d *DeployerProvider) deployToCertificate(ctx context.Context, certPem stri
 		Id:   d.config.CertificateId,
 		Type: 2,
 		Manual: &safelinesdk.UpdateCertificateRequestBodyManul{
-			Crt: certPem,
-			Key: privkeyPem,
+			Crt: certPEM,
+			Key: privkeyPEM,
 		},
 	}
 	updateCertificateResp, err := d.sdkClient.UpdateCertificate(updateCertificateReq)
 	d.logger.Debug("sdk request 'safeline.UpdateCertificate'", slog.Any("request", updateCertificateReq), slog.Any("response", updateCertificateResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'safeline.UpdateCertificate'")
+		return fmt.Errorf("failed to execute sdk request 'safeline.UpdateCertificate': %w", err)
 	}
 
 	return nil
 }
 
-func createSdkClient(apiUrl, apiToken string, allowInsecure bool) (*safelinesdk.Client, error) {
+func createSdkClient(apiUrl, apiToken string, skipTlsVerify bool) (*safelinesdk.Client, error) {
 	if _, err := url.Parse(apiUrl); err != nil {
 		return nil, errors.New("invalid safeline api url")
 	}
@@ -110,7 +108,7 @@ func createSdkClient(apiUrl, apiToken string, allowInsecure bool) (*safelinesdk.
 	}
 
 	client := safelinesdk.NewClient(apiUrl, apiToken)
-	if allowInsecure {
+	if skipTlsVerify {
 		client.WithTLSConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 

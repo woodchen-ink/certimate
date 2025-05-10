@@ -1,4 +1,4 @@
-﻿package lego_dynv6
+package lego_dynv6
 
 import (
 	"context"
@@ -76,7 +76,7 @@ func (d *DNSProvider) Present(domain, token, keyAuth string) error {
 
 	authZone, err := dns01.FindZoneByFqdn(info.EffectiveFQDN)
 	if err != nil {
-		return fmt.Errorf("dynv6: %w", err)
+		return fmt.Errorf("dynv6: could not find zone for domain %q: %w", domain, err)
 	}
 
 	subDomain, err := dns01.ExtractSubDomain(info.EffectiveFQDN, authZone)
@@ -96,7 +96,7 @@ func (d *DNSProvider) CleanUp(domain, token, keyAuth string) error {
 
 	authZone, err := dns01.FindZoneByFqdn(info.EffectiveFQDN)
 	if err != nil {
-		return fmt.Errorf("dynv6: %w", err)
+		return fmt.Errorf("dynv6: could not find zone for domain %q: %w", domain, err)
 	}
 
 	subDomain, err := dns01.ExtractSubDomain(info.EffectiveFQDN, authZone)
@@ -115,7 +115,7 @@ func (d *DNSProvider) Timeout() (timeout, interval time.Duration) {
 	return d.config.PropagationTimeout, d.config.PollingInterval
 }
 
-func (d *DNSProvider) getDNSRecord(zoneName, subDomain string) (*libdns.Record, error) {
+func (d *DNSProvider) findDNSRecord(zoneName, subDomain string) (*libdns.Record, error) {
 	records, err := d.client.GetRecords(context.Background(), zoneName)
 	if err != nil {
 		return nil, err
@@ -131,7 +131,7 @@ func (d *DNSProvider) getDNSRecord(zoneName, subDomain string) (*libdns.Record, 
 }
 
 func (d *DNSProvider) addOrUpdateDNSRecord(zoneName, subDomain, value string) error {
-	record, err := d.getDNSRecord(zoneName, subDomain)
+	record, err := d.findDNSRecord(zoneName, subDomain)
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func (d *DNSProvider) addOrUpdateDNSRecord(zoneName, subDomain, value string) er
 }
 
 func (d *DNSProvider) removeDNSRecord(zoneName, subDomain string) error {
-	record, err := d.getDNSRecord(zoneName, subDomain)
+	record, err := d.findDNSRecord(zoneName, subDomain)
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
-﻿package lego_gname
+package lego_gname
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/platform/config/env"
 
-	gnamesdk "github.com/usual2970/certimate/internal/pkg/vendors/gname-sdk"
+	gnamesdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/gname"
 )
 
 const (
@@ -82,7 +82,7 @@ func (d *DNSProvider) Present(domain, token, keyAuth string) error {
 
 	authZone, err := dns01.FindZoneByFqdn(info.EffectiveFQDN)
 	if err != nil {
-		return fmt.Errorf("gname: %w", err)
+		return fmt.Errorf("gname: could not find zone for domain %q: %w", domain, err)
 	}
 
 	subDomain, err := dns01.ExtractSubDomain(info.EffectiveFQDN, authZone)
@@ -102,7 +102,7 @@ func (d *DNSProvider) CleanUp(domain, token, keyAuth string) error {
 
 	authZone, err := dns01.FindZoneByFqdn(info.EffectiveFQDN)
 	if err != nil {
-		return fmt.Errorf("gname: %w", err)
+		return fmt.Errorf("gname: could not find zone for domain %q: %w", domain, err)
 	}
 
 	subDomain, err := dns01.ExtractSubDomain(info.EffectiveFQDN, authZone)
@@ -121,7 +121,7 @@ func (d *DNSProvider) Timeout() (timeout, interval time.Duration) {
 	return d.config.PropagationTimeout, d.config.PollingInterval
 }
 
-func (d *DNSProvider) getDNSRecord(zoneName, subDomain string) (*gnamesdk.ResolutionRecord, error) {
+func (d *DNSProvider) findDNSRecord(zoneName, subDomain string) (*gnamesdk.ResolutionRecord, error) {
 	page := int32(1)
 	pageSize := int32(20)
 	for {
@@ -155,7 +155,7 @@ func (d *DNSProvider) getDNSRecord(zoneName, subDomain string) (*gnamesdk.Resolu
 }
 
 func (d *DNSProvider) addOrUpdateDNSRecord(zoneName, subDomain, value string) error {
-	record, err := d.getDNSRecord(zoneName, subDomain)
+	record, err := d.findDNSRecord(zoneName, subDomain)
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func (d *DNSProvider) addOrUpdateDNSRecord(zoneName, subDomain, value string) er
 }
 
 func (d *DNSProvider) removeDNSRecord(zoneName, subDomain string) error {
-	record, err := d.getDNSRecord(zoneName, subDomain)
+	record, err := d.findDNSRecord(zoneName, subDomain)
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
-﻿package aliyunapigw
+package aliyunapigw
 
 import (
 	"context"
@@ -12,7 +12,6 @@ import (
 	alicloudapi "github.com/alibabacloud-go/cloudapi-20160714/v5/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
@@ -59,12 +58,12 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	clients, err := createSdkClients(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk clients")
+		return nil, fmt.Errorf("failed to create sdk clients: %w", err)
 	}
 
 	uploader, err := createSslUploader(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -84,26 +83,26 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	switch d.config.ServiceType {
 	case SERVICE_TYPE_TRADITIONAL:
-		if err := d.deployToTraditional(ctx, certPem, privkeyPem); err != nil {
+		if err := d.deployToTraditional(ctx, certPEM, privkeyPEM); err != nil {
 			return nil, err
 		}
 
 	case SERVICE_TYPE_CLOUDNATIVE:
-		if err := d.deployToCloudNative(ctx, certPem, privkeyPem); err != nil {
+		if err := d.deployToCloudNative(ctx, certPEM, privkeyPEM); err != nil {
 			return nil, err
 		}
 
 	default:
-		return nil, xerrors.Errorf("unsupported service type: %s", string(d.config.ServiceType))
+		return nil, fmt.Errorf("unsupported service type '%s'", string(d.config.ServiceType))
 	}
 
 	return &deployer.DeployResult{}, nil
 }
 
-func (d *DeployerProvider) deployToTraditional(ctx context.Context, certPem string, privkeyPem string) error {
+func (d *DeployerProvider) deployToTraditional(ctx context.Context, certPEM string, privkeyPEM string) error {
 	if d.config.GroupId == "" {
 		return errors.New("config `groupId` is required")
 	}
@@ -117,19 +116,19 @@ func (d *DeployerProvider) deployToTraditional(ctx context.Context, certPem stri
 		GroupId:               tea.String(d.config.GroupId),
 		DomainName:            tea.String(d.config.Domain),
 		CertificateName:       tea.String(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
-		CertificateBody:       tea.String(certPem),
-		CertificatePrivateKey: tea.String(privkeyPem),
+		CertificateBody:       tea.String(certPEM),
+		CertificatePrivateKey: tea.String(privkeyPEM),
 	}
 	setDomainCertificateResp, err := d.sdkClients.TraditionalAPIGateway.SetDomainCertificate(setDomainCertificateReq)
 	d.logger.Debug("sdk request 'apigateway.SetDomainCertificate'", slog.Any("request", setDomainCertificateReq), slog.Any("response", setDomainCertificateResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'apigateway.SetDomainCertificate'")
+		return fmt.Errorf("failed to execute sdk request 'apigateway.SetDomainCertificate': %w", err)
 	}
 
 	return nil
 }
 
-func (d *DeployerProvider) deployToCloudNative(ctx context.Context, certPem string, privkeyPem string) error {
+func (d *DeployerProvider) deployToCloudNative(ctx context.Context, certPEM string, privkeyPEM string) error {
 	if d.config.GatewayId == "" {
 		return errors.New("config `gatewayId` is required")
 	}
@@ -143,6 +142,12 @@ func (d *DeployerProvider) deployToCloudNative(ctx context.Context, certPem stri
 	listDomainsPageNumber := int32(1)
 	listDomainsPageSize := int32(10)
 	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
 		listDomainsReq := &aliapig.ListDomainsRequest{
 			GatewayId:  tea.String(d.config.GatewayId),
 			NameLike:   tea.String(d.config.Domain),
@@ -152,7 +157,7 @@ func (d *DeployerProvider) deployToCloudNative(ctx context.Context, certPem stri
 		listDomainsResp, err := d.sdkClients.CloudNativeAPIGateway.ListDomains(listDomainsReq)
 		d.logger.Debug("sdk request 'apig.ListDomains'", slog.Any("request", listDomainsReq), slog.Any("response", listDomainsResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'apig.ListDomains'")
+			return fmt.Errorf("failed to execute sdk request 'apig.ListDomains': %w", err)
 		}
 
 		if listDomainsResp.Body.Data.Items != nil {
@@ -184,13 +189,13 @@ func (d *DeployerProvider) deployToCloudNative(ctx context.Context, certPem stri
 	getDomainResp, err := d.sdkClients.CloudNativeAPIGateway.GetDomain(tea.String(domainId), getDomainReq)
 	d.logger.Debug("sdk request 'apig.GetDomain'", slog.Any("domainId", domainId), slog.Any("request", getDomainReq), slog.Any("response", getDomainResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'apig.GetDomain'")
+		return fmt.Errorf("failed to execute sdk request 'apig.GetDomain': %w", err)
 	}
 
 	// 上传证书到 CAS
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return xerrors.Wrap(err, "failed to upload certificate file")
+		return fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -210,7 +215,7 @@ func (d *DeployerProvider) deployToCloudNative(ctx context.Context, certPem stri
 	updateDomainResp, err := d.sdkClients.CloudNativeAPIGateway.UpdateDomain(tea.String(domainId), updateDomainReq)
 	d.logger.Debug("sdk request 'apig.UpdateDomain'", slog.Any("domainId", domainId), slog.Any("request", updateDomainReq), slog.Any("response", updateDomainResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'apig.UpdateDomain'")
+		return fmt.Errorf("failed to execute sdk request 'apig.UpdateDomain': %w", err)
 	}
 
 	return nil
@@ -253,7 +258,7 @@ func createSslUploader(accessKeyId, accessKeySecret, region string) (uploader.Up
 		// 阿里云 CAS 服务接入点是独立于 APIGateway 服务的
 		// 国内版固定接入点：华东一杭州
 		// 国际版固定接入点：亚太东南一新加坡
-		if casRegion != "" && !strings.HasPrefix(casRegion, "cn-") {
+		if !strings.HasPrefix(casRegion, "cn-") {
 			casRegion = "ap-southeast-1"
 		} else {
 			casRegion = "cn-hangzhou"

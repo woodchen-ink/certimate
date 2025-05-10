@@ -1,4 +1,4 @@
-﻿package azurekeyvault
+package azurekeyvault
 
 import (
 	"context"
@@ -11,12 +11,11 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azcertificates"
-	xerrors "github.com/pkg/errors"
+	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azcertificates"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
-	azcommon "github.com/usual2970/certimate/internal/pkg/vendors/azure-sdk/common"
+	azcommon "github.com/usual2970/certimate/internal/pkg/sdk3rd/azure/common"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
 )
 
 type UploaderConfig struct {
@@ -47,7 +46,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.TenantId, config.ClientId, config.ClientSecret, config.CloudName, config.KeyVaultName)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -66,9 +65,9 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -81,44 +80,44 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 
 	// 获取证书列表，避免重复上传
 	// REF: https://learn.microsoft.com/en-us/rest/api/keyvault/certificates/get-certificates/get-certificates
-	listCertificatesPager := u.sdkClient.NewListCertificatesPager(nil)
+	listCertificatesPager := u.sdkClient.NewListCertificatePropertiesPager(nil)
 	for listCertificatesPager.More() {
 		page, err := listCertificatesPager.NextPage(context.TODO())
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'keyvault.GetCertificates'")
+			return nil, fmt.Errorf("failed to execute sdk request 'keyvault.GetCertificates': %w", err)
 		}
 
-		for _, certItem := range page.Value {
+		for _, certProp := range page.Value {
 			// 先对比证书有效期
-			if certItem.Attributes == nil {
+			if certProp.Attributes == nil {
 				continue
 			}
-			if certItem.Attributes.NotBefore == nil || !certItem.Attributes.NotBefore.Equal(certX509.NotBefore) {
+			if certProp.Attributes.NotBefore == nil || !certProp.Attributes.NotBefore.Equal(certX509.NotBefore) {
 				continue
 			}
-			if certItem.Attributes.Expires == nil || !certItem.Attributes.Expires.Equal(certX509.NotAfter) {
+			if certProp.Attributes.Expires == nil || !certProp.Attributes.Expires.Equal(certX509.NotAfter) {
 				continue
 			}
 
 			// 再对比 Tag 中的通用名称
-			if v, ok := certItem.Tags[TAG_CERTCN]; !ok || v == nil {
+			if v, ok := certProp.Tags[TAG_CERTCN]; !ok || v == nil {
 				continue
 			} else if *v != certCN {
 				continue
 			}
 
 			// 再对比 Tag 中的序列号
-			if v, ok := certItem.Tags[TAG_CERTSN]; !ok || v == nil {
+			if v, ok := certProp.Tags[TAG_CERTSN]; !ok || v == nil {
 				continue
 			} else if *v != certSN {
 				continue
 			}
 
 			// 最后对比证书内容
-			getCertificateResp, err := u.sdkClient.GetCertificate(context.TODO(), certItem.ID.Name(), certItem.ID.Version(), nil)
-			u.logger.Debug("sdk request 'keyvault.GetCertificate'", slog.String("request.certificateName", certItem.ID.Name()), slog.String("request.certificateVersion", certItem.ID.Version()), slog.Any("response", getCertificateResp))
+			getCertificateResp, err := u.sdkClient.GetCertificate(context.TODO(), certProp.ID.Name(), certProp.ID.Version(), nil)
+			u.logger.Debug("sdk request 'keyvault.GetCertificate'", slog.String("request.certificateName", certProp.ID.Name()), slog.String("request.certificateVersion", certProp.ID.Version()), slog.Any("response", getCertificateResp))
 			if err != nil {
-				return nil, xerrors.Wrap(err, "failed to execute sdk request 'keyvault.GetCertificate'")
+				return nil, fmt.Errorf("failed to execute sdk request 'keyvault.GetCertificate': %w", err)
 			} else {
 				oldCertX509, err := x509.ParseCertificate(getCertificateResp.CER)
 				if err != nil {
@@ -133,8 +132,8 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
 			u.logger.Info("ssl certificate already exists")
 			return &uploader.UploadResult{
-				CertId:   string(*certItem.ID),
-				CertName: certItem.ID.Name(),
+				CertId:   string(*certProp.ID),
+				CertName: certProp.ID.Name(),
 			}, nil
 		}
 	}
@@ -145,15 +144,15 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	// Azure Key Vault 不支持导入带有 Certificiate Chain 的 PEM 证书。
 	// Issue Link: https://github.com/Azure/azure-cli/issues/19017
 	// 暂时的解决方法是，将 PEM 证书转换成 PFX 格式，然后再导入。
-	certPfx, err := certutil.TransformCertificateFromPEMToPFX(certPem, privkeyPem, "")
+	certPFX, err := certutil.TransformCertificateFromPEMToPFX(certPEM, privkeyPEM, "")
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to transform certificate from PEM to PFX")
+		return nil, fmt.Errorf("failed to transform certificate from PEM to PFX: %w", err)
 	}
 
 	// 导入证书
 	// REF: https://learn.microsoft.com/en-us/rest/api/keyvault/certificates/import-certificate/import-certificate
 	importCertificateParams := azcertificates.ImportCertificateParameters{
-		Base64EncodedCertificate: to.Ptr(base64.StdEncoding.EncodeToString(certPfx)),
+		Base64EncodedCertificate: to.Ptr(base64.StdEncoding.EncodeToString(certPFX)),
 		CertificatePolicy: &azcertificates.CertificatePolicy{
 			SecretProperties: &azcertificates.SecretProperties{
 				ContentType: to.Ptr("application/x-pkcs12"),
@@ -167,7 +166,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	importCertificateResp, err := u.sdkClient.ImportCertificate(context.TODO(), certName, importCertificateParams, nil)
 	u.logger.Debug("sdk request 'keyvault.ImportCertificate'", slog.String("request.certificateName", certName), slog.Any("request.parameters", importCertificateParams), slog.Any("response", importCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'keyvault.ImportCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'keyvault.ImportCertificate': %w", err)
 	}
 
 	return &uploader.UploadResult{

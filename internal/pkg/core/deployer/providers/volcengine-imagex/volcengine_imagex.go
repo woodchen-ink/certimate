@@ -1,11 +1,11 @@
-﻿package volcengineimagex
+package volcengineimagex
 
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
-	xerrors "github.com/pkg/errors"
 	vebase "github.com/volcengine/volc-sdk-golang/base"
 	veimagex "github.com/volcengine/volc-sdk-golang/service/imagex/v2"
 
@@ -43,7 +43,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	uploader, err := uploadersp.NewUploader(&uploadersp.UploaderConfig{
@@ -52,7 +52,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 		Region:          config.Region,
 	})
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -73,7 +73,7 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.ServiceId == "" {
 		return nil, errors.New("config `serviceId` is required")
 	}
@@ -82,9 +82,9 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	}
 
 	// 上传证书到证书中心
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to upload certificate file")
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -98,7 +98,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	getDomainConfigResp, err := d.sdkClient.GetDomainConfig(context.TODO(), getDomainConfigReq)
 	d.logger.Debug("sdk request 'imagex.GetDomainConfig'", slog.Any("request", getDomainConfigReq), slog.Any("response", getDomainConfigResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'imagex.GetDomainConfig'")
+		return nil, fmt.Errorf("failed to execute sdk request 'imagex.GetDomainConfig': %w", err)
 	}
 
 	// 更新 HTTPS 配置
@@ -127,7 +127,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	updateHttpsResp, err := d.sdkClient.UpdateHTTPS(context.TODO(), updateHttpsReq)
 	d.logger.Debug("sdk request 'imagex.UpdateHttps'", slog.Any("request", updateHttpsReq), slog.Any("response", updateHttpsResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'imagex.UpdateHttps'")
+		return nil, fmt.Errorf("failed to execute sdk request 'imagex.UpdateHttps': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil

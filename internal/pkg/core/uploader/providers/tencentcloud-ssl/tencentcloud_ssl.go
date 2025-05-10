@@ -1,10 +1,10 @@
-﻿package tencentcloudssl
+package tencentcloudssl
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
-	xerrors "github.com/pkg/errors"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	tcssl "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl/v20191205"
@@ -34,7 +34,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.SecretId, config.SecretKey)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -53,17 +53,17 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 上传新证书
 	// REF: https://cloud.tencent.com/document/product/400/41665
 	uploadCertificateReq := tcssl.NewUploadCertificateRequest()
-	uploadCertificateReq.CertificatePublicKey = common.StringPtr(certPem)
-	uploadCertificateReq.CertificatePrivateKey = common.StringPtr(privkeyPem)
+	uploadCertificateReq.CertificatePublicKey = common.StringPtr(certPEM)
+	uploadCertificateReq.CertificatePrivateKey = common.StringPtr(privkeyPEM)
 	uploadCertificateReq.Repeatable = common.BoolPtr(false)
 	uploadCertificateResp, err := u.sdkClient.UploadCertificate(uploadCertificateReq)
 	u.logger.Debug("sdk request 'ssl.UploadCertificate'", slog.Any("request", uploadCertificateReq), slog.Any("response", uploadCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'ssl.UploadCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'ssl.UploadCertificate': %w", err)
 	}
 
 	certId := *uploadCertificateResp.Response.CertificateId

@@ -1,4 +1,4 @@
-﻿package aliyunesa
+package aliyunesa
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	aliesa "github.com/alibabacloud-go/esa-20240910/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
@@ -45,12 +44,12 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	uploader, err := createSslUploader(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -71,15 +70,15 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.SiteId == 0 {
 		return nil, errors.New("config `siteId` is required")
 	}
 
 	// 上传证书到 CAS
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to upload certificate file")
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -95,7 +94,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	setCertificateResp, err := d.sdkClient.SetCertificate(setCertificateReq)
 	d.logger.Debug("sdk request 'esa.SetCertificate'", slog.Any("request", setCertificateReq), slog.Any("response", setCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'esa.SetCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'esa.SetCertificate': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil
@@ -123,7 +122,7 @@ func createSslUploader(accessKeyId, accessKeySecret, region string) (uploader.Up
 		// 阿里云 CAS 服务接入点是独立于 ESA 服务的
 		// 国内版固定接入点：华东一杭州
 		// 国际版固定接入点：亚太东南一新加坡
-		if casRegion != "" && !strings.HasPrefix(casRegion, "cn-") {
+		if !strings.HasPrefix(casRegion, "cn-") {
 			casRegion = "ap-southeast-1"
 		} else {
 			casRegion = "cn-hangzhou"

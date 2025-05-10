@@ -1,4 +1,4 @@
-﻿package qiniusslcert
+package qiniusslcert
 
 import (
 	"context"
@@ -7,12 +7,11 @@ import (
 	"log/slog"
 	"time"
 
-	xerrors "github.com/pkg/errors"
 	"github.com/qiniu/go-sdk/v7/auth"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
-	qiniusdk "github.com/usual2970/certimate/internal/pkg/vendors/qiniu-sdk"
+	qiniusdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/qiniu"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
 )
 
 type UploaderConfig struct {
@@ -37,7 +36,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.AccessKey, config.SecretKey)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -56,9 +55,9 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -69,10 +68,10 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 
 	// 上传新证书
 	// REF: https://developer.qiniu.com/fusion/8593/interface-related-certificate
-	uploadSslCertResp, err := u.sdkClient.UploadSslCert(context.TODO(), certName, certX509.Subject.CommonName, certPem, privkeyPem)
+	uploadSslCertResp, err := u.sdkClient.UploadSslCert(context.TODO(), certName, certX509.Subject.CommonName, certPEM, privkeyPEM)
 	u.logger.Debug("sdk request 'cdn.UploadSslCert'", slog.Any("response", uploadSslCertResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.UploadSslCert'")
+		return nil, fmt.Errorf("failed to execute sdk request 'cdn.UploadSslCert': %w", err)
 	}
 
 	certId = uploadSslCertResp.CertID

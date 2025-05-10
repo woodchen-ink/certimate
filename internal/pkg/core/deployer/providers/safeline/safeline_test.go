@@ -1,4 +1,4 @@
-﻿package safeline_test
+package safeline_test
 
 import (
 	"context"
@@ -56,7 +56,7 @@ func TestDeploy(t *testing.T) {
 			ApiUrl:                   fApiUrl,
 			ApiToken:                 fApiToken,
 			AllowInsecureConnections: true,
-			ResourceType:             provider.ResourceType("certificate"),
+			ResourceType:             provider.RESOURCE_TYPE_CERTIFICATE,
 			CertificateId:            int32(fCertificateId),
 		})
 		if err != nil {

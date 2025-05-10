@@ -1,4 +1,4 @@
-﻿package aliyunlive
+package aliyunlive
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	alilive "github.com/alibabacloud-go/live-20161101/client"
 	"github.com/alibabacloud-go/tea/tea"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 )
@@ -41,7 +40,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -60,7 +59,7 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// "*.example.com" → ".example.com"，适配阿里云 Live 要求的泛域名格式
 	domain := strings.TrimPrefix(d.config.Domain, "*")
 
@@ -71,13 +70,13 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		CertName:    tea.String(fmt.Sprintf("certimate-%d", time.Now().UnixMilli())),
 		CertType:    tea.String("upload"),
 		SSLProtocol: tea.String("on"),
-		SSLPub:      tea.String(certPem),
-		SSLPri:      tea.String(privkeyPem),
+		SSLPub:      tea.String(certPEM),
+		SSLPri:      tea.String(privkeyPEM),
 	}
 	setLiveDomainSSLCertificateResp, err := d.sdkClient.SetLiveDomainCertificate(setLiveDomainSSLCertificateReq)
 	d.logger.Debug("sdk request 'live.SetLiveDomainCertificate'", slog.Any("request", setLiveDomainSSLCertificateReq), slog.Any("response", setLiveDomainSSLCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'live.SetLiveDomainCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'live.SetLiveDomainCertificate': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil

@@ -1,4 +1,4 @@
-﻿package volcenginealb
+package volcenginealb
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	xerrors "github.com/pkg/errors"
 	vealb "github.com/volcengine/volcengine-go-sdk/service/alb"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
 	vesession "github.com/volcengine/volcengine-go-sdk/volcengine/session"
@@ -14,7 +13,7 @@ import (
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
 	uploadersp "github.com/usual2970/certimate/internal/pkg/core/uploader/providers/volcengine-certcenter"
-	"github.com/usual2970/certimate/internal/pkg/utils/sliceutil"
+	sliceutil "github.com/usual2970/certimate/internal/pkg/utils/slice"
 )
 
 type DeployerConfig struct {
@@ -53,7 +52,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	uploader, err := uploadersp.NewUploader(&uploadersp.UploaderConfig{
@@ -62,7 +61,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 		Region:          config.Region,
 	})
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -83,11 +82,11 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 上传证书到证书中心
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to upload certificate file")
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -105,7 +104,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		}
 
 	default:
-		return nil, fmt.Errorf("unsupported resource type: %s", d.config.ResourceType)
+		return nil, fmt.Errorf("unsupported resource type '%s'", d.config.ResourceType)
 	}
 
 	return &deployer.DeployResult{}, nil
@@ -124,7 +123,7 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 	describeLoadBalancerAttributesResp, err := d.sdkClient.DescribeLoadBalancerAttributes(describeLoadBalancerAttributesReq)
 	d.logger.Debug("sdk request 'alb.DescribeLoadBalancerAttributes'", slog.Any("request", describeLoadBalancerAttributesReq), slog.Any("response", describeLoadBalancerAttributesResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'alb.DescribeLoadBalancerAttributes'")
+		return fmt.Errorf("failed to execute sdk request 'alb.DescribeLoadBalancerAttributes': %w", err)
 	}
 
 	// 查询 HTTPS 监听器列表
@@ -133,6 +132,12 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 	describeListenersPageSize := int64(100)
 	describeListenersPageNumber := int64(1)
 	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
 		describeListenersReq := &vealb.DescribeListenersInput{
 			LoadBalancerId: ve.String(d.config.LoadbalancerId),
 			Protocol:       ve.String("HTTPS"),
@@ -142,7 +147,7 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 		describeListenersResp, err := d.sdkClient.DescribeListeners(describeListenersReq)
 		d.logger.Debug("sdk request 'alb.DescribeListeners'", slog.Any("request", describeListenersReq), slog.Any("response", describeListenersResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'alb.DescribeListeners'")
+			return fmt.Errorf("failed to execute sdk request 'alb.DescribeListeners': %w", err)
 		}
 
 		for _, listener := range describeListenersResp.Listeners {
@@ -164,8 +169,13 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 		var errs []error
 
 		for _, listenerId := range listenerIds {
-			if err := d.updateListenerCertificate(ctx, listenerId, cloudCertId); err != nil {
-				errs = append(errs, err)
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
+				if err := d.updateListenerCertificate(ctx, listenerId, cloudCertId); err != nil {
+					errs = append(errs, err)
+				}
 			}
 		}
 
@@ -198,7 +208,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 	describeListenerAttributesResp, err := d.sdkClient.DescribeListenerAttributes(describeListenerAttributesReq)
 	d.logger.Debug("sdk request 'alb.DescribeListenerAttributes'", slog.Any("request", describeListenerAttributesReq), slog.Any("response", describeListenerAttributesResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'alb.DescribeListenerAttributes'")
+		return fmt.Errorf("failed to execute sdk request 'alb.DescribeListenerAttributes': %w", err)
 	}
 
 	if d.config.Domain == "" {
@@ -214,7 +224,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 		modifyListenerAttributesResp, err := d.sdkClient.ModifyListenerAttributes(modifyListenerAttributesReq)
 		d.logger.Debug("sdk request 'alb.ModifyListenerAttributes'", slog.Any("request", modifyListenerAttributesReq), slog.Any("response", modifyListenerAttributesResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'alb.ModifyListenerAttributes'")
+			return fmt.Errorf("failed to execute sdk request 'alb.ModifyListenerAttributes': %w", err)
 		}
 	} else {
 		// 指定 SNI，需部署到扩展域名
@@ -243,7 +253,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 		modifyListenerAttributesResp, err := d.sdkClient.ModifyListenerAttributes(modifyListenerAttributesReq)
 		d.logger.Debug("sdk request 'alb.ModifyListenerAttributes'", slog.Any("request", modifyListenerAttributesReq), slog.Any("response", modifyListenerAttributesResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'alb.ModifyListenerAttributes'")
+			return fmt.Errorf("failed to execute sdk request 'alb.ModifyListenerAttributes': %w", err)
 		}
 	}
 

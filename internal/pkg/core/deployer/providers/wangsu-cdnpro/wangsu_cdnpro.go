@@ -1,4 +1,4 @@
-﻿package wangsucdnpro
+package wangsucdnpro
 
 import (
 	"bytes"
@@ -16,12 +16,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alibabacloud-go/tea/tea"
-	xerrors "github.com/pkg/errors"
-
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
-	wangsucdn "github.com/usual2970/certimate/internal/pkg/vendors/wangsu-sdk/cdn"
+	wangsucdn "github.com/usual2970/certimate/internal/pkg/sdk3rd/wangsu/cdn"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
+	typeutil "github.com/usual2970/certimate/internal/pkg/utils/type"
 )
 
 type DeployerConfig struct {
@@ -58,7 +56,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -77,13 +75,13 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.Domain == "" {
 		return nil, errors.New("config `domain` is required")
 	}
 
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -92,19 +90,19 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	getHostnameDetailResp, err := d.sdkClient.GetHostnameDetail(d.config.Domain)
 	d.logger.Debug("sdk request 'cdn.GetHostnameDetail'", slog.String("hostname", d.config.Domain), slog.Any("response", getHostnameDetailResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.GetHostnameDetail'")
+		return nil, fmt.Errorf("failed to execute sdk request 'cdn.GetHostnameDetail': %w", err)
 	}
 
 	// 生成网宿云证书参数
-	encryptedPrivateKey, err := encryptPrivateKey(privkeyPem, d.config.ApiKey, time.Now().Unix())
+	encryptedPrivateKey, err := encryptPrivateKey(privkeyPEM, d.config.ApiKey, time.Now().Unix())
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to encrypt private key")
+		return nil, fmt.Errorf("failed to encrypt private key: %w", err)
 	}
 	certificateNewVersionInfo := &wangsucdn.CertificateVersion{
-		PrivateKey:  tea.String(encryptedPrivateKey),
-		Certificate: tea.String(certPem),
+		PrivateKey:  typeutil.ToPtr(encryptedPrivateKey),
+		Certificate: typeutil.ToPtr(certPEM),
 		IdentificationInfo: &wangsucdn.CertificateVersionIdentificationInfo{
-			CommonName:              tea.String(certX509.Subject.CommonName),
+			CommonName:              typeutil.ToPtr(certX509.Subject.CommonName),
 			SubjectAlternativeNames: &certX509.DNSNames,
 		},
 	}
@@ -123,14 +121,14 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		// 创建证书
 		createCertificateReq := &wangsucdn.CreateCertificateRequest{
 			Timestamp:  timestamp,
-			Name:       tea.String(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
-			AutoRenew:  tea.String("Off"),
+			Name:       typeutil.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
+			AutoRenew:  typeutil.ToPtr("Off"),
 			NewVersion: certificateNewVersionInfo,
 		}
 		createCertificateResp, err := d.sdkClient.CreateCertificate(createCertificateReq)
 		d.logger.Debug("sdk request 'cdn.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.CreateCertificate'")
+			return nil, fmt.Errorf("failed to execute sdk request 'cdn.CreateCertificate': %w", err)
 		}
 
 		wangsuCertUrl = createCertificateResp.CertificateUrl
@@ -146,14 +144,14 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		// 更新证书
 		updateCertificateReq := &wangsucdn.UpdateCertificateRequest{
 			Timestamp:  timestamp,
-			Name:       tea.String(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
-			AutoRenew:  tea.String("Off"),
+			Name:       typeutil.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
+			AutoRenew:  typeutil.ToPtr("Off"),
 			NewVersion: certificateNewVersionInfo,
 		}
 		updateCertificateResp, err := d.sdkClient.UpdateCertificate(d.config.CertificateId, updateCertificateReq)
 		d.logger.Debug("sdk request 'cdn.CreateCertificate'", slog.Any("certificateId", d.config.CertificateId), slog.Any("request", updateCertificateReq), slog.Any("response", updateCertificateResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.UpdateCertificate'")
+			return nil, fmt.Errorf("failed to execute sdk request 'cdn.UpdateCertificate': %w", err)
 		}
 
 		wangsuCertUrl = updateCertificateResp.CertificateUrl
@@ -174,23 +172,23 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	// 创建部署任务
 	// REF: https://www.wangsu.com/document/api-doc/27034
 	createDeploymentTaskReq := &wangsucdn.CreateDeploymentTaskRequest{
-		Name:   tea.String(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
-		Target: tea.String(d.config.Environment),
+		Name:   typeutil.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
+		Target: typeutil.ToPtr(d.config.Environment),
 		Actions: &[]wangsucdn.DeploymentTaskAction{
 			{
-				Action:        tea.String("deploy_cert"),
-				CertificateId: tea.String(wangsuCertId),
-				Version:       tea.Int32(wangsuCertVer),
+				Action:        typeutil.ToPtr("deploy_cert"),
+				CertificateId: typeutil.ToPtr(wangsuCertId),
+				Version:       typeutil.ToPtr(wangsuCertVer),
 			},
 		},
 	}
 	if d.config.WebhookId != "" {
-		createDeploymentTaskReq.Webhook = tea.String(d.config.WebhookId)
+		createDeploymentTaskReq.Webhook = typeutil.ToPtr(d.config.WebhookId)
 	}
 	createDeploymentTaskResp, err := d.sdkClient.CreateDeploymentTask(createDeploymentTaskReq)
 	d.logger.Debug("sdk request 'cdn.CreateCertificate'", slog.Any("request", createDeploymentTaskReq), slog.Any("response", createDeploymentTaskResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.CreateDeploymentTask'")
+		return nil, fmt.Errorf("failed to execute sdk request 'cdn.CreateDeploymentTask': %w", err)
 	}
 
 	// 循环获取部署任务详细信息，等待任务状态变更
@@ -201,14 +199,16 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		wangsuTaskId = wangsuTaskMatches[1]
 	}
 	for {
-		if ctx.Err() != nil {
+		select {
+		case <-ctx.Done():
 			return nil, ctx.Err()
+		default:
 		}
 
 		getDeploymentTaskDetailResp, err := d.sdkClient.GetDeploymentTaskDetail(wangsuTaskId)
 		d.logger.Info("sdk request 'cdn.GetDeploymentTaskDetail'", slog.Any("taskId", wangsuTaskId), slog.Any("response", getDeploymentTaskDetailResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.GetDeploymentTaskDetail'")
+			return nil, fmt.Errorf("failed to execute sdk request 'cdn.GetDeploymentTaskDetail': %w", err)
 		}
 
 		if getDeploymentTaskDetailResp.Status == "failed" {
@@ -236,7 +236,7 @@ func createSdkClient(accessKeyId, accessKeySecret string) (*wangsucdn.Client, er
 	return wangsucdn.NewClient(accessKeyId, accessKeySecret), nil
 }
 
-func encryptPrivateKey(privkeyPem string, apiKey string, timestamp int64) (string, error) {
+func encryptPrivateKey(privkeyPEM string, apiKey string, timestamp int64) (string, error) {
 	date := time.Unix(timestamp, 0).UTC()
 	dateStr := date.Format("Mon, 02 Jan 2006 15:04:05 GMT")
 
@@ -266,7 +266,7 @@ func encryptPrivateKey(privkeyPem string, apiKey string, timestamp int64) (strin
 		return "", err
 	}
 
-	plainBytes := []byte(privkeyPem)
+	plainBytes := []byte(privkeyPEM)
 	padlen := aes.BlockSize - len(plainBytes)%aes.BlockSize
 	if padlen > 0 {
 		paddata := bytes.Repeat([]byte{byte(padlen)}, padlen)

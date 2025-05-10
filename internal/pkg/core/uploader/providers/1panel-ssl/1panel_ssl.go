@@ -1,4 +1,4 @@
-﻿package onepanelssl
+package onepanelssl
 
 import (
 	"context"
@@ -9,10 +9,8 @@ import (
 	"strings"
 	"time"
 
-	xerrors "github.com/pkg/errors"
-
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	opsdk "github.com/usual2970/certimate/internal/pkg/vendors/1panel-sdk"
+	opsdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/1panel"
 )
 
 type UploaderConfig struct {
@@ -37,7 +35,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.ApiUrl, config.ApiKey)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -56,9 +54,9 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 遍历证书列表，避免重复上传
-	if res, err := u.getCertIfExists(ctx, certPem, privkeyPem); err != nil {
+	if res, err := u.getCertIfExists(ctx, certPEM, privkeyPEM); err != nil {
 		return nil, err
 	} else if res != nil {
 		u.logger.Info("ssl certificate already exists")
@@ -72,17 +70,17 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	uploadWebsiteSSLReq := &opsdk.UploadWebsiteSSLRequest{
 		Type:        "paste",
 		Description: certName,
-		Certificate: certPem,
-		PrivateKey:  privkeyPem,
+		Certificate: certPEM,
+		PrivateKey:  privkeyPEM,
 	}
 	uploadWebsiteSSLResp, err := u.sdkClient.UploadWebsiteSSL(uploadWebsiteSSLReq)
 	u.logger.Debug("sdk request '1panel.UploadWebsiteSSL'", slog.Any("request", uploadWebsiteSSLReq), slog.Any("response", uploadWebsiteSSLResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request '1panel.UploadWebsiteSSL'")
+		return nil, fmt.Errorf("failed to execute sdk request '1panel.UploadWebsiteSSL': %w", err)
 	}
 
 	// 遍历证书列表，获取刚刚上传证书 ID
-	if res, err := u.getCertIfExists(ctx, certPem, privkeyPem); err != nil {
+	if res, err := u.getCertIfExists(ctx, certPEM, privkeyPEM); err != nil {
 		return nil, err
 	} else if res == nil {
 		return nil, fmt.Errorf("no ssl certificate found, may be upload failed (code: %d, message: %s)", uploadWebsiteSSLResp.GetCode(), uploadWebsiteSSLResp.GetMessage())
@@ -91,10 +89,16 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	}
 }
 
-func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	searchWebsiteSSLPageNumber := int32(1)
 	searchWebsiteSSLPageSize := int32(100)
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		searchWebsiteSSLReq := &opsdk.SearchWebsiteSSLRequest{
 			Page:     searchWebsiteSSLPageNumber,
 			PageSize: searchWebsiteSSLPageSize,
@@ -102,12 +106,12 @@ func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPem string, 
 		searchWebsiteSSLResp, err := u.sdkClient.SearchWebsiteSSL(searchWebsiteSSLReq)
 		u.logger.Debug("sdk request '1panel.SearchWebsiteSSL'", slog.Any("request", searchWebsiteSSLReq), slog.Any("response", searchWebsiteSSLResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request '1panel.SearchWebsiteSSL'")
+			return nil, fmt.Errorf("failed to execute sdk request '1panel.SearchWebsiteSSL': %w", err)
 		}
 
 		for _, sslItem := range searchWebsiteSSLResp.Data.Items {
-			if strings.TrimSpace(sslItem.PEM) == strings.TrimSpace(certPem) &&
-				strings.TrimSpace(sslItem.PrivateKey) == strings.TrimSpace(privkeyPem) {
+			if strings.TrimSpace(sslItem.PEM) == strings.TrimSpace(certPEM) &&
+				strings.TrimSpace(sslItem.PrivateKey) == strings.TrimSpace(privkeyPEM) {
 				// 如果已存在相同证书，直接返回
 				return &uploader.UploadResult{
 					CertId:   fmt.Sprintf("%d", sslItem.ID),

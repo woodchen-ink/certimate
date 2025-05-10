@@ -12,13 +12,12 @@ import (
 	"strings"
 	"time"
 
-	xerrors "github.com/pkg/errors"
 	"github.com/ucloud/ucloud-sdk-go/ucloud"
 	ucloudauth "github.com/ucloud/ucloud-sdk-go/ucloud/auth"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
-	usslsdk "github.com/usual2970/certimate/internal/pkg/vendors/ucloud-sdk/ussl"
+	usslsdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/ucloud/ussl"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
 )
 
 type UploaderConfig struct {
@@ -45,7 +44,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.PrivateKey, config.PublicKey)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -64,23 +63,23 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 生成新证书名（需符合优刻得命名规则）
 	var certId, certName string
 	certName = fmt.Sprintf("certimate-%d", time.Now().UnixMilli())
 
 	// 生成优刻得所需的证书参数
-	certPemBase64 := base64.StdEncoding.EncodeToString([]byte(certPem))
-	privkeyPemBase64 := base64.StdEncoding.EncodeToString([]byte(privkeyPem))
-	certMd5 := md5.Sum([]byte(certPemBase64 + privkeyPemBase64))
+	certPEMBase64 := base64.StdEncoding.EncodeToString([]byte(certPEM))
+	privkeyPEMBase64 := base64.StdEncoding.EncodeToString([]byte(privkeyPEM))
+	certMd5 := md5.Sum([]byte(certPEMBase64 + privkeyPEMBase64))
 	certMd5Hex := hex.EncodeToString(certMd5[:])
 
 	// 上传托管证书
 	// REF: https://docs.ucloud.cn/api/usslcertificate-api/upload_normal_certificate
 	uploadNormalCertificateReq := u.sdkClient.NewUploadNormalCertificateRequest()
 	uploadNormalCertificateReq.CertificateName = ucloud.String(certName)
-	uploadNormalCertificateReq.SslPublicKey = ucloud.String(certPemBase64)
-	uploadNormalCertificateReq.SslPrivateKey = ucloud.String(privkeyPemBase64)
+	uploadNormalCertificateReq.SslPublicKey = ucloud.String(certPEMBase64)
+	uploadNormalCertificateReq.SslPrivateKey = ucloud.String(privkeyPEMBase64)
 	uploadNormalCertificateReq.SslMD5 = ucloud.String(certMd5Hex)
 	if u.config.ProjectId != "" {
 		uploadNormalCertificateReq.ProjectId = ucloud.String(u.config.ProjectId)
@@ -89,7 +88,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	u.logger.Debug("sdk request 'ussl.UploadNormalCertificate'", slog.Any("request", uploadNormalCertificateReq), slog.Any("response", uploadNormalCertificateResp))
 	if err != nil {
 		if uploadNormalCertificateResp != nil && uploadNormalCertificateResp.GetRetCode() == 80035 {
-			if res, err := u.getCertIfExists(ctx, certPem); err != nil {
+			if res, err := u.getCertIfExists(ctx, certPEM); err != nil {
 				return nil, err
 			} else if res == nil {
 				return nil, errors.New("ucloud ssl: no certificate found")
@@ -99,7 +98,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 			}
 		}
 
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'ussl.UploadNormalCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'ussl.UploadNormalCertificate': %w", err)
 	}
 
 	certId = fmt.Sprintf("%d", uploadNormalCertificateResp.CertificateID)
@@ -112,9 +111,9 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	}, nil
 }
 
-func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -125,6 +124,12 @@ func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPem string) 
 	getCertificateListPage := int(1)
 	getCertificateListLimit := int(1000)
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		getCertificateListReq := u.sdkClient.NewGetCertificateListRequest()
 		getCertificateListReq.Mode = ucloud.String("trust")
 		getCertificateListReq.Domain = ucloud.String(certX509.Subject.CommonName)
@@ -137,7 +142,7 @@ func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPem string) 
 		getCertificateListResp, err := u.sdkClient.GetCertificateList(getCertificateListReq)
 		u.logger.Debug("sdk request 'ussl.GetCertificateList'", slog.Any("request", getCertificateListReq), slog.Any("response", getCertificateListResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'ussl.GetCertificateList'")
+			return nil, fmt.Errorf("failed to execute sdk request 'ussl.GetCertificateList': %w", err)
 		}
 
 		if getCertificateListResp.CertificateList != nil {
@@ -164,7 +169,7 @@ func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPem string) 
 				}
 				getCertificateDetailInfoResp, err := u.sdkClient.GetCertificateDetailInfo(getCertificateDetailInfoReq)
 				if err != nil {
-					return nil, xerrors.Wrap(err, "failed to execute sdk request 'ussl.GetCertificateDetailInfo'")
+					return nil, fmt.Errorf("failed to execute sdk request 'ussl.GetCertificateDetailInfo': %w", err)
 				}
 
 				switch certX509.SignatureAlgorithm {

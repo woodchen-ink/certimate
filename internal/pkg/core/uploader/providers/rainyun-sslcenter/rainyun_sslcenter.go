@@ -7,11 +7,9 @@ import (
 	"log/slog"
 	"strings"
 
-	xerrors "github.com/pkg/errors"
-
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
-	rainyunsdk "github.com/usual2970/certimate/internal/pkg/vendors/rainyun-sdk"
+	rainyunsdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/rainyun"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
 )
 
 type UploaderConfig struct {
@@ -34,7 +32,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.ApiKey)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -53,8 +51,8 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
-	if res, err := u.getCertIfExists(ctx, certPem); err != nil {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
+	if res, err := u.getCertIfExists(ctx, certPEM); err != nil {
 		return nil, err
 	} else if res != nil {
 		u.logger.Info("ssl certificate already exists")
@@ -64,16 +62,16 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	// SSL 证书上传
 	// REF: https://apifox.com/apidoc/shared/a4595cc8-44c5-4678-a2a3-eed7738dab03/api-69943046
 	sslCenterCreateReq := &rainyunsdk.SslCenterCreateRequest{
-		Cert: certPem,
-		Key:  privkeyPem,
+		Cert: certPEM,
+		Key:  privkeyPEM,
 	}
 	sslCenterCreateResp, err := u.sdkClient.SslCenterCreate(sslCenterCreateReq)
 	u.logger.Debug("sdk request 'sslcenter.Create'", slog.Any("request", sslCenterCreateReq), slog.Any("response", sslCenterCreateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'sslcenter.Create'")
+		return nil, fmt.Errorf("failed to execute sdk request 'sslcenter.Create': %w", err)
 	}
 
-	if res, err := u.getCertIfExists(ctx, certPem); err != nil {
+	if res, err := u.getCertIfExists(ctx, certPEM); err != nil {
 		return nil, err
 	} else if res == nil {
 		return nil, errors.New("rainyun sslcenter: no certificate found")
@@ -82,9 +80,9 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	}
 }
 
-func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +93,12 @@ func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPem string) 
 	sslCenterListPage := int32(1)
 	sslCenterListPerPage := int32(100)
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		sslCenterListReq := &rainyunsdk.SslCenterListRequest{
 			Filters: &rainyunsdk.SslCenterListFilters{
 				Domain: &certX509.Subject.CommonName,
@@ -105,7 +109,7 @@ func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPem string) 
 		sslCenterListResp, err := u.sdkClient.SslCenterList(sslCenterListReq)
 		u.logger.Debug("sdk request 'sslcenter.List'", slog.Any("request", sslCenterListReq), slog.Any("response", sslCenterListResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'sslcenter.List'")
+			return nil, fmt.Errorf("failed to execute sdk request 'sslcenter.List': %w", err)
 		}
 
 		if sslCenterListResp.Data != nil && sslCenterListResp.Data.Records != nil {
@@ -123,12 +127,12 @@ func (u *UploaderProvider) getCertIfExists(ctx context.Context, certPem string) 
 				// 最后对比证书内容
 				sslCenterGetResp, err := u.sdkClient.SslCenterGet(sslItem.ID)
 				if err != nil {
-					return nil, xerrors.Wrap(err, "failed to execute sdk request 'sslcenter.Get'")
+					return nil, fmt.Errorf("failed to execute sdk request 'sslcenter.Get': %w", err)
 				}
 
 				var isSameCert bool
 				if sslCenterGetResp.Data != nil {
-					if sslCenterGetResp.Data.Cert == certPem {
+					if sslCenterGetResp.Data.Cert == certPEM {
 						isSameCert = true
 					} else {
 						oldCertX509, err := certutil.ParseCertificateFromPEM(sslCenterGetResp.Data.Cert)

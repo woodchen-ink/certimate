@@ -1,4 +1,4 @@
-﻿package aliyunalb
+package aliyunalb
 
 import (
 	"context"
@@ -13,7 +13,6 @@ import (
 	alicas "github.com/alibabacloud-go/cas-20200407/v3/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
-	xerrors "github.com/pkg/errors"
 	"golang.org/x/exp/slices"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
@@ -62,12 +61,12 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	clients, err := createSdkClients(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk clients")
+		return nil, fmt.Errorf("failed to create sdk clients: %w", err)
 	}
 
 	uploader, err := createSslUploader(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -88,11 +87,11 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 上传证书到 CAS
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to upload certificate file")
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -110,7 +109,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		}
 
 	default:
-		return nil, fmt.Errorf("unsupported resource type: %s", d.config.ResourceType)
+		return nil, fmt.Errorf("unsupported resource type '%s'", d.config.ResourceType)
 	}
 
 	return &deployer.DeployResult{}, nil
@@ -129,7 +128,7 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 	getLoadBalancerAttributeResp, err := d.sdkClients.ALB.GetLoadBalancerAttribute(getLoadBalancerAttributeReq)
 	d.logger.Debug("sdk request 'alb.GetLoadBalancerAttribute'", slog.Any("request", getLoadBalancerAttributeReq), slog.Any("response", getLoadBalancerAttributeResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'alb.GetLoadBalancerAttribute'")
+		return fmt.Errorf("failed to execute sdk request 'alb.GetLoadBalancerAttribute': %w", err)
 	}
 
 	// 查询 HTTPS 监听列表
@@ -138,6 +137,12 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 	listListenersLimit := int32(100)
 	var listListenersToken *string = nil
 	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
 		listListenersReq := &alialb.ListListenersRequest{
 			MaxResults:       tea.Int32(listListenersLimit),
 			NextToken:        listListenersToken,
@@ -147,7 +152,7 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 		listListenersResp, err := d.sdkClients.ALB.ListListeners(listListenersReq)
 		d.logger.Debug("sdk request 'alb.ListListeners'", slog.Any("request", listListenersReq), slog.Any("response", listListenersResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'alb.ListListeners'")
+			return fmt.Errorf("failed to execute sdk request 'alb.ListListeners': %w", err)
 		}
 
 		if listListenersResp.Body.Listeners != nil {
@@ -167,6 +172,12 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 	// REF: https://help.aliyun.com/zh/slb/application-load-balancer/developer-reference/api-alb-2020-06-16-listlisteners
 	listListenersToken = nil
 	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
 		listListenersReq := &alialb.ListListenersRequest{
 			MaxResults:       tea.Int32(listListenersLimit),
 			NextToken:        listListenersToken,
@@ -176,7 +187,7 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 		listListenersResp, err := d.sdkClients.ALB.ListListeners(listListenersReq)
 		d.logger.Debug("sdk request 'alb.ListListeners'", slog.Any("request", listListenersReq), slog.Any("response", listListenersResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'alb.ListListeners'")
+			return fmt.Errorf("failed to execute sdk request 'alb.ListListeners': %w", err)
 		}
 
 		if listListenersResp.Body.Listeners != nil {
@@ -235,7 +246,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 	getListenerAttributeResp, err := d.sdkClients.ALB.GetListenerAttribute(getListenerAttributeReq)
 	d.logger.Debug("sdk request 'alb.GetListenerAttribute'", slog.Any("request", getListenerAttributeReq), slog.Any("response", getListenerAttributeResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'alb.GetListenerAttribute'")
+		return fmt.Errorf("failed to execute sdk request 'alb.GetListenerAttribute': %w", err)
 	}
 
 	if d.config.Domain == "" {
@@ -252,7 +263,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 		updateListenerAttributeResp, err := d.sdkClients.ALB.UpdateListenerAttribute(updateListenerAttributeReq)
 		d.logger.Debug("sdk request 'alb.UpdateListenerAttribute'", slog.Any("request", updateListenerAttributeReq), slog.Any("response", updateListenerAttributeResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'alb.UpdateListenerAttribute'")
+			return fmt.Errorf("failed to execute sdk request 'alb.UpdateListenerAttribute': %w", err)
 		}
 	} else {
 		// 指定 SNI，需部署到扩展域名
@@ -263,6 +274,12 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 		listListenerCertificatesLimit := int32(100)
 		var listListenerCertificatesToken *string = nil
 		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
+			}
+
 			listListenerCertificatesReq := &alialb.ListListenerCertificatesRequest{
 				NextToken:       listListenerCertificatesToken,
 				MaxResults:      tea.Int32(listListenerCertificatesLimit),
@@ -272,7 +289,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 			listListenerCertificatesResp, err := d.sdkClients.ALB.ListListenerCertificates(listListenerCertificatesReq)
 			d.logger.Debug("sdk request 'alb.ListListenerCertificates'", slog.Any("request", listListenerCertificatesReq), slog.Any("response", listListenerCertificatesResp))
 			if err != nil {
-				return xerrors.Wrap(err, "failed to execute sdk request 'alb.ListListenerCertificates'")
+				return fmt.Errorf("failed to execute sdk request 'alb.ListListenerCertificates': %w", err)
 			}
 
 			if listListenerCertificatesResp.Body.Certificates != nil {
@@ -331,7 +348,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 						}
 					}
 
-					errs = append(errs, xerrors.Wrap(err, "failed to execute sdk request 'cas.GetUserCertificateDetail'"))
+					errs = append(errs, fmt.Errorf("failed to execute sdk request 'cas.GetUserCertificateDetail': %w", err))
 					continue
 				} else {
 					certCNMatched := tea.StringValue(getUserCertificateDetailResp.Body.Common) == d.config.Domain
@@ -368,7 +385,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 			associateAdditionalCertificatesFromListenerResp, err := d.sdkClients.ALB.AssociateAdditionalCertificatesWithListener(associateAdditionalCertificatesFromListenerReq)
 			d.logger.Debug("sdk request 'alb.AssociateAdditionalCertificatesWithListener'", slog.Any("request", associateAdditionalCertificatesFromListenerReq), slog.Any("response", associateAdditionalCertificatesFromListenerResp))
 			if err != nil {
-				return xerrors.Wrap(err, "failed to execute sdk request 'alb.AssociateAdditionalCertificatesWithListener'")
+				return fmt.Errorf("failed to execute sdk request 'alb.AssociateAdditionalCertificatesWithListener': %w", err)
 			}
 		}
 
@@ -389,7 +406,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 			dissociateAdditionalCertificatesFromListenerResp, err := d.sdkClients.ALB.DissociateAdditionalCertificatesFromListener(dissociateAdditionalCertificatesFromListenerReq)
 			d.logger.Debug("sdk request 'alb.DissociateAdditionalCertificatesFromListener'", slog.Any("request", dissociateAdditionalCertificatesFromListenerReq), slog.Any("response", dissociateAdditionalCertificatesFromListenerResp))
 			if err != nil {
-				return xerrors.Wrap(err, "failed to execute sdk request 'alb.DissociateAdditionalCertificatesFromListener'")
+				return fmt.Errorf("failed to execute sdk request 'alb.DissociateAdditionalCertificatesFromListener': %w", err)
 			}
 		}
 	}
@@ -447,7 +464,7 @@ func createSslUploader(accessKeyId, accessKeySecret, region string) (uploader.Up
 		// 阿里云 CAS 服务接入点是独立于 ALB 服务的
 		// 国内版固定接入点：华东一杭州
 		// 国际版固定接入点：亚太东南一新加坡
-		if casRegion != "" && !strings.HasPrefix(casRegion, "cn-") {
+		if !strings.HasPrefix(casRegion, "cn-") {
 			casRegion = "ap-southeast-1"
 		} else {
 			casRegion = "cn-hangzhou"

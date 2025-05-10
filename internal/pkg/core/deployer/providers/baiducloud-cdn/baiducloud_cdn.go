@@ -1,4 +1,4 @@
-﻿package baiducloudcdn
+package baiducloudcdn
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 
 	bcecdn "github.com/baidubce/bce-sdk-go/services/cdn"
 	bcecdnapi "github.com/baidubce/bce-sdk-go/services/cdn/api"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 )
@@ -37,7 +36,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.SecretAccessKey)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -56,21 +55,21 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 修改域名证书
 	// REF: https://cloud.baidu.com/doc/CDN/s/qjzuz2hp8
 	putCertResp, err := d.sdkClient.PutCert(
 		d.config.Domain,
 		&bcecdnapi.UserCertificate{
 			CertName:    fmt.Sprintf("certimate-%d", time.Now().UnixMilli()),
-			ServerData:  certPem,
-			PrivateData: privkeyPem,
+			ServerData:  certPEM,
+			PrivateData: privkeyPEM,
 		},
 		"ON",
 	)
 	d.logger.Debug("sdk request 'cdn.PutCert'", slog.String("request.domain", d.config.Domain), slog.Any("response", putCertResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.PutCert'")
+		return nil, fmt.Errorf("failed to execute sdk request 'cdn.PutCert': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil

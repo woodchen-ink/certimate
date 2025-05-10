@@ -2,14 +2,15 @@ package volcenginecertcenter
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 
-	xerrors "github.com/pkg/errors"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
 	vesession "github.com/volcengine/volcengine-go-sdk/volcengine/session"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	veccsdk "github.com/usual2970/certimate/internal/pkg/vendors/volcengine-sdk/certcenter"
+	veccsdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/volcengine/certcenter"
 )
 
 type UploaderConfig struct {
@@ -36,7 +37,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -55,20 +56,20 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 上传证书
 	// REF: https://www.volcengine.com/docs/6638/1365580
 	importCertificateReq := &veccsdk.ImportCertificateInput{
 		CertificateInfo: &veccsdk.ImportCertificateInputCertificateInfo{
-			CertificateChain: ve.String(certPem),
-			PrivateKey:       ve.String(privkeyPem),
+			CertificateChain: ve.String(certPEM),
+			PrivateKey:       ve.String(privkeyPEM),
 		},
 		Repeatable: ve.Bool(false),
 	}
 	importCertificateResp, err := u.sdkClient.ImportCertificate(importCertificateReq)
 	u.logger.Debug("sdk request 'certcenter.ImportCertificate'", slog.Any("request", importCertificateReq), slog.Any("response", importCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'certcenter.ImportCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'certcenter.ImportCertificate': %w", err)
 	}
 
 	var certId string
@@ -80,7 +81,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	}
 
 	if certId == "" {
-		return nil, xerrors.New("failed to get certificate id, both `InstanceId` and `RepeatId` are empty")
+		return nil, errors.New("failed to get certificate id from response, both `InstanceId` and `RepeatId` are empty")
 	}
 
 	return &uploader.UploadResult{

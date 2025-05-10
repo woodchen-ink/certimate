@@ -1,18 +1,18 @@
-﻿package awsacm
+package awsacm
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	aws "github.com/aws/aws-sdk-go-v2/aws"
 	awscfg "github.com/aws/aws-sdk-go-v2/config"
 	awscred "github.com/aws/aws-sdk-go-v2/credentials"
 	awsacm "github.com/aws/aws-sdk-go-v2/service/acm"
-	xerrors "github.com/pkg/errors"
 	"golang.org/x/exp/slices"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
 )
 
 type UploaderConfig struct {
@@ -39,7 +39,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -58,22 +58,28 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
 
 	// 生成 AWS 业务参数
-	scertPem, _ := certutil.ConvertCertificateToPEM(certX509)
-	bcertPem := certPem
+	scertPEM, _ := certutil.ConvertCertificateToPEM(certX509)
+	bcertPEM := certPEM
 
 	// 获取证书列表，避免重复上传
 	// REF: https://docs.aws.amazon.com/en_us/acm/latest/APIReference/API_ListCertificates.html
 	var listCertificatesNextToken *string = nil
 	listCertificatesMaxItems := int32(1000)
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		listCertificatesReq := &awsacm.ListCertificatesInput{
 			NextToken: listCertificatesNextToken,
 			MaxItems:  aws.Int32(listCertificatesMaxItems),
@@ -81,7 +87,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 		listCertificatesResp, err := u.sdkClient.ListCertificates(context.TODO(), listCertificatesReq)
 		u.logger.Debug("sdk request 'acm.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'acm.ListCertificates'")
+			return nil, fmt.Errorf("failed to execute sdk request 'acm.ListCertificates': %w", err)
 		}
 
 		for _, certSummary := range listCertificatesResp.CertificateSummaryList {
@@ -105,14 +111,14 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 			}
 			getCertificateResp, err := u.sdkClient.GetCertificate(context.TODO(), getCertificateReq)
 			if err != nil {
-				return nil, xerrors.Wrap(err, "failed to execute sdk request 'acm.GetCertificate'")
+				return nil, fmt.Errorf("failed to execute sdk request 'acm.GetCertificate': %w", err)
 			} else {
-				oldCertPem := aws.ToString(getCertificateResp.CertificateChain)
-				if oldCertPem == "" {
-					oldCertPem = aws.ToString(getCertificateResp.Certificate)
+				oldCertPEM := aws.ToString(getCertificateResp.CertificateChain)
+				if oldCertPEM == "" {
+					oldCertPEM = aws.ToString(getCertificateResp.Certificate)
 				}
 
-				oldCertX509, err := certutil.ParseCertificateFromPEM(oldCertPem)
+				oldCertX509, err := certutil.ParseCertificateFromPEM(oldCertPEM)
 				if err != nil {
 					continue
 				}
@@ -139,14 +145,14 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	// 导入证书
 	// REF: https://docs.aws.amazon.com/en_us/acm/latest/APIReference/API_ImportCertificate.html
 	importCertificateReq := &awsacm.ImportCertificateInput{
-		Certificate:      ([]byte)(scertPem),
-		CertificateChain: ([]byte)(bcertPem),
-		PrivateKey:       ([]byte)(privkeyPem),
+		Certificate:      ([]byte)(scertPEM),
+		CertificateChain: ([]byte)(bcertPEM),
+		PrivateKey:       ([]byte)(privkeyPEM),
 	}
 	importCertificateResp, err := u.sdkClient.ImportCertificate(context.TODO(), importCertificateReq)
 	u.logger.Debug("sdk request 'acm.ImportCertificate'", slog.Any("request", importCertificateReq), slog.Any("response", importCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'acm.ImportCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'acm.ImportCertificate': %w", err)
 	}
 
 	return &uploader.UploadResult{

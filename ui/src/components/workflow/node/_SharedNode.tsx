@@ -2,6 +2,7 @@ import { memo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   CloseCircleOutlined as CloseCircleOutlinedIcon,
+  CopyOutlined as CopyOutlinedIcon,
   EllipsisOutlined as EllipsisOutlinedIcon,
   FormOutlined as FormOutlinedIcon,
   MoreOutlined as MoreOutlinedIcon,
@@ -11,7 +12,7 @@ import { Button, Card, Drawer, Dropdown, Input, type InputRef, Modal, Popover, S
 import { produce } from "immer";
 import { isEqual } from "radash";
 
-import { type WorkflowNode, WorkflowNodeType } from "@/domain/workflow";
+import { type WorkflowNode, WorkflowNodeType, newNode } from "@/domain/workflow";
 import { useZustandShallowSelector } from "@/hooks";
 import { useWorkflowStore } from "@/stores/workflow";
 
@@ -77,7 +78,7 @@ const isBranchingNode = (node: WorkflowNode) => {
 const SharedNodeMenu = ({ trigger, node, disabled, branchId, branchIndex, afterUpdate, afterDelete }: SharedNodeMenuProps) => {
   const { t } = useTranslation();
 
-  const { updateNode, removeNode, removeBranch } = useWorkflowStore(useZustandShallowSelector(["updateNode", "removeNode", "removeBranch"]));
+  const { updateNode, removeNode, removeBranch, addNode } = useWorkflowStore(useZustandShallowSelector(["updateNode", "removeNode", "removeBranch", "addNode"]));
 
   const [modalApi, ModelContextHolder] = Modal.useModal();
 
@@ -98,6 +99,49 @@ const SharedNodeMenu = ({ trigger, node, disabled, branchId, branchIndex, afterU
     );
 
     afterUpdate?.();
+  };
+
+  const handleCopyNode = async () => {
+    try {
+      // Clone the node by creating a new node of the same type
+      const clonedNode = newNode(node.type);
+      // Copy over configurations
+      clonedNode.name = `${node.name} (副本)`;
+
+      // Copy all configurable properties
+      if (node.config) {
+        clonedNode.config = JSON.parse(JSON.stringify(node.config));
+      }
+
+      if (node.inputs) {
+        clonedNode.inputs = JSON.parse(JSON.stringify(node.inputs));
+      }
+
+      if (node.outputs) {
+        clonedNode.outputs = JSON.parse(JSON.stringify(node.outputs));
+      }
+
+      if (node.validated !== undefined) {
+        clonedNode.validated = node.validated;
+      }
+
+      // For branch nodes, we need to deep copy the branches structure
+      if (node.branches && node.type === WorkflowNodeType.Branch) {
+        // For branch nodes, we'll keep the structure but with new IDs
+        // This ensures we don't run into ID conflicts
+        clonedNode.branches = newNode(WorkflowNodeType.Branch).branches;
+      } else if (node.branches && node.type === WorkflowNodeType.ExecuteResultBranch) {
+        // For execute result branches, we'll keep the structure but with new IDs
+        clonedNode.branches = newNode(WorkflowNodeType.ExecuteResultBranch).branches;
+      }
+
+      // Add the cloned node after the current node
+      await addNode(clonedNode, node.id);
+
+      afterUpdate?.();
+    } catch (err) {
+      console.error("Failed to copy node:", err);
+    }
   };
 
   const handleDeleteClick = async () => {
@@ -150,6 +194,13 @@ const SharedNodeMenu = ({ trigger, node, disabled, branchId, branchIndex, afterU
             },
             {
               type: "divider",
+            },
+            {
+              key: "copy",
+              disabled: disabled || node.type === WorkflowNodeType.Start,
+              label: "复制节点",
+              icon: <CopyOutlinedIcon />,
+              onClick: handleCopyNode,
             },
             {
               key: "remove",

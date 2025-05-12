@@ -1,4 +1,4 @@
-﻿package jdcloudalb
+package jdcloudalb
 
 import (
 	"context"
@@ -12,12 +12,11 @@ import (
 	jdlbapi "github.com/jdcloud-api/jdcloud-sdk-go/services/lb/apis"
 	jdlbclient "github.com/jdcloud-api/jdcloud-sdk-go/services/lb/client"
 	jdlbmodel "github.com/jdcloud-api/jdcloud-sdk-go/services/lb/models"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
 	uploadersp "github.com/usual2970/certimate/internal/pkg/core/uploader/providers/jdcloud-ssl"
-	"github.com/usual2970/certimate/internal/pkg/utils/sliceutil"
+	sliceutil "github.com/usual2970/certimate/internal/pkg/utils/slice"
 )
 
 type DeployerConfig struct {
@@ -56,7 +55,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	uploader, err := uploadersp.NewUploader(&uploadersp.UploaderConfig{
@@ -64,7 +63,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 		AccessKeySecret: config.AccessKeySecret,
 	})
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -85,11 +84,11 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 上传证书到 SSL
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to upload certificate file")
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -107,7 +106,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		}
 
 	default:
-		return nil, fmt.Errorf("unsupported resource type: %s", d.config.ResourceType)
+		return nil, fmt.Errorf("unsupported resource type '%s'", d.config.ResourceType)
 	}
 
 	return &deployer.DeployResult{}, nil
@@ -124,7 +123,7 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 	describeLoadBalancerResp, err := d.sdkClient.DescribeLoadBalancer(describeLoadBalancerReq)
 	d.logger.Debug("sdk request 'lb.DescribeLoadBalancer'", slog.Any("request", describeLoadBalancerReq), slog.Any("response", describeLoadBalancerResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'lb.DescribeLoadBalancer'")
+		return fmt.Errorf("failed to execute sdk request 'lb.DescribeLoadBalancer': %w", err)
 	}
 
 	// 查询监听器列表
@@ -133,6 +132,12 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 	describeListenersPageNumber := 1
 	describeListenersPageSize := 100
 	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
 		describeListenersReq := jdlbapi.NewDescribeListenersRequest(d.config.RegionId)
 		describeListenersReq.SetFilters([]jdcommon.Filter{{Name: "loadBalancerId", Values: []string{d.config.LoadbalancerId}}})
 		describeListenersReq.SetPageSize(describeListenersPageNumber)
@@ -140,7 +145,7 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 		describeListenersResp, err := d.sdkClient.DescribeListeners(describeListenersReq)
 		d.logger.Debug("sdk request 'lb.DescribeListeners'", slog.Any("request", describeListenersReq), slog.Any("response", describeListenersResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'lb.DescribeListeners'")
+			return fmt.Errorf("failed to execute sdk request 'lb.DescribeListeners': %w", err)
 		}
 
 		for _, listener := range describeListenersResp.Result.Listeners {
@@ -165,8 +170,13 @@ func (d *DeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCertId
 		var errs []error
 
 		for _, listenerId := range listenerIds {
-			if err := d.updateListenerCertificate(ctx, listenerId, cloudCertId); err != nil {
-				errs = append(errs, err)
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
+				if err := d.updateListenerCertificate(ctx, listenerId, cloudCertId); err != nil {
+					errs = append(errs, err)
+				}
 			}
 		}
 
@@ -198,7 +208,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 	describeListenerResp, err := d.sdkClient.DescribeListener(describeListenerReq)
 	d.logger.Debug("sdk request 'lb.DescribeListener'", slog.Any("request", describeListenerReq), slog.Any("response", describeListenerResp))
 	if err != nil {
-		return xerrors.Wrap(err, "failed to execute sdk request 'lb.DescribeListener'")
+		return fmt.Errorf("failed to execute sdk request 'lb.DescribeListener': %w", err)
 	}
 
 	if d.config.Domain == "" {
@@ -211,7 +221,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 		updateListenerResp, err := d.sdkClient.UpdateListener(updateListenerReq)
 		d.logger.Debug("sdk request 'lb.UpdateListener'", slog.Any("request", updateListenerReq), slog.Any("response", updateListenerResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'lb.UpdateListener'")
+			return fmt.Errorf("failed to execute sdk request 'lb.UpdateListener': %w", err)
 		}
 	} else {
 		// 指定 SNI，需部署到扩展证书
@@ -239,7 +249,7 @@ func (d *DeployerProvider) updateListenerCertificate(ctx context.Context, cloudL
 		updateListenerCertificatesResp, err := d.sdkClient.UpdateListenerCertificates(updateListenerCertificatesReq)
 		d.logger.Debug("sdk request 'lb.UpdateListenerCertificates'", slog.Any("request", updateListenerCertificatesReq), slog.Any("response", updateListenerCertificatesResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'lb.UpdateListenerCertificates'")
+			return fmt.Errorf("failed to execute sdk request 'lb.UpdateListenerCertificates': %w", err)
 		}
 	}
 

@@ -1,16 +1,15 @@
-﻿package baotapanelconsole
+package baotapanelconsole
 
 import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/url"
 
-	xerrors "github.com/pkg/errors"
-
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
-	btsdk "github.com/usual2970/certimate/internal/pkg/vendors/btpanel-sdk"
+	btsdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/btpanel"
 )
 
 type DeployerConfig struct {
@@ -39,7 +38,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.ApiUrl, config.ApiKey, config.AllowInsecureConnections)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -58,16 +57,16 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 设置面板 SSL 证书
 	configSavePanelSSLReq := &btsdk.ConfigSavePanelSSLRequest{
-		PrivateKey:  privkeyPem,
-		Certificate: certPem,
+		PrivateKey:  privkeyPEM,
+		Certificate: certPEM,
 	}
 	configSavePanelSSLResp, err := d.sdkClient.ConfigSavePanelSSL(configSavePanelSSLReq)
 	d.logger.Debug("sdk request 'bt.ConfigSavePanelSSL'", slog.Any("request", configSavePanelSSLReq), slog.Any("response", configSavePanelSSLResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'bt.ConfigSavePanelSSL'")
+		return nil, fmt.Errorf("failed to execute sdk request 'bt.ConfigSavePanelSSL': %w", err)
 	}
 
 	if d.config.AutoRestart {
@@ -83,7 +82,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	return &deployer.DeployResult{}, nil
 }
 
-func createSdkClient(apiUrl, apiKey string, allowInsecure bool) (*btsdk.Client, error) {
+func createSdkClient(apiUrl, apiKey string, skipTlsVerify bool) (*btsdk.Client, error) {
 	if _, err := url.Parse(apiUrl); err != nil {
 		return nil, errors.New("invalid baota api url")
 	}
@@ -93,7 +92,7 @@ func createSdkClient(apiUrl, apiKey string, allowInsecure bool) (*btsdk.Client, 
 	}
 
 	client := btsdk.NewClient(apiUrl, apiKey)
-	if allowInsecure {
+	if skipTlsVerify {
 		client.WithTLSConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 

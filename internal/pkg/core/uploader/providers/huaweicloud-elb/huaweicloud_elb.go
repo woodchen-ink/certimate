@@ -1,4 +1,4 @@
-﻿package huaweicloudelb
+package huaweicloudelb
 
 import (
 	"context"
@@ -15,11 +15,10 @@ import (
 	hciam "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
 	hciammodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
 	hciamregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/region"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
-	hwsdk "github.com/usual2970/certimate/internal/pkg/vendors/huaweicloud-sdk"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
+	typeutil "github.com/usual2970/certimate/internal/pkg/utils/type"
 )
 
 type UploaderConfig struct {
@@ -46,7 +45,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -65,9 +64,9 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -77,21 +76,27 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	listCertificatesLimit := int32(2000)
 	var listCertificatesMarker *string = nil
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		listCertificatesReq := &hcelbmodel.ListCertificatesRequest{
-			Limit:  hwsdk.Int32Ptr(listCertificatesLimit),
+			Limit:  typeutil.ToPtr(listCertificatesLimit),
 			Marker: listCertificatesMarker,
 			Type:   &[]string{"server"},
 		}
 		listCertificatesResp, err := u.sdkClient.ListCertificates(listCertificatesReq)
 		u.logger.Debug("sdk request 'elb.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'elb.ListCertificates'")
+			return nil, fmt.Errorf("failed to execute sdk request 'elb.ListCertificates': %w", err)
 		}
 
 		if listCertificatesResp.Certificates != nil {
 			for _, certDetail := range *listCertificatesResp.Certificates {
 				var isSameCert bool
-				if certDetail.Certificate == certPem {
+				if certDetail.Certificate == certPEM {
 					isSameCert = true
 				} else {
 					oldCertX509, err := certutil.ParseCertificateFromPEM(certDetail.Certificate)
@@ -124,7 +129,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	// REF: https://support.huaweicloud.com/api-iam/iam_06_0001.html
 	projectId, err := getSdkProjectId(u.config.AccessKeyId, u.config.SecretAccessKey, u.config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to get SDK project id")
+		return nil, fmt.Errorf("failed to get SDK project id: %w", err)
 	}
 
 	// 生成新证书名（需符合华为云命名规则）
@@ -136,17 +141,17 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	createCertificateReq := &hcelbmodel.CreateCertificateRequest{
 		Body: &hcelbmodel.CreateCertificateRequestBody{
 			Certificate: &hcelbmodel.CreateCertificateOption{
-				ProjectId:   hwsdk.StringPtr(projectId),
-				Name:        hwsdk.StringPtr(certName),
-				Certificate: hwsdk.StringPtr(certPem),
-				PrivateKey:  hwsdk.StringPtr(privkeyPem),
+				ProjectId:   typeutil.ToPtr(projectId),
+				Name:        typeutil.ToPtr(certName),
+				Certificate: typeutil.ToPtr(certPEM),
+				PrivateKey:  typeutil.ToPtr(privkeyPEM),
 			},
 		},
 	}
 	createCertificateResp, err := u.sdkClient.CreateCertificate(createCertificateReq)
 	u.logger.Debug("sdk request 'elb.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'elb.CreateCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'elb.CreateCertificate': %w", err)
 	}
 
 	certId = createCertificateResp.Certificate.Id

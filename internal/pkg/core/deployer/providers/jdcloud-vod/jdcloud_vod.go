@@ -1,7 +1,8 @@
-﻿package jdcloudvod
+package jdcloudvod
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -10,7 +11,6 @@ import (
 	jdcore "github.com/jdcloud-api/jdcloud-sdk-go/core"
 	jdvodapi "github.com/jdcloud-api/jdcloud-sdk-go/services/vod/apis"
 	jdvodclient "github.com/jdcloud-api/jdcloud-sdk-go/services/vod/client"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 )
@@ -39,7 +39,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -58,20 +58,26 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 查询域名列表
 	// REF: https://docs.jdcloud.com/cn/video-on-demand/api/listdomains
 	var domainId int
 	listDomainsPageNumber := 1
 	listDomainsPageSize := 100
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		listDomainsReq := jdvodapi.NewListDomainsRequest()
 		listDomainsReq.SetPageNumber(1)
 		listDomainsReq.SetPageSize(100)
 		listDomainsResp, err := d.sdkClient.ListDomains(listDomainsReq)
 		d.logger.Debug("sdk request 'vod.ListDomains'", slog.Any("request", listDomainsReq), slog.Any("response", listDomainsResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'vod.ListDomains'")
+			return nil, fmt.Errorf("failed to execute sdk request 'vod.ListDomains': %w", err)
 		}
 
 		for _, domain := range listDomainsResp.Result.Content {
@@ -88,7 +94,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		}
 	}
 	if domainId == 0 {
-		return nil, xerrors.New("domain not found")
+		return nil, errors.New("domain not found")
 	}
 
 	// 查询域名 SSL 配置
@@ -97,22 +103,22 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	getHttpSslResp, err := d.sdkClient.GetHttpSsl(getHttpSslReq)
 	d.logger.Debug("sdk request 'vod.GetHttpSsl'", slog.Any("request", getHttpSslReq), slog.Any("response", getHttpSslResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'vod.GetHttpSsl'")
+		return nil, fmt.Errorf("failed to execute sdk request 'vod.GetHttpSsl': %w", err)
 	}
 
 	// 设置域名 SSL 配置
 	// REF: https://docs.jdcloud.com/cn/video-on-demand/api/sethttpssl
 	setHttpSslReq := jdvodapi.NewSetHttpSslRequest(domainId)
 	setHttpSslReq.SetTitle(fmt.Sprintf("certimate-%d", time.Now().UnixMilli()))
-	setHttpSslReq.SetSslCert(certPem)
-	setHttpSslReq.SetSslKey(privkeyPem)
+	setHttpSslReq.SetSslCert(certPEM)
+	setHttpSslReq.SetSslKey(privkeyPEM)
 	setHttpSslReq.SetSource("default")
 	setHttpSslReq.SetJumpType(getHttpSslResp.Result.JumpType)
 	setHttpSslReq.SetEnabled(true)
 	setHttpSslResp, err := d.sdkClient.SetHttpSsl(setHttpSslReq)
 	d.logger.Debug("sdk request 'vod.SetHttpSsl'", slog.Any("request", setHttpSslReq), slog.Any("response", setHttpSslResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'vod.SetHttpSsl'")
+		return nil, fmt.Errorf("failed to execute sdk request 'vod.SetHttpSsl': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil

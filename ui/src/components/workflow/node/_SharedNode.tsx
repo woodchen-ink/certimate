@@ -334,7 +334,8 @@ const SharedNodeConfigDrawer = ({
       {ModelContextHolder}
 
       <Drawer
-        afterOpenChange={(open) => setOpen(open)}
+        afterOpenChange={setOpen}
+        closable={!pending}
         destroyOnClose
         extra={
           <SharedNodeMenu
@@ -357,6 +358,7 @@ const SharedNodeConfigDrawer = ({
           )
         }
         loading={loading}
+        maskClosable={!pending}
         open={open}
         title={<div className="max-w-[480px] truncate">{node.name}</div>}
         width={720}

@@ -1,4 +1,4 @@
-﻿package jdcloudssl
+package jdcloudssl
 
 import (
 	"context"
@@ -12,11 +12,10 @@ import (
 	jdcore "github.com/jdcloud-api/jdcloud-sdk-go/core"
 	jdsslapi "github.com/jdcloud-api/jdcloud-sdk-go/services/ssl/apis"
 	jdsslclient "github.com/jdcloud-api/jdcloud-sdk-go/services/ssl/client"
-	xerrors "github.com/pkg/errors"
 	"golang.org/x/exp/slices"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
 )
 
 type UploaderConfig struct {
@@ -41,7 +40,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -60,24 +59,30 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
 
 	// 格式化私钥内容，以便后续计算私钥摘要
-	privkeyPem = strings.TrimSpace(privkeyPem)
-	privkeyPem = strings.ReplaceAll(privkeyPem, "\r", "")
-	privkeyPem = strings.ReplaceAll(privkeyPem, "\n", "\r\n")
-	privkeyPem = privkeyPem + "\r\n"
+	privkeyPEM = strings.TrimSpace(privkeyPEM)
+	privkeyPEM = strings.ReplaceAll(privkeyPEM, "\r", "")
+	privkeyPEM = strings.ReplaceAll(privkeyPEM, "\n", "\r\n")
+	privkeyPEM = privkeyPEM + "\r\n"
 
 	// 遍历查看证书列表，避免重复上传
 	// REF: https://docs.jdcloud.com/cn/ssl-certificate/api/describecerts
 	describeCertsPageNumber := 1
 	describeCertsPageSize := 10
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		describeCertsReq := jdsslapi.NewDescribeCertsRequest()
 		describeCertsReq.SetDomainName(certX509.Subject.CommonName)
 		describeCertsReq.SetPageNumber(describeCertsPageNumber)
@@ -85,7 +90,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 		describeCertsResp, err := u.sdkClient.DescribeCerts(describeCertsReq)
 		u.logger.Debug("sdk request 'ssl.DescribeCerts'", slog.Any("request", describeCertsReq), slog.Any("response", describeCertsResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'ssl.DescribeCerts'")
+			return nil, fmt.Errorf("failed to execute sdk request 'ssl.DescribeCerts': %w", err)
 		}
 
 		for _, certDetail := range describeCertsResp.Result.CertListDetails {
@@ -107,7 +112,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 			}
 
 			// 最后对比私钥摘要
-			newKeyDigest := sha256.Sum256([]byte(privkeyPem))
+			newKeyDigest := sha256.Sum256([]byte(privkeyPEM))
 			newKeyDigestHex := hex.EncodeToString(newKeyDigest[:])
 			if !strings.EqualFold(newKeyDigestHex, certDetail.Digest) {
 				continue
@@ -133,11 +138,11 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 
 	// 上传证书
 	// REF: https://docs.jdcloud.com/cn/ssl-certificate/api/uploadcert
-	uploadCertReq := jdsslapi.NewUploadCertRequest(certName, privkeyPem, certPem)
+	uploadCertReq := jdsslapi.NewUploadCertRequest(certName, privkeyPEM, certPEM)
 	uploadCertResp, err := u.sdkClient.UploadCert(uploadCertReq)
 	u.logger.Debug("sdk request 'ssl.UploadCertificate'", slog.Any("request", uploadCertReq), slog.Any("response", uploadCertResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'ssl.UploadCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'ssl.UploadCertificate': %w", err)
 	}
 
 	return &uploader.UploadResult{

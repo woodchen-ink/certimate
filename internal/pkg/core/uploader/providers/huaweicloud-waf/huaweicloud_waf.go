@@ -1,4 +1,4 @@
-﻿package huaweicloudwaf
+package huaweicloudwaf
 
 import (
 	"context"
@@ -15,11 +15,10 @@ import (
 	hcwaf "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/waf/v1"
 	hcwafmodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/waf/v1/model"
 	hcwafregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/waf/v1/region"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
-	hwsdk "github.com/usual2970/certimate/internal/pkg/vendors/huaweicloud-sdk"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
+	typeutil "github.com/usual2970/certimate/internal/pkg/utils/type"
 )
 
 type UploaderConfig struct {
@@ -46,7 +45,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -65,9 +64,9 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -78,14 +77,20 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	listCertificatesPage := int32(1)
 	listCertificatesPageSize := int32(100)
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		listCertificatesReq := &hcwafmodel.ListCertificatesRequest{
-			Page:     hwsdk.Int32Ptr(listCertificatesPage),
-			Pagesize: hwsdk.Int32Ptr(listCertificatesPageSize),
+			Page:     typeutil.ToPtr(listCertificatesPage),
+			Pagesize: typeutil.ToPtr(listCertificatesPageSize),
 		}
 		listCertificatesResp, err := u.sdkClient.ListCertificates(listCertificatesReq)
 		u.logger.Debug("sdk request 'waf.ShowCertificate'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'waf.ListCertificates'")
+			return nil, fmt.Errorf("failed to execute sdk request 'waf.ListCertificates': %w", err)
 		}
 
 		if listCertificatesResp.Items != nil {
@@ -96,11 +101,11 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 				showCertificateResp, err := u.sdkClient.ShowCertificate(showCertificateReq)
 				u.logger.Debug("sdk request 'waf.ShowCertificate'", slog.Any("request", showCertificateReq), slog.Any("response", showCertificateResp))
 				if err != nil {
-					return nil, xerrors.Wrap(err, "failed to execute sdk request 'waf.ShowCertificate'")
+					return nil, fmt.Errorf("failed to execute sdk request 'waf.ShowCertificate': %w", err)
 				}
 
 				var isSameCert bool
-				if *showCertificateResp.Content == certPem {
+				if *showCertificateResp.Content == certPEM {
 					isSameCert = true
 				} else {
 					oldCertX509, err := certutil.ParseCertificateFromPEM(*showCertificateResp.Content)
@@ -138,14 +143,14 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	createCertificateReq := &hcwafmodel.CreateCertificateRequest{
 		Body: &hcwafmodel.CreateCertificateRequestBody{
 			Name:    certName,
-			Content: certPem,
-			Key:     privkeyPem,
+			Content: certPEM,
+			Key:     privkeyPEM,
 		},
 	}
 	createCertificateResp, err := u.sdkClient.CreateCertificate(createCertificateReq)
 	u.logger.Debug("sdk request 'waf.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'waf.CreateCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'waf.CreateCertificate': %w", err)
 	}
 
 	certId = *createCertificateResp.Id

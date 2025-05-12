@@ -1,19 +1,19 @@
-﻿package huaweicloudcdn
+package huaweicloudcdn
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
 	hccdn "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2"
 	hccdnmodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
 	hccdnregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/region"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
 	uploadersp "github.com/usual2970/certimate/internal/pkg/core/uploader/providers/huaweicloud-scm"
-	hwsdk "github.com/usual2970/certimate/internal/pkg/vendors/huaweicloud-sdk"
+	typeutil "github.com/usual2970/certimate/internal/pkg/utils/type"
 )
 
 type DeployerConfig struct {
@@ -47,7 +47,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 		config.Region,
 	)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	uploader, err := uploadersp.NewUploader(&uploadersp.UploaderConfig{
@@ -55,7 +55,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 		SecretAccessKey: config.SecretAccessKey,
 	})
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -76,11 +76,11 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 上传证书到 SCM
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to upload certificate file")
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -93,7 +93,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	showDomainFullConfigResp, err := d.sdkClient.ShowDomainFullConfig(showDomainFullConfigReq)
 	d.logger.Debug("sdk request 'cdn.ShowDomainFullConfig'", slog.Any("request", showDomainFullConfigReq), slog.Any("response", showDomainFullConfigResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.ShowDomainFullConfig'")
+		return nil, fmt.Errorf("failed to execute sdk request 'cdn.ShowDomainFullConfig': %w", err)
 	}
 
 	// 更新加速域名配置
@@ -102,9 +102,9 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	updateDomainMultiCertificatesReqBodyContent := &hccdnmodel.UpdateDomainMultiCertificatesRequestBodyContent{}
 	updateDomainMultiCertificatesReqBodyContent.DomainName = d.config.Domain
 	updateDomainMultiCertificatesReqBodyContent.HttpsSwitch = 1
-	updateDomainMultiCertificatesReqBodyContent.CertificateType = hwsdk.Int32Ptr(2)
-	updateDomainMultiCertificatesReqBodyContent.ScmCertificateId = hwsdk.StringPtr(upres.CertId)
-	updateDomainMultiCertificatesReqBodyContent.CertName = hwsdk.StringPtr(upres.CertName)
+	updateDomainMultiCertificatesReqBodyContent.CertificateType = typeutil.ToPtr(int32(2))
+	updateDomainMultiCertificatesReqBodyContent.ScmCertificateId = typeutil.ToPtr(upres.CertId)
+	updateDomainMultiCertificatesReqBodyContent.CertName = typeutil.ToPtr(upres.CertName)
 	updateDomainMultiCertificatesReqBodyContent = assign(updateDomainMultiCertificatesReqBodyContent, showDomainFullConfigResp.Configs)
 	updateDomainMultiCertificatesReq := &hccdnmodel.UpdateDomainMultiCertificatesRequest{
 		Body: &hccdnmodel.UpdateDomainMultiCertificatesRequestBody{
@@ -114,7 +114,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	updateDomainMultiCertificatesResp, err := d.sdkClient.UpdateDomainMultiCertificates(updateDomainMultiCertificatesReq)
 	d.logger.Debug("sdk request 'cdn.UploadDomainMultiCertificates'", slog.Any("request", updateDomainMultiCertificatesReq), slog.Any("response", updateDomainMultiCertificatesResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.UploadDomainMultiCertificates'")
+		return nil, fmt.Errorf("failed to execute sdk request 'cdn.UploadDomainMultiCertificates': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil
@@ -159,11 +159,11 @@ func assign(source *hccdnmodel.UpdateDomainMultiCertificatesRequestBodyContent, 
 	}
 
 	if *target.OriginProtocol == "follow" {
-		source.AccessOriginWay = hwsdk.Int32Ptr(1)
+		source.AccessOriginWay = typeutil.ToPtr(int32(1))
 	} else if *target.OriginProtocol == "http" {
-		source.AccessOriginWay = hwsdk.Int32Ptr(2)
+		source.AccessOriginWay = typeutil.ToPtr(int32(2))
 	} else if *target.OriginProtocol == "https" {
-		source.AccessOriginWay = hwsdk.Int32Ptr(3)
+		source.AccessOriginWay = typeutil.ToPtr(int32(3))
 	}
 
 	if target.ForceRedirect != nil {
@@ -181,7 +181,7 @@ func assign(source *hccdnmodel.UpdateDomainMultiCertificatesRequestBodyContent, 
 
 	if target.Https != nil {
 		if *target.Https.Http2Status == "on" {
-			source.Http2 = hwsdk.Int32Ptr(1)
+			source.Http2 = typeutil.ToPtr(int32(1))
 		}
 	}
 

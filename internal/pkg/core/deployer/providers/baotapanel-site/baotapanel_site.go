@@ -1,4 +1,4 @@
-﻿package baotapanelsite
+package baotapanelsite
 
 import (
 	"context"
@@ -8,11 +8,9 @@ import (
 	"log/slog"
 	"net/url"
 
-	xerrors "github.com/pkg/errors"
-
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
-	"github.com/usual2970/certimate/internal/pkg/utils/sliceutil"
-	btsdk "github.com/usual2970/certimate/internal/pkg/vendors/btpanel-sdk"
+	btsdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/btpanel"
+	sliceutil "github.com/usual2970/certimate/internal/pkg/utils/slice"
 )
 
 type DeployerConfig struct {
@@ -45,7 +43,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.ApiUrl, config.ApiKey, config.AllowInsecureConnections)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -64,7 +62,7 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	switch d.config.SiteType {
 	case "php":
 		{
@@ -76,13 +74,13 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 			siteSetSSLReq := &btsdk.SiteSetSSLRequest{
 				SiteName:    d.config.SiteName,
 				Type:        "0",
-				Certificate: certPem,
-				PrivateKey:  privkeyPem,
+				Certificate: certPEM,
+				PrivateKey:  privkeyPEM,
 			}
 			siteSetSSLResp, err := d.sdkClient.SiteSetSSL(siteSetSSLReq)
 			d.logger.Debug("sdk request 'bt.SiteSetSSL'", slog.Any("request", siteSetSSLReq), slog.Any("response", siteSetSSLResp))
 			if err != nil {
-				return nil, xerrors.Wrap(err, "failed to execute sdk request 'bt.SiteSetSSL'")
+				return nil, fmt.Errorf("failed to execute sdk request 'bt.SiteSetSSL': %w", err)
 			}
 		}
 
@@ -94,13 +92,13 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 
 			// 上传证书
 			sslCertSaveCertReq := &btsdk.SSLCertSaveCertRequest{
-				Certificate: certPem,
-				PrivateKey:  privkeyPem,
+				Certificate: certPEM,
+				PrivateKey:  privkeyPEM,
 			}
 			sslCertSaveCertResp, err := d.sdkClient.SSLCertSaveCert(sslCertSaveCertReq)
 			d.logger.Debug("sdk request 'bt.SSLCertSaveCert'", slog.Any("request", sslCertSaveCertReq), slog.Any("response", sslCertSaveCertResp))
 			if err != nil {
-				return nil, xerrors.Wrap(err, "failed to execute sdk request 'bt.SSLCertSaveCert'")
+				return nil, fmt.Errorf("failed to execute sdk request 'bt.SSLCertSaveCert': %w", err)
 			}
 
 			// 设置站点证书
@@ -115,18 +113,18 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 			sslSetBatchCertToSiteResp, err := d.sdkClient.SSLSetBatchCertToSite(sslSetBatchCertToSiteReq)
 			d.logger.Debug("sdk request 'bt.SSLSetBatchCertToSite'", slog.Any("request", sslSetBatchCertToSiteReq), slog.Any("response", sslSetBatchCertToSiteResp))
 			if err != nil {
-				return nil, xerrors.Wrap(err, "failed to execute sdk request 'bt.SSLSetBatchCertToSite'")
+				return nil, fmt.Errorf("failed to execute sdk request 'bt.SSLSetBatchCertToSite': %w", err)
 			}
 		}
 
 	default:
-		return nil, fmt.Errorf("unsupported site type: %s", d.config.SiteType)
+		return nil, fmt.Errorf("unsupported site type '%s'", d.config.SiteType)
 	}
 
 	return &deployer.DeployResult{}, nil
 }
 
-func createSdkClient(apiUrl, apiKey string, allowInsecure bool) (*btsdk.Client, error) {
+func createSdkClient(apiUrl, apiKey string, skipTlsVerify bool) (*btsdk.Client, error) {
 	if _, err := url.Parse(apiUrl); err != nil {
 		return nil, errors.New("invalid baota api url")
 	}
@@ -136,7 +134,7 @@ func createSdkClient(apiUrl, apiKey string, allowInsecure bool) (*btsdk.Client, 
 	}
 
 	client := btsdk.NewClient(apiUrl, apiKey)
-	if allowInsecure {
+	if skipTlsVerify {
 		client.WithTLSConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 

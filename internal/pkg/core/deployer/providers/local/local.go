@@ -1,4 +1,4 @@
-﻿package local
+package local
 
 import (
 	"bytes"
@@ -8,11 +8,9 @@ import (
 	"os/exec"
 	"runtime"
 
-	xerrors "github.com/pkg/errors"
-
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
-	"github.com/usual2970/certimate/internal/pkg/utils/fileutil"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
+	fileutil "github.com/usual2970/certimate/internal/pkg/utils/file"
 )
 
 type DeployerConfig struct {
@@ -70,55 +68,55 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 执行前置命令
 	if d.config.PreCommand != "" {
 		stdout, stderr, err := execCommand(d.config.ShellEnv, d.config.PreCommand)
 		d.logger.Debug("run pre-command", slog.String("stdout", stdout), slog.String("stderr", stderr))
 		if err != nil {
-			return nil, xerrors.Wrapf(err, "failed to execute pre-command, stdout: %s, stderr: %s", stdout, stderr)
+			return nil, fmt.Errorf("failed to execute pre-command (stdout: %s, stderr: %s): %w ", stdout, stderr, err)
 		}
 	}
 
 	// 写入证书和私钥文件
 	switch d.config.OutputFormat {
 	case OUTPUT_FORMAT_PEM:
-		if err := fileutil.WriteString(d.config.OutputCertPath, certPem); err != nil {
-			return nil, xerrors.Wrap(err, "failed to save certificate file")
+		if err := fileutil.WriteString(d.config.OutputCertPath, certPEM); err != nil {
+			return nil, fmt.Errorf("failed to save certificate file: %w", err)
 		}
 		d.logger.Info("ssl certificate file saved", slog.String("path", d.config.OutputCertPath))
 
-		if err := fileutil.WriteString(d.config.OutputKeyPath, privkeyPem); err != nil {
-			return nil, xerrors.Wrap(err, "failed to save private key file")
+		if err := fileutil.WriteString(d.config.OutputKeyPath, privkeyPEM); err != nil {
+			return nil, fmt.Errorf("failed to save private key file: %w", err)
 		}
 		d.logger.Info("ssl private key file saved", slog.String("path", d.config.OutputKeyPath))
 
 	case OUTPUT_FORMAT_PFX:
-		pfxData, err := certutil.TransformCertificateFromPEMToPFX(certPem, privkeyPem, d.config.PfxPassword)
+		pfxData, err := certutil.TransformCertificateFromPEMToPFX(certPEM, privkeyPEM, d.config.PfxPassword)
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to transform certificate to PFX")
+			return nil, fmt.Errorf("failed to transform certificate to PFX: %w", err)
 		}
 		d.logger.Info("ssl certificate transformed to pfx")
 
 		if err := fileutil.Write(d.config.OutputCertPath, pfxData); err != nil {
-			return nil, xerrors.Wrap(err, "failed to save certificate file")
+			return nil, fmt.Errorf("failed to save certificate file: %w", err)
 		}
 		d.logger.Info("ssl certificate file saved", slog.String("path", d.config.OutputCertPath))
 
 	case OUTPUT_FORMAT_JKS:
-		jksData, err := certutil.TransformCertificateFromPEMToJKS(certPem, privkeyPem, d.config.JksAlias, d.config.JksKeypass, d.config.JksStorepass)
+		jksData, err := certutil.TransformCertificateFromPEMToJKS(certPEM, privkeyPEM, d.config.JksAlias, d.config.JksKeypass, d.config.JksStorepass)
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to transform certificate to JKS")
+			return nil, fmt.Errorf("failed to transform certificate to JKS: %w", err)
 		}
 		d.logger.Info("ssl certificate transformed to jks")
 
 		if err := fileutil.Write(d.config.OutputCertPath, jksData); err != nil {
-			return nil, xerrors.Wrap(err, "failed to save certificate file")
+			return nil, fmt.Errorf("failed to save certificate file: %w", err)
 		}
 		d.logger.Info("ssl certificate file saved", slog.String("path", d.config.OutputCertPath))
 
 	default:
-		return nil, fmt.Errorf("unsupported output format: %s", d.config.OutputFormat)
+		return nil, fmt.Errorf("unsupported output format '%s'", d.config.OutputFormat)
 	}
 
 	// 执行后置命令
@@ -126,7 +124,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		stdout, stderr, err := execCommand(d.config.ShellEnv, d.config.PostCommand)
 		d.logger.Debug("run post-command", slog.String("stdout", stdout), slog.String("stderr", stderr))
 		if err != nil {
-			return nil, xerrors.Wrapf(err, "failed to execute post-command, stdout: %s, stderr: %s", stdout, stderr)
+			return nil, fmt.Errorf("failed to execute post-command (stdout: %s, stderr: %s): %w ", stdout, stderr, err)
 		}
 	}
 
@@ -154,7 +152,7 @@ func execCommand(shellEnv ShellEnvType, command string) (string, string, error) 
 		}
 
 	default:
-		return "", "", fmt.Errorf("unsupported shell env: %s", shellEnv)
+		return "", "", fmt.Errorf("unsupported shell env '%s'", shellEnv)
 	}
 
 	stdoutBuf := bytes.NewBuffer(nil)
@@ -163,7 +161,7 @@ func execCommand(shellEnv ShellEnvType, command string) (string, string, error) 
 	cmd.Stderr = stderrBuf
 	err := cmd.Run()
 	if err != nil {
-		return stdoutBuf.String(), stderrBuf.String(), xerrors.Wrap(err, "failed to execute command")
+		return stdoutBuf.String(), stderrBuf.String(), fmt.Errorf("failed to execute command: %w", err)
 	}
 
 	return stdoutBuf.String(), stderrBuf.String(), nil

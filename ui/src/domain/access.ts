@@ -14,6 +14,7 @@ export interface AccessModel extends BaseModel {
       | AccessConfigForBaiduCloud
       | AccessConfigForBaishan
       | AccessConfigForBaotaPanel
+      | AccessConfigForBunny
       | AccessConfigForBytePlus
       | AccessConfigForCacheFly
       | AccessConfigForCdnfly
@@ -21,34 +22,46 @@ export interface AccessModel extends BaseModel {
       | AccessConfigForClouDNS
       | AccessConfigForCMCCCloud
       | AccessConfigForDeSEC
+      | AccessConfigForDingTalkBot
       | AccessConfigForDNSLA
       | AccessConfigForDogeCloud
       | AccessConfigForDynv6
       | AccessConfigForEdgio
+      | AccessConfigForEmail
       | AccessConfigForGcore
       | AccessConfigForGname
       | AccessConfigForGoDaddy
+      | AccessConfigForGoEdge
+      | AccessConfigForGoogleTrustServices
       | AccessConfigForHuaweiCloud
       | AccessConfigForJDCloud
       | AccessConfigForKubernetes
-      | AccessConfigForLocal
+      | AccessConfigForLarkBot
+      | AccessConfigForMattermost
       | AccessConfigForNamecheap
       | AccessConfigForNameDotCom
       | AccessConfigForNameSilo
       | AccessConfigForPorkbun
       | AccessConfigForPowerDNS
+      | AccessConfigForProxmoxVE
       | AccessConfigForQiniu
       | AccessConfigForRainYun
       | AccessConfigForSafeLine
       | AccessConfigForSSH
+      | AccessConfigForSSLCom
+      | AccessConfigForTelegram
       | AccessConfigForTencentCloud
       | AccessConfigForUCloud
       | AccessConfigForUpyun
       | AccessConfigForVercel
       | AccessConfigForVolcEngine
+      | AccessConfigForWangsu
       | AccessConfigForWebhook
+      | AccessConfigForWeComBot
       | AccessConfigForWestcn
+      | AccessConfigForZeroSSL
     );
+  reserve?: "ca" | "notification";
 }
 
 // #region AccessConfig
@@ -97,6 +110,10 @@ export type AccessConfigForBaotaPanel = {
   allowInsecureConnections?: boolean;
 };
 
+export type AccessConfigForBunny = {
+  apiKey: string;
+};
+
 export type AccessConfigForBytePlus = {
   accessKey: string;
   secretKey: string;
@@ -110,10 +127,12 @@ export type AccessConfigForCdnfly = {
   apiUrl: string;
   apiKey: string;
   apiSecret: string;
+  allowInsecureConnections?: boolean;
 };
 
 export type AccessConfigForCloudflare = {
   dnsApiToken: string;
+  zoneApiToken?: string;
 };
 
 export type AccessConfigForClouDNS = {
@@ -128,6 +147,11 @@ export type AccessConfigForCMCCCloud = {
 
 export type AccessConfigForDeSEC = {
   token: string;
+};
+
+export type AccessConfigForDingTalkBot = {
+  webhookUrl: string;
+  secret?: string;
 };
 
 export type AccessConfigForDNSLA = {
@@ -149,6 +173,16 @@ export type AccessConfigForEdgio = {
   clientSecret: string;
 };
 
+export type AccessConfigForEmail = {
+  smtpHost: string;
+  smtpPort: number;
+  smtpTls: boolean;
+  username: string;
+  password: string;
+  defaultSenderAddress?: string;
+  defaultReceiverAddress?: string;
+};
+
 export type AccessConfigForGcore = {
   apiToken: string;
 };
@@ -161,6 +195,18 @@ export type AccessConfigForGname = {
 export type AccessConfigForGoDaddy = {
   apiKey: string;
   apiSecret: string;
+};
+
+export type AccessConfigForGoEdge = {
+  apiUrl: string;
+  accessKeyId: string;
+  accessKey: string;
+  allowInsecureConnections?: boolean;
+};
+
+export type AccessConfigForGoogleTrustServices = {
+  eabKid: string;
+  eabHmacKey: string;
 };
 
 export type AccessConfigForHuaweiCloud = {
@@ -177,7 +223,16 @@ export type AccessConfigForKubernetes = {
   kubeConfig?: string;
 };
 
-export type AccessConfigForLocal = NonNullable<unknown>;
+export type AccessConfigForLarkBot = {
+  webhookUrl: string;
+};
+
+export type AccessConfigForMattermost = {
+  serverUrl: string;
+  username: string;
+  password: string;
+  defaultChannelId?: string;
+};
 
 export type AccessConfigForNamecheap = {
   username: string;
@@ -205,6 +260,14 @@ export type AccessConfigForPorkbun = {
 export type AccessConfigForPowerDNS = {
   apiUrl: string;
   apiKey: string;
+  allowInsecureConnections?: boolean;
+};
+
+export type AccessConfigForProxmoxVE = {
+  apiUrl: string;
+  apiToken: string;
+  apiTokenSecret?: string;
+  allowInsecureConnections?: boolean;
 };
 
 export type AccessConfigForQiniu = {
@@ -229,6 +292,16 @@ export type AccessConfigForSSH = {
   password?: string;
   key?: string;
   keyPassphrase?: string;
+};
+
+export type AccessConfigForSSLCom = {
+  eabKid: string;
+  eabHmacKey: string;
+};
+
+export type AccessConfigForTelegram = {
+  botToken: string;
+  defaultChatId?: number;
 };
 
 export type AccessConfigForTencentCloud = {
@@ -257,13 +330,32 @@ export type AccessConfigForVolcEngine = {
   secretAccessKey: string;
 };
 
+export type AccessConfigForWangsu = {
+  accessKeyId: string;
+  accessKeySecret: string;
+  apiKey: string;
+};
+
 export type AccessConfigForWebhook = {
   url: string;
+  method: string;
+  headers?: string;
   allowInsecureConnections?: boolean;
+  defaultDataForDeployment?: string;
+  defaultDataForNotification?: string;
+};
+
+export type AccessConfigForWeComBot = {
+  webhookUrl: string;
 };
 
 export type AccessConfigForWestcn = {
   username: string;
   apiPassword: string;
+};
+
+export type AccessConfigForZeroSSL = {
+  eabKid: string;
+  eabHmacKey: string;
 };
 // #endregion

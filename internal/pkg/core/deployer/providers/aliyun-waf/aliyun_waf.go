@@ -1,4 +1,4 @@
-﻿package aliyunwaf
+package aliyunwaf
 
 import (
 	"context"
@@ -10,12 +10,11 @@ import (
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
 	aliwaf "github.com/alibabacloud-go/waf-openapi-20211001/v5/client"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
 	uploadersp "github.com/usual2970/certimate/internal/pkg/core/uploader/providers/aliyun-cas"
-	"github.com/usual2970/certimate/internal/pkg/utils/sliceutil"
+	sliceutil "github.com/usual2970/certimate/internal/pkg/utils/slice"
 )
 
 type DeployerConfig struct {
@@ -49,12 +48,12 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	uploader, err := createSslUploader(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -75,29 +74,29 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.InstanceId == "" {
 		return nil, errors.New("config `instanceId` is required")
 	}
 
 	switch d.config.ServiceVersion {
 	case "3", "3.0":
-		if err := d.deployToWAF3(ctx, certPem, privkeyPem); err != nil {
+		if err := d.deployToWAF3(ctx, certPEM, privkeyPEM); err != nil {
 			return nil, err
 		}
 
 	default:
-		return nil, xerrors.Errorf("unsupported service version: %s", d.config.ServiceVersion)
+		return nil, fmt.Errorf("unsupported service version '%s'", d.config.ServiceVersion)
 	}
 
 	return &deployer.DeployResult{}, nil
 }
 
-func (d *DeployerProvider) deployToWAF3(ctx context.Context, certPem string, privkeyPem string) error {
+func (d *DeployerProvider) deployToWAF3(ctx context.Context, certPEM string, privkeyPEM string) error {
 	// 上传证书到 CAS
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return xerrors.Wrap(err, "failed to upload certificate file")
+		return fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -114,7 +113,7 @@ func (d *DeployerProvider) deployToWAF3(ctx context.Context, certPem string, pri
 		describeDefaultHttpsResp, err := d.sdkClient.DescribeDefaultHttps(describeDefaultHttpsReq)
 		d.logger.Debug("sdk request 'waf.DescribeDefaultHttps'", slog.Any("request", describeDefaultHttpsReq), slog.Any("response", describeDefaultHttpsResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'waf.DescribeDefaultHttps'")
+			return fmt.Errorf("failed to execute sdk request 'waf.DescribeDefaultHttps': %w", err)
 		}
 
 		// 修改默认 SSL/TLS 设置
@@ -133,7 +132,7 @@ func (d *DeployerProvider) deployToWAF3(ctx context.Context, certPem string, pri
 		modifyDefaultHttpsResp, err := d.sdkClient.ModifyDefaultHttps(modifyDefaultHttpsReq)
 		d.logger.Debug("sdk request 'waf.ModifyDefaultHttps'", slog.Any("request", modifyDefaultHttpsReq), slog.Any("response", modifyDefaultHttpsResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'waf.ModifyDefaultHttps'")
+			return fmt.Errorf("failed to execute sdk request 'waf.ModifyDefaultHttps': %w", err)
 		}
 	} else {
 		// 指定接入域名
@@ -148,7 +147,7 @@ func (d *DeployerProvider) deployToWAF3(ctx context.Context, certPem string, pri
 		describeDomainDetailResp, err := d.sdkClient.DescribeDomainDetail(describeDomainDetailReq)
 		d.logger.Debug("sdk request 'waf.DescribeDomainDetail'", slog.Any("request", describeDomainDetailReq), slog.Any("response", describeDomainDetailResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'waf.DescribeDomainDetail'")
+			return fmt.Errorf("failed to execute sdk request 'waf.DescribeDomainDetail': %w", err)
 		}
 
 		// 修改 CNAME 接入资源
@@ -157,14 +156,14 @@ func (d *DeployerProvider) deployToWAF3(ctx context.Context, certPem string, pri
 			InstanceId: tea.String(d.config.InstanceId),
 			RegionId:   tea.String(d.config.Region),
 			Domain:     tea.String(d.config.Domain),
-			Listen:     &aliwaf.ModifyDomainRequestListen{CertId: tea.String(upres.CertId)},
+			Listen:     &aliwaf.ModifyDomainRequestListen{CertId: tea.String(upres.ExtendedData["certIdentifier"].(string))},
 			Redirect:   &aliwaf.ModifyDomainRequestRedirect{Loadbalance: tea.String("iphash")},
 		}
 		modifyDomainReq = assign(modifyDomainReq, describeDomainDetailResp.Body)
 		modifyDomainResp, err := d.sdkClient.ModifyDomain(modifyDomainReq)
 		d.logger.Debug("sdk request 'waf.ModifyDomain'", slog.Any("request", modifyDomainReq), slog.Any("response", modifyDomainResp))
 		if err != nil {
-			return xerrors.Wrap(err, "failed to execute sdk request 'waf.ModifyDomain'")
+			return fmt.Errorf("failed to execute sdk request 'waf.ModifyDomain': %w", err)
 		}
 	}
 
@@ -193,7 +192,7 @@ func createSslUploader(accessKeyId, accessKeySecret, region string) (uploader.Up
 		// 阿里云 CAS 服务接入点是独立于 WAF 服务的
 		// 国内版固定接入点：华东一杭州
 		// 国际版固定接入点：亚太东南一新加坡
-		if casRegion != "" && !strings.HasPrefix(casRegion, "cn-") {
+		if !strings.HasPrefix(casRegion, "cn-") {
 			casRegion = "ap-southeast-1"
 		} else {
 			casRegion = "cn-hangzhou"

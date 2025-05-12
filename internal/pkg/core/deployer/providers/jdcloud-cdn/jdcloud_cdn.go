@@ -1,13 +1,13 @@
-﻿package jdcloudcdn
+package jdcloudcdn
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	jdcore "github.com/jdcloud-api/jdcloud-sdk-go/core"
 	jdcdnapi "github.com/jdcloud-api/jdcloud-sdk-go/services/cdn/apis"
 	jdcdnclient "github.com/jdcloud-api/jdcloud-sdk-go/services/cdn/client"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
@@ -39,7 +39,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	uploader, err := uploadersp.NewUploader(&uploadersp.UploaderConfig{
@@ -47,7 +47,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 		AccessKeySecret: config.AccessKeySecret,
 	})
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -68,20 +68,20 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 查询域名配置信息
 	// REF: https://docs.jdcloud.com/cn/cdn/api/querydomainconfig
 	queryDomainConfigReq := jdcdnapi.NewQueryDomainConfigRequest(d.config.Domain)
 	queryDomainConfigResp, err := d.sdkClient.QueryDomainConfig(queryDomainConfigReq)
 	d.logger.Debug("sdk request 'cdn.QueryDomainConfig'", slog.Any("request", queryDomainConfigReq), slog.Any("response", queryDomainConfigResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.QueryDomainConfig'")
+		return nil, fmt.Errorf("failed to execute sdk request 'cdn.QueryDomainConfig': %w", err)
 	}
 
 	// 上传证书到 SSL
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to upload certificate file")
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -90,15 +90,15 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	// REF: https://docs.jdcloud.com/cn/cdn/api/sethttptype
 	setHttpTypeReq := jdcdnapi.NewSetHttpTypeRequest(d.config.Domain)
 	setHttpTypeReq.SetHttpType("https")
-	setHttpTypeReq.SetCertificate(certPem)
-	setHttpTypeReq.SetRsaKey(privkeyPem)
+	setHttpTypeReq.SetCertificate(certPEM)
+	setHttpTypeReq.SetRsaKey(privkeyPEM)
 	setHttpTypeReq.SetCertFrom("ssl")
 	setHttpTypeReq.SetSslCertId(upres.CertId)
 	setHttpTypeReq.SetJumpType(queryDomainConfigResp.Result.HttpsJumpType)
 	setHttpTypeResp, err := d.sdkClient.SetHttpType(setHttpTypeReq)
 	d.logger.Debug("sdk request 'cdn.QueryDomainConfig'", slog.Any("request", setHttpTypeReq), slog.Any("response", setHttpTypeResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.SetHttpType'")
+		return nil, fmt.Errorf("failed to execute sdk request 'cdn.SetHttpType': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil

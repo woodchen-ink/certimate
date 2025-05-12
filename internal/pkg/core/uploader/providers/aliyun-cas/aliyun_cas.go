@@ -1,4 +1,4 @@
-﻿package aliyuncas
+package aliyuncas
 
 import (
 	"context"
@@ -10,10 +10,9 @@ import (
 	alicas "github.com/alibabacloud-go/cas-20200407/v3/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
 )
 
 type UploaderConfig struct {
@@ -40,7 +39,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -59,9 +58,9 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -72,6 +71,12 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	listUserCertificateOrderPage := int64(1)
 	listUserCertificateOrderLimit := int64(50)
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		listUserCertificateOrderReq := &alicas.ListUserCertificateOrderRequest{
 			CurrentPage: tea.Int64(listUserCertificateOrderPage),
 			ShowSize:    tea.Int64(listUserCertificateOrderLimit),
@@ -80,7 +85,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 		listUserCertificateOrderResp, err := u.sdkClient.ListUserCertificateOrder(listUserCertificateOrderReq)
 		u.logger.Debug("sdk request 'cas.ListUserCertificateOrder'", slog.Any("request", listUserCertificateOrderReq), slog.Any("response", listUserCertificateOrderResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'cas.ListUserCertificateOrder'")
+			return nil, fmt.Errorf("failed to execute sdk request 'cas.ListUserCertificateOrder': %w", err)
 		}
 
 		if listUserCertificateOrderResp.Body.CertificateOrderList != nil {
@@ -95,11 +100,11 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 				getUserCertificateDetailResp, err := u.sdkClient.GetUserCertificateDetail(getUserCertificateDetailReq)
 				u.logger.Debug("sdk request 'cas.GetUserCertificateDetail'", slog.Any("request", getUserCertificateDetailReq), slog.Any("response", getUserCertificateDetailResp))
 				if err != nil {
-					return nil, xerrors.Wrap(err, "failed to execute sdk request 'cas.GetUserCertificateDetail'")
+					return nil, fmt.Errorf("failed to execute sdk request 'cas.GetUserCertificateDetail': %w", err)
 				}
 
 				var isSameCert bool
-				if *getUserCertificateDetailResp.Body.Cert == certPem {
+				if *getUserCertificateDetailResp.Body.Cert == certPEM {
 					isSameCert = true
 				} else {
 					oldCertX509, err := certutil.ParseCertificateFromPEM(*getUserCertificateDetailResp.Body.Cert)
@@ -116,6 +121,10 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 					return &uploader.UploadResult{
 						CertId:   fmt.Sprintf("%d", tea.Int64Value(certDetail.CertificateId)),
 						CertName: *certDetail.Name,
+						ExtendedData: map[string]any{
+							"instanceId":     tea.StringValue(getUserCertificateDetailResp.Body.InstanceId),
+							"certIdentifier": tea.StringValue(getUserCertificateDetailResp.Body.CertIdentifier),
+						},
 					}, nil
 				}
 			}
@@ -129,26 +138,40 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	}
 
 	// 生成新证书名（需符合阿里云命名规则）
-	var certId, certName string
-	certName = fmt.Sprintf("certimate_%d", time.Now().UnixMilli())
+	certName := fmt.Sprintf("certimate_%d", time.Now().UnixMilli())
 
 	// 上传新证书
 	// REF: https://help.aliyun.com/zh/ssl-certificate/developer-reference/api-cas-2020-04-07-uploadusercertificate
 	uploadUserCertificateReq := &alicas.UploadUserCertificateRequest{
 		Name: tea.String(certName),
-		Cert: tea.String(certPem),
-		Key:  tea.String(privkeyPem),
+		Cert: tea.String(certPEM),
+		Key:  tea.String(privkeyPEM),
 	}
 	uploadUserCertificateResp, err := u.sdkClient.UploadUserCertificate(uploadUserCertificateReq)
 	u.logger.Debug("sdk request 'cas.UploadUserCertificate'", slog.Any("request", uploadUserCertificateReq), slog.Any("response", uploadUserCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'cas.UploadUserCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'cas.UploadUserCertificate': %w", err)
 	}
 
-	certId = fmt.Sprintf("%d", tea.Int64Value(uploadUserCertificateResp.Body.CertId))
+	// 获取证书详情
+	// REF: https://help.aliyun.com/zh/ssl-certificate/developer-reference/api-cas-2020-04-07-getusercertificatedetail
+	getUserCertificateDetailReq := &alicas.GetUserCertificateDetailRequest{
+		CertId:     uploadUserCertificateResp.Body.CertId,
+		CertFilter: tea.Bool(true),
+	}
+	getUserCertificateDetailResp, err := u.sdkClient.GetUserCertificateDetail(getUserCertificateDetailReq)
+	u.logger.Debug("sdk request 'cas.GetUserCertificateDetail'", slog.Any("request", getUserCertificateDetailReq), slog.Any("response", getUserCertificateDetailResp))
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute sdk request 'cas.GetUserCertificateDetail': %w", err)
+	}
+
 	return &uploader.UploadResult{
-		CertId:   certId,
+		CertId:   fmt.Sprintf("%d", tea.Int64Value(getUserCertificateDetailResp.Body.Id)),
 		CertName: certName,
+		ExtendedData: map[string]any{
+			"instanceId":     tea.StringValue(getUserCertificateDetailResp.Body.InstanceId),
+			"certIdentifier": tea.StringValue(getUserCertificateDetailResp.Body.CertIdentifier),
+		},
 	}, nil
 }
 

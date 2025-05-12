@@ -1,12 +1,12 @@
-﻿package volcenginelive
+package volcenginelive
 
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"strings"
 
-	xerrors "github.com/pkg/errors"
 	velive "github.com/volcengine/volc-sdk-golang/service/live/v20230101"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
 
@@ -47,7 +47,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 		AccessKeySecret: config.AccessKeySecret,
 	})
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -68,11 +68,11 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 上传证书到 Live
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to upload certificate file")
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -92,7 +92,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 			listDomainDetailResp, err := d.sdkClient.ListDomainDetail(ctx, listDomainDetailReq)
 			d.logger.Debug("sdk request 'live.ListDomainDetail'", slog.Any("request", listDomainDetailReq), slog.Any("response", listDomainDetailResp))
 			if err != nil {
-				return nil, xerrors.Wrap(err, "failed to execute sdk request 'live.ListDomainDetail'")
+				return nil, fmt.Errorf("failed to execute sdk request 'live.ListDomainDetail': %w", err)
 			}
 
 			if listDomainDetailResp.Result.DomainList != nil {
@@ -125,17 +125,22 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		var errs []error
 
 		for _, domain := range domains {
-			// 绑定证书
-			// REF: https://www.volcengine.com/docs/6469/1186278#%E7%BB%91%E5%AE%9A%E8%AF%81%E4%B9%A6
-			bindCertReq := &velive.BindCertBody{
-				ChainID: upres.CertId,
-				Domain:  domain,
-				HTTPS:   ve.Bool(true),
-			}
-			bindCertResp, err := d.sdkClient.BindCert(ctx, bindCertReq)
-			d.logger.Debug("sdk request 'live.BindCert'", slog.Any("request", bindCertReq), slog.Any("response", bindCertResp))
-			if err != nil {
-				errs = append(errs, err)
+			select {
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			default:
+				// 绑定证书
+				// REF: https://www.volcengine.com/docs/6469/1186278#%E7%BB%91%E5%AE%9A%E8%AF%81%E4%B9%A6
+				bindCertReq := &velive.BindCertBody{
+					ChainID: upres.CertId,
+					Domain:  domain,
+					HTTPS:   ve.Bool(true),
+				}
+				bindCertResp, err := d.sdkClient.BindCert(ctx, bindCertReq)
+				d.logger.Debug("sdk request 'live.BindCert'", slog.Any("request", bindCertReq), slog.Any("response", bindCertResp))
+				if err != nil {
+					errs = append(errs, err)
+				}
 			}
 		}
 

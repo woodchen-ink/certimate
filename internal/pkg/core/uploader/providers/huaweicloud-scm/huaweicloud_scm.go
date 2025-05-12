@@ -1,4 +1,4 @@
-﻿package huaweicloudscm
+package huaweicloudscm
 
 import (
 	"context"
@@ -10,11 +10,10 @@ import (
 	hcscm "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/scm/v3"
 	hcscmmodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/scm/v3/model"
 	hcscmregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/scm/v3/region"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
-	hwsdk "github.com/usual2970/certimate/internal/pkg/vendors/huaweicloud-sdk"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
+	typeutil "github.com/usual2970/certimate/internal/pkg/utils/type"
 )
 
 type UploaderConfig struct {
@@ -41,7 +40,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -60,9 +59,9 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -73,16 +72,22 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	listCertificatesLimit := int32(50)
 	listCertificatesOffset := int32(0)
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		listCertificatesReq := &hcscmmodel.ListCertificatesRequest{
-			Limit:   hwsdk.Int32Ptr(listCertificatesLimit),
-			Offset:  hwsdk.Int32Ptr(listCertificatesOffset),
-			SortDir: hwsdk.StringPtr("DESC"),
-			SortKey: hwsdk.StringPtr("certExpiredTime"),
+			Limit:   typeutil.ToPtr(listCertificatesLimit),
+			Offset:  typeutil.ToPtr(listCertificatesOffset),
+			SortDir: typeutil.ToPtr("DESC"),
+			SortKey: typeutil.ToPtr("certExpiredTime"),
 		}
 		listCertificatesResp, err := u.sdkClient.ListCertificates(listCertificatesReq)
 		u.logger.Debug("sdk request 'scm.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'scm.ListCertificates'")
+			return nil, fmt.Errorf("failed to execute sdk request 'scm.ListCertificates': %w", err)
 		}
 
 		if listCertificatesResp.Certificates != nil {
@@ -96,11 +101,11 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 					if exportCertificateResp != nil && exportCertificateResp.HttpStatusCode == 404 {
 						continue
 					}
-					return nil, xerrors.Wrap(err, "failed to execute sdk request 'scm.ExportCertificate'")
+					return nil, fmt.Errorf("failed to execute sdk request 'scm.ExportCertificate': %w", err)
 				}
 
 				var isSameCert bool
-				if *exportCertificateResp.Certificate == certPem {
+				if *exportCertificateResp.Certificate == certPEM {
 					isSameCert = true
 				} else {
 					oldCertX509, err := certutil.ParseCertificateFromPEM(*exportCertificateResp.Certificate)
@@ -138,14 +143,14 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	importCertificateReq := &hcscmmodel.ImportCertificateRequest{
 		Body: &hcscmmodel.ImportCertificateRequestBody{
 			Name:        certName,
-			Certificate: certPem,
-			PrivateKey:  privkeyPem,
+			Certificate: certPEM,
+			PrivateKey:  privkeyPEM,
 		},
 	}
 	importCertificateResp, err := u.sdkClient.ImportCertificate(importCertificateReq)
 	u.logger.Debug("sdk request 'scm.ImportCertificate'", slog.Any("request", importCertificateReq), slog.Any("response", importCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'scm.ImportCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'scm.ImportCertificate': %w", err)
 	}
 
 	certId = *importCertificateResp.CertificateId

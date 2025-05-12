@@ -1,4 +1,4 @@
-﻿package aliyunoss
+package aliyunoss
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"log/slog"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 )
@@ -40,7 +39,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -59,7 +58,7 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.Bucket == "" {
 		return nil, errors.New("config `bucket` is required")
 	}
@@ -72,15 +71,15 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	putBucketCnameWithCertificateReq := oss.PutBucketCname{
 		Cname: d.config.Domain,
 		CertificateConfiguration: &oss.CertificateConfiguration{
-			Certificate: certPem,
-			PrivateKey:  privkeyPem,
+			Certificate: certPEM,
+			PrivateKey:  privkeyPEM,
 			Force:       true,
 		},
 	}
 	err := d.sdkClient.PutBucketCnameWithCertificate(d.config.Bucket, putBucketCnameWithCertificateReq)
 	d.logger.Debug("sdk request 'oss.PutBucketCnameWithCertificate'", slog.Any("bucket", d.config.Bucket), slog.Any("request", putBucketCnameWithCertificateReq))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'oss.PutBucketCnameWithCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'oss.PutBucketCnameWithCertificate': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil

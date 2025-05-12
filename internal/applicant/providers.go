@@ -8,9 +8,11 @@ import (
 	"github.com/usual2970/certimate/internal/domain"
 	pACMEHttpReq "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/acmehttpreq"
 	pAliyun "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/aliyun"
+	pAliyunESA "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/aliyun-esa"
 	pAWSRoute53 "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/aws-route53"
 	pAzureDNS "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/azure-dns"
 	pBaiduCloud "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/baiducloud"
+	pBunny "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/bunny"
 	pCloudflare "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/cloudflare"
 	pClouDNS "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/cloudns"
 	pCMCCCloud "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/cmcccloud"
@@ -34,16 +36,35 @@ import (
 	pVercel "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/vercel"
 	pVolcEngine "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/volcengine"
 	pWestcn "github.com/usual2970/certimate/internal/pkg/core/applicant/acme-dns-01/lego-providers/westcn"
-	"github.com/usual2970/certimate/internal/pkg/utils/maputil"
+	maputil "github.com/usual2970/certimate/internal/pkg/utils/map"
 )
 
-func createApplicant(options *applicantOptions) (challenge.Provider, error) {
+type applicantProviderOptions struct {
+	Domains                  []string
+	ContactEmail             string
+	Provider                 domain.ACMEDns01ProviderType
+	ProviderAccessConfig     map[string]any
+	ProviderExtendedConfig   map[string]any
+	CAProvider               domain.CAProviderType
+	CAProviderAccessConfig   map[string]any
+	CAProviderExtendedConfig map[string]any
+	KeyAlgorithm             string
+	Nameservers              []string
+	DnsPropagationWait       int32
+	DnsPropagationTimeout    int32
+	DnsTTL                   int32
+	DisableFollowCNAME       bool
+	ReplacedARIAcct          string
+	ReplacedARICert          string
+}
+
+func createApplicantProvider(options *applicantProviderOptions) (challenge.Provider, error) {
 	/*
 	  注意：如果追加新的常量值，请保持以 ASCII 排序。
 	  NOTICE: If you add new constant, please keep ASCII order.
 	*/
 	switch options.Provider {
-	case domain.ApplyDNSProviderTypeACMEHttpReq:
+	case domain.ACMEDns01ProviderTypeACMEHttpReq:
 		{
 			access := domain.AccessConfigForACMEHttpReq{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -60,23 +81,39 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeAliyun, domain.ApplyDNSProviderTypeAliyunDNS:
+	case domain.ACMEDns01ProviderTypeAliyun, domain.ACMEDns01ProviderTypeAliyunDNS, domain.ACMEDns01ProviderTypeAliyunESA:
 		{
 			access := domain.AccessConfigForAliyun{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
 				return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 			}
 
-			applicant, err := pAliyun.NewChallengeProvider(&pAliyun.ChallengeProviderConfig{
-				AccessKeyId:           access.AccessKeyId,
-				AccessKeySecret:       access.AccessKeySecret,
-				DnsPropagationTimeout: options.DnsPropagationTimeout,
-				DnsTTL:                options.DnsTTL,
-			})
-			return applicant, err
+			switch options.Provider {
+			case domain.ACMEDns01ProviderTypeAliyun, domain.ACMEDns01ProviderTypeAliyunDNS:
+				applicant, err := pAliyun.NewChallengeProvider(&pAliyun.ChallengeProviderConfig{
+					AccessKeyId:           access.AccessKeyId,
+					AccessKeySecret:       access.AccessKeySecret,
+					DnsPropagationTimeout: options.DnsPropagationTimeout,
+					DnsTTL:                options.DnsTTL,
+				})
+				return applicant, err
+
+			case domain.ACMEDns01ProviderTypeAliyunESA:
+				applicant, err := pAliyunESA.NewChallengeProvider(&pAliyunESA.ChallengeProviderConfig{
+					AccessKeyId:           access.AccessKeyId,
+					AccessKeySecret:       access.AccessKeySecret,
+					Region:                maputil.GetString(options.ProviderExtendedConfig, "region"),
+					DnsPropagationTimeout: options.DnsPropagationTimeout,
+					DnsTTL:                options.DnsTTL,
+				})
+				return applicant, err
+
+			default:
+				break
+			}
 		}
 
-	case domain.ApplyDNSProviderTypeAWS, domain.ApplyDNSProviderTypeAWSRoute53:
+	case domain.ACMEDns01ProviderTypeAWS, domain.ACMEDns01ProviderTypeAWSRoute53:
 		{
 			access := domain.AccessConfigForAWS{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -86,15 +123,15 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			applicant, err := pAWSRoute53.NewChallengeProvider(&pAWSRoute53.ChallengeProviderConfig{
 				AccessKeyId:           access.AccessKeyId,
 				SecretAccessKey:       access.SecretAccessKey,
-				Region:                maputil.GetString(options.ProviderApplyConfig, "region"),
-				HostedZoneId:          maputil.GetString(options.ProviderApplyConfig, "hostedZoneId"),
+				Region:                maputil.GetString(options.ProviderExtendedConfig, "region"),
+				HostedZoneId:          maputil.GetString(options.ProviderExtendedConfig, "hostedZoneId"),
 				DnsPropagationTimeout: options.DnsPropagationTimeout,
 				DnsTTL:                options.DnsTTL,
 			})
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeAzure, domain.ApplyDNSProviderTypeAzureDNS:
+	case domain.ACMEDns01ProviderTypeAzure, domain.ACMEDns01ProviderTypeAzureDNS:
 		{
 			access := domain.AccessConfigForAzure{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -112,7 +149,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeBaiduCloud, domain.ApplyDNSProviderTypeBaiduCloudDNS:
+	case domain.ACMEDns01ProviderTypeBaiduCloud, domain.ACMEDns01ProviderTypeBaiduCloudDNS:
 		{
 			access := domain.AccessConfigForBaiduCloud{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -128,7 +165,22 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeCloudflare:
+	case domain.ACMEDns01ProviderTypeBunny:
+		{
+			access := domain.AccessConfigForBunny{}
+			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
+				return nil, fmt.Errorf("failed to populate provider access config: %w", err)
+			}
+
+			applicant, err := pBunny.NewChallengeProvider(&pBunny.ChallengeProviderConfig{
+				ApiKey:                access.ApiKey,
+				DnsPropagationTimeout: options.DnsPropagationTimeout,
+				DnsTTL:                options.DnsTTL,
+			})
+			return applicant, err
+		}
+
+	case domain.ACMEDns01ProviderTypeCloudflare:
 		{
 			access := domain.AccessConfigForCloudflare{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -137,13 +189,14 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 
 			applicant, err := pCloudflare.NewChallengeProvider(&pCloudflare.ChallengeProviderConfig{
 				DnsApiToken:           access.DnsApiToken,
+				ZoneApiToken:          access.ZoneApiToken,
 				DnsPropagationTimeout: options.DnsPropagationTimeout,
 				DnsTTL:                options.DnsTTL,
 			})
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeClouDNS:
+	case domain.ACMEDns01ProviderTypeClouDNS:
 		{
 			access := domain.AccessConfigForClouDNS{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -159,7 +212,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeCMCCCloud:
+	case domain.ACMEDns01ProviderTypeCMCCCloud:
 		{
 			access := domain.AccessConfigForCMCCCloud{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -175,7 +228,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeDeSEC:
+	case domain.ACMEDns01ProviderTypeDeSEC:
 		{
 			access := domain.AccessConfigForDeSEC{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -190,7 +243,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeDNSLA:
+	case domain.ACMEDns01ProviderTypeDNSLA:
 		{
 			access := domain.AccessConfigForDNSLA{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -206,7 +259,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeDynv6:
+	case domain.ACMEDns01ProviderTypeDynv6:
 		{
 			access := domain.AccessConfigForDynv6{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -221,7 +274,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeGcore:
+	case domain.ACMEDns01ProviderTypeGcore:
 		{
 			access := domain.AccessConfigForGcore{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -236,7 +289,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeGname:
+	case domain.ACMEDns01ProviderTypeGname:
 		{
 			access := domain.AccessConfigForGname{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -252,7 +305,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeGoDaddy:
+	case domain.ACMEDns01ProviderTypeGoDaddy:
 		{
 			access := domain.AccessConfigForGoDaddy{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -268,7 +321,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeHuaweiCloud, domain.ApplyDNSProviderTypeHuaweiCloudDNS:
+	case domain.ACMEDns01ProviderTypeHuaweiCloud, domain.ACMEDns01ProviderTypeHuaweiCloudDNS:
 		{
 			access := domain.AccessConfigForHuaweiCloud{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -278,14 +331,14 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			applicant, err := pHuaweiCloud.NewChallengeProvider(&pHuaweiCloud.ChallengeProviderConfig{
 				AccessKeyId:           access.AccessKeyId,
 				SecretAccessKey:       access.SecretAccessKey,
-				Region:                maputil.GetString(options.ProviderApplyConfig, "region"),
+				Region:                maputil.GetString(options.ProviderExtendedConfig, "region"),
 				DnsPropagationTimeout: options.DnsPropagationTimeout,
 				DnsTTL:                options.DnsTTL,
 			})
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeJDCloud, domain.ApplyDNSProviderTypeJDCloudDNS:
+	case domain.ACMEDns01ProviderTypeJDCloud, domain.ACMEDns01ProviderTypeJDCloudDNS:
 		{
 			access := domain.AccessConfigForJDCloud{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -295,14 +348,14 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			applicant, err := pJDCloud.NewChallengeProvider(&pJDCloud.ChallengeProviderConfig{
 				AccessKeyId:           access.AccessKeyId,
 				AccessKeySecret:       access.AccessKeySecret,
-				RegionId:              maputil.GetString(options.ProviderApplyConfig, "regionId"),
+				RegionId:              maputil.GetString(options.ProviderExtendedConfig, "regionId"),
 				DnsPropagationTimeout: options.DnsPropagationTimeout,
 				DnsTTL:                options.DnsTTL,
 			})
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeNamecheap:
+	case domain.ACMEDns01ProviderTypeNamecheap:
 		{
 			access := domain.AccessConfigForNamecheap{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -318,7 +371,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeNameDotCom:
+	case domain.ACMEDns01ProviderTypeNameDotCom:
 		{
 			access := domain.AccessConfigForNameDotCom{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -334,7 +387,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeNameSilo:
+	case domain.ACMEDns01ProviderTypeNameSilo:
 		{
 			access := domain.AccessConfigForNameSilo{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -349,7 +402,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeNS1:
+	case domain.ACMEDns01ProviderTypeNS1:
 		{
 			access := domain.AccessConfigForNS1{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -364,7 +417,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypePorkbun:
+	case domain.ACMEDns01ProviderTypePorkbun:
 		{
 			access := domain.AccessConfigForPorkbun{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -380,7 +433,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypePowerDNS:
+	case domain.ACMEDns01ProviderTypePowerDNS:
 		{
 			access := domain.AccessConfigForPowerDNS{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -388,15 +441,16 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			}
 
 			applicant, err := pPowerDNS.NewChallengeProvider(&pPowerDNS.ChallengeProviderConfig{
-				ApiUrl:                access.ApiUrl,
-				ApiKey:                access.ApiKey,
-				DnsPropagationTimeout: options.DnsPropagationTimeout,
-				DnsTTL:                options.DnsTTL,
+				ApiUrl:                   access.ApiUrl,
+				ApiKey:                   access.ApiKey,
+				AllowInsecureConnections: access.AllowInsecureConnections,
+				DnsPropagationTimeout:    options.DnsPropagationTimeout,
+				DnsTTL:                   options.DnsTTL,
 			})
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeRainYun:
+	case domain.ACMEDns01ProviderTypeRainYun:
 		{
 			access := domain.AccessConfigForRainYun{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -411,7 +465,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeTencentCloud, domain.ApplyDNSProviderTypeTencentCloudDNS, domain.ApplyDNSProviderTypeTencentCloudEO:
+	case domain.ACMEDns01ProviderTypeTencentCloud, domain.ACMEDns01ProviderTypeTencentCloudDNS, domain.ACMEDns01ProviderTypeTencentCloudEO:
 		{
 			access := domain.AccessConfigForTencentCloud{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -419,7 +473,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			}
 
 			switch options.Provider {
-			case domain.ApplyDNSProviderTypeTencentCloud, domain.ApplyDNSProviderTypeTencentCloudDNS:
+			case domain.ACMEDns01ProviderTypeTencentCloud, domain.ACMEDns01ProviderTypeTencentCloudDNS:
 				applicant, err := pTencentCloud.NewChallengeProvider(&pTencentCloud.ChallengeProviderConfig{
 					SecretId:              access.SecretId,
 					SecretKey:             access.SecretKey,
@@ -428,11 +482,11 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 				})
 				return applicant, err
 
-			case domain.ApplyDNSProviderTypeTencentCloudEO:
+			case domain.ACMEDns01ProviderTypeTencentCloudEO:
 				applicant, err := pTencentCloudEO.NewChallengeProvider(&pTencentCloudEO.ChallengeProviderConfig{
 					SecretId:              access.SecretId,
 					SecretKey:             access.SecretKey,
-					ZoneId:                maputil.GetString(options.ProviderApplyConfig, "zoneId"),
+					ZoneId:                maputil.GetString(options.ProviderExtendedConfig, "zoneId"),
 					DnsPropagationTimeout: options.DnsPropagationTimeout,
 					DnsTTL:                options.DnsTTL,
 				})
@@ -443,7 +497,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			}
 		}
 
-	case domain.ApplyDNSProviderTypeVercel:
+	case domain.ACMEDns01ProviderTypeVercel:
 		{
 			access := domain.AccessConfigForVercel{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -459,7 +513,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeVolcEngine, domain.ApplyDNSProviderTypeVolcEngineDNS:
+	case domain.ACMEDns01ProviderTypeVolcEngine, domain.ACMEDns01ProviderTypeVolcEngineDNS:
 		{
 			access := domain.AccessConfigForVolcEngine{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -475,7 +529,7 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 			return applicant, err
 		}
 
-	case domain.ApplyDNSProviderTypeWestcn:
+	case domain.ACMEDns01ProviderTypeWestcn:
 		{
 			access := domain.AccessConfigForWestcn{}
 			if err := maputil.Populate(options.ProviderAccessConfig, &access); err != nil {
@@ -492,5 +546,5 @@ func createApplicant(options *applicantOptions) (challenge.Provider, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("unsupported applicant provider: %s", string(options.Provider))
+	return nil, fmt.Errorf("unsupported applicant provider '%s'", string(options.Provider))
 }

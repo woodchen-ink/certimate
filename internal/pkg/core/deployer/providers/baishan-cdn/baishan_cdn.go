@@ -1,4 +1,4 @@
-﻿package baishancdn
+package baishancdn
 
 import (
 	"context"
@@ -10,10 +10,8 @@ import (
 	"strings"
 	"time"
 
-	xerrors "github.com/pkg/errors"
-
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
-	bssdk "github.com/usual2970/certimate/internal/pkg/vendors/baishan-sdk"
+	bssdk "github.com/usual2970/certimate/internal/pkg/sdk3rd/baishan"
 )
 
 type DeployerConfig struct {
@@ -21,6 +19,9 @@ type DeployerConfig struct {
 	ApiToken string `json:"apiToken"`
 	// 加速域名（支持泛域名）。
 	Domain string `json:"domain"`
+	// 证书 ID。
+	// 选填。
+	CertificateId string `json:"certificateId,omitempty"`
 }
 
 type DeployerProvider struct {
@@ -38,7 +39,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.ApiToken)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -57,68 +58,84 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.Domain == "" {
 		return nil, errors.New("config `domain` is required")
 	}
 
-	// 查询域名配置
-	// REF: https://portal.baishancloud.com/track/document/api/1/1065
-	getDomainConfigReq := &bssdk.GetDomainConfigRequest{
-		Domains: d.config.Domain,
-		Config:  []string{"https"},
-	}
-	getDomainConfigResp, err := d.sdkClient.GetDomainConfig(getDomainConfigReq)
-	d.logger.Debug("sdk request 'baishan.GetDomainConfig'", slog.Any("request", getDomainConfigReq), slog.Any("response", getDomainConfigResp))
-	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'baishan.GetDomainConfig'")
-	} else if len(getDomainConfigResp.Data) == 0 {
-		return nil, errors.New("domain config not found")
-	}
-
-	// 新增证书
-	// REF: https://portal.baishancloud.com/track/document/downloadPdf/1441
-	certificateId := ""
-	createCertificateReq := &bssdk.CreateCertificateRequest{
-		Certificate: certPem,
-		Key:         privkeyPem,
-		Name:        fmt.Sprintf("certimate_%d", time.Now().UnixMilli()),
-	}
-	createCertificateResp, err := d.sdkClient.CreateCertificate(createCertificateReq)
-	d.logger.Debug("sdk request 'baishan.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
-	if err != nil {
-		if createCertificateResp != nil {
-			if createCertificateResp.GetCode() == 400699 && strings.Contains(createCertificateResp.GetMessage(), "this certificate is exists") {
-				// 证书已存在，忽略新增证书接口错误
-				re := regexp.MustCompile(`\d+`)
-				certificateId = re.FindString(createCertificateResp.GetMessage())
+	if d.config.CertificateId == "" {
+		// 新增证书
+		// REF: https://portal.baishancloud.com/track/document/downloadPdf/1441
+		certificateId := ""
+		createCertificateReq := &bssdk.CreateCertificateRequest{
+			Certificate: certPEM,
+			Key:         privkeyPEM,
+			Name:        fmt.Sprintf("certimate_%d", time.Now().UnixMilli()),
+		}
+		createCertificateResp, err := d.sdkClient.CreateCertificate(createCertificateReq)
+		d.logger.Debug("sdk request 'baishan.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
+		if err != nil {
+			if createCertificateResp != nil {
+				if createCertificateResp.GetCode() == 400699 && strings.Contains(createCertificateResp.GetMessage(), "this certificate is exists") {
+					// 证书已存在，忽略新增证书接口错误
+					re := regexp.MustCompile(`\d+`)
+					certificateId = re.FindString(createCertificateResp.GetMessage())
+				}
 			}
+
+			if certificateId == "" {
+				return nil, fmt.Errorf("failed to execute sdk request 'baishan.CreateCertificate': %w", err)
+			}
+		} else {
+			certificateId = createCertificateResp.Data.CertId.String()
 		}
 
-		if certificateId == "" {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'baishan.CreateCertificate'")
+		// 查询域名配置
+		// REF: https://portal.baishancloud.com/track/document/api/1/1065
+		getDomainConfigReq := &bssdk.GetDomainConfigRequest{
+			Domains: d.config.Domain,
+			Config:  []string{"https"},
+		}
+		getDomainConfigResp, err := d.sdkClient.GetDomainConfig(getDomainConfigReq)
+		d.logger.Debug("sdk request 'baishan.GetDomainConfig'", slog.Any("request", getDomainConfigReq), slog.Any("response", getDomainConfigResp))
+		if err != nil {
+			return nil, fmt.Errorf("failed to execute sdk request 'baishan.GetDomainConfig': %w", err)
+		} else if len(getDomainConfigResp.Data) == 0 {
+			return nil, errors.New("domain config not found")
+		}
+
+		// 设置域名配置
+		// REF: https://portal.baishancloud.com/track/document/api/1/1045
+		setDomainConfigReq := &bssdk.SetDomainConfigRequest{
+			Domains: d.config.Domain,
+			Config: &bssdk.DomainConfig{
+				Https: &bssdk.DomainConfigHttps{
+					CertId:      json.Number(certificateId),
+					ForceHttps:  getDomainConfigResp.Data[0].Config.Https.ForceHttps,
+					EnableHttp2: getDomainConfigResp.Data[0].Config.Https.EnableHttp2,
+					EnableOcsp:  getDomainConfigResp.Data[0].Config.Https.EnableOcsp,
+				},
+			},
+		}
+		setDomainConfigResp, err := d.sdkClient.SetDomainConfig(setDomainConfigReq)
+		d.logger.Debug("sdk request 'baishan.SetDomainConfig'", slog.Any("request", setDomainConfigReq), slog.Any("response", setDomainConfigResp))
+		if err != nil {
+			return nil, fmt.Errorf("failed to execute sdk request 'baishan.SetDomainConfig': %w", err)
 		}
 	} else {
-		certificateId = createCertificateResp.Data.CertId.String()
-	}
-
-	// 设置域名配置
-	// REF: https://portal.baishancloud.com/track/document/api/1/1045
-	setDomainConfigReq := &bssdk.SetDomainConfigRequest{
-		Domains: d.config.Domain,
-		Config: &bssdk.DomainConfig{
-			Https: &bssdk.DomainConfigHttps{
-				CertId:      json.Number(certificateId),
-				ForceHttps:  getDomainConfigResp.Data[0].Config.Https.ForceHttps,
-				EnableHttp2: getDomainConfigResp.Data[0].Config.Https.EnableHttp2,
-				EnableOcsp:  getDomainConfigResp.Data[0].Config.Https.EnableOcsp,
-			},
-		},
-	}
-	setDomainConfigResp, err := d.sdkClient.SetDomainConfig(setDomainConfigReq)
-	d.logger.Debug("sdk request 'baishan.SetDomainConfig'", slog.Any("request", setDomainConfigReq), slog.Any("response", setDomainConfigResp))
-	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'baishan.SetDomainConfig'")
+		// 替换证书
+		// REF: https://portal.baishancloud.com/track/document/downloadPdf/1441
+		createCertificateReq := &bssdk.CreateCertificateRequest{
+			CertificateId: &d.config.CertificateId,
+			Certificate:   certPEM,
+			Key:           privkeyPEM,
+			Name:          fmt.Sprintf("certimate_%d", time.Now().UnixMilli()),
+		}
+		createCertificateResp, err := d.sdkClient.CreateCertificate(createCertificateReq)
+		d.logger.Debug("sdk request 'baishan.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
+		if err != nil {
+			return nil, fmt.Errorf("failed to execute sdk request 'baishan.CreateCertificate': %w", err)
+		}
 	}
 
 	return &deployer.DeployResult{}, nil

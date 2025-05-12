@@ -1,6 +1,12 @@
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FormOutlined as FormOutlinedIcon, PlusOutlined as PlusOutlinedIcon, QuestionCircleOutlined as QuestionCircleOutlinedIcon } from "@ant-design/icons";
+import { Link } from "react-router";
+import {
+  FormOutlined as FormOutlinedIcon,
+  PlusOutlined as PlusOutlinedIcon,
+  QuestionCircleOutlined as QuestionCircleOutlinedIcon,
+  RightOutlined as RightOutlinedIcon,
+} from "@ant-design/icons";
 import { useControllableValue } from "ahooks";
 import {
   AutoComplete,
@@ -25,14 +31,17 @@ import AccessEditModal from "@/components/access/AccessEditModal";
 import AccessSelect from "@/components/access/AccessSelect";
 import ModalForm from "@/components/ModalForm";
 import MultipleInput from "@/components/MultipleInput";
-import ApplyDNSProviderSelect from "@/components/provider/ApplyDNSProviderSelect";
-import { ACCESS_USAGES, APPLY_DNS_PROVIDERS, accessProvidersMap, applyDNSProvidersMap } from "@/domain/provider";
+import ACMEDns01ProviderSelect from "@/components/provider/ACMEDns01ProviderSelect";
+import CAProviderSelect from "@/components/provider/CAProviderSelect";
+import Show from "@/components/Show";
+import { ACCESS_USAGES, ACME_DNS01_PROVIDERS, accessProvidersMap, acmeDns01ProvidersMap, caProvidersMap } from "@/domain/provider";
 import { type WorkflowNodeConfigForApply } from "@/domain/workflow";
 import { useAntdForm, useAntdFormName, useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
 import { useContactEmailsStore } from "@/stores/contact";
 import { validDomainName, validIPv4Address, validIPv6Address } from "@/utils/validators";
 
+import ApplyNodeConfigFormAliyunESAConfig from "./ApplyNodeConfigFormAliyunESAConfig";
 import ApplyNodeConfigFormAWSRoute53Config from "./ApplyNodeConfigFormAWSRoute53Config";
 import ApplyNodeConfigFormHuaweiCloudDNSConfig from "./ApplyNodeConfigFormHuaweiCloudDNSConfig";
 import ApplyNodeConfigFormJDCloudDNSConfig from "./ApplyNodeConfigFormJDCloudDNSConfig";
@@ -60,7 +69,7 @@ const initFormModel = (): ApplyNodeConfigFormFieldValues => {
   return {
     challengeType: "dns-01",
     keyAlgorithm: "RSA2048",
-    skipBeforeExpiryDays: 20,
+    skipBeforeExpiryDays: 30,
   };
 };
 
@@ -83,7 +92,18 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
       providerAccessId: z
         .string({ message: t("workflow_node.apply.form.provider_access.placeholder") })
         .min(1, t("workflow_node.apply.form.provider_access.placeholder")),
-      providerConfig: z.any(),
+      providerConfig: z.any().nullish(),
+      caProvider: z.string({ message: t("workflow_node.apply.form.ca_provider.placeholder") }).nullish(),
+      caProviderAccessId: z
+        .string({ message: t("workflow_node.apply.form.ca_provider_access.placeholder") })
+        .nullish()
+        .refine((v) => {
+          if (!fieldCAProvider) return true;
+
+          const provider = caProvidersMap.get(fieldCAProvider);
+          return !!provider?.builtin || !!v;
+        }, t("workflow_node.apply.form.ca_provider_access.placeholder")),
+      caProviderConfig: z.any().nullish(),
       keyAlgorithm: z
         .string({ message: t("workflow_node.apply.form.key_algorithm.placeholder") })
         .nonempty(t("workflow_node.apply.form.key_algorithm.placeholder")),
@@ -96,24 +116,35 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
             .split(MULTIPLE_INPUT_DELIMITER)
             .every((e) => validIPv4Address(e) || validIPv6Address(e) || validDomainName(e));
         }, t("common.errmsg.host_invalid")),
-      dnsPropagationTimeout: z
-        .union([
-          z.number().int().gte(1, t("workflow_node.apply.form.dns_propagation_timeout.placeholder")),
-          z.string().refine((v) => !v || /^[1-9]\d*$/.test(v), t("workflow_node.apply.form.dns_propagation_timeout.placeholder")),
-        ])
-        .nullish(),
-      dnsTTL: z
-        .union([
-          z.number().int().gte(1, t("workflow_node.apply.form.dns_ttl.placeholder")),
-          z.string().refine((v) => !v || /^[1-9]\d*$/.test(v), t("workflow_node.apply.form.dns_ttl.placeholder")),
-        ])
-        .nullish(),
+      dnsPropagationWait: z.preprocess(
+        (v) => (v == null || v === "" ? undefined : Number(v)),
+        z
+          .number()
+          .int(t("workflow_node.apply.form.dns_propagation_wait.placeholder"))
+          .gte(0, t("workflow_node.apply.form.dns_propagation_wait.placeholder"))
+          .nullish()
+      ),
+      dnsPropagationTimeout: z.preprocess(
+        (v) => (v == null || v === "" ? undefined : Number(v)),
+        z
+          .number()
+          .int(t("workflow_node.apply.form.dns_propagation_timeout.placeholder"))
+          .gte(1, t("workflow_node.apply.form.dns_propagation_timeout.placeholder"))
+          .nullish()
+      ),
+      dnsTTL: z.preprocess(
+        (v) => (v == null || v === "" ? undefined : Number(v)),
+        z.number().int(t("workflow_node.apply.form.dns_ttl.placeholder")).gte(1, t("workflow_node.apply.form.dns_ttl.placeholder")).nullish()
+      ),
       disableFollowCNAME: z.boolean().nullish(),
       disableARI: z.boolean().nullish(),
-      skipBeforeExpiryDays: z
-        .number({ message: t("workflow_node.apply.form.skip_before_expiry_days.placeholder") })
-        .int(t("workflow_node.apply.form.skip_before_expiry_days.placeholder"))
-        .gte(1, t("workflow_node.apply.form.skip_before_expiry_days.placeholder")),
+      skipBeforeExpiryDays: z.preprocess(
+        (v) => Number(v),
+        z
+          .number()
+          .int(t("workflow_node.apply.form.skip_before_expiry_days.placeholder"))
+          .gte(1, t("workflow_node.apply.form.skip_before_expiry_days.placeholder"))
+      ),
     });
     const formRule = createSchemaFieldRule(formSchema);
     const { form: formInst, formProps } = useAntdForm({
@@ -121,23 +152,35 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
       initialValues: initialValues ?? initFormModel(),
     });
 
+    const fieldDomains = Form.useWatch<string>("domains", formInst);
     const fieldProvider = Form.useWatch<string>("provider", { form: formInst, preserve: true });
     const fieldProviderAccessId = Form.useWatch<string>("providerAccessId", formInst);
-    const fieldDomains = Form.useWatch<string>("domains", formInst);
+    const fieldCAProvider = Form.useWatch<string>("caProvider", formInst);
     const fieldNameservers = Form.useWatch<string>("nameservers", formInst);
 
     const [showProvider, setShowProvider] = useState(false);
     useEffect(() => {
       // 通常情况下每个授权信息只对应一个 DNS 提供商，此时无需显示 DNS 提供商字段；
-      // 如果对应多个（如 AWS 的 Route53、Lightsail，腾讯云的 DNS、EdgeOne 等），则显示。
+      // 如果对应多个（如 AWS 的 Route53、Lightsail，阿里云的 DNS、ESA，腾讯云的 DNS、EdgeOne 等），则显示。
       if (fieldProviderAccessId) {
         const access = accesses.find((e) => e.id === fieldProviderAccessId);
-        const providers = Array.from(applyDNSProvidersMap.values()).filter((e) => e.provider === access?.provider);
+        const providers = Array.from(acmeDns01ProvidersMap.values()).filter((e) => e.provider === access?.provider);
         setShowProvider(providers.length > 1);
       } else {
         setShowProvider(false);
       }
     }, [accesses, fieldProviderAccessId]);
+
+    const [showCAProviderAccess, setShowCAProviderAccess] = useState(false);
+    useEffect(() => {
+      // 内置的 CA 提供商（如 Let's Encrypt）无需显示授权信息字段
+      if (fieldCAProvider) {
+        const provider = caProvidersMap.get(fieldCAProvider);
+        setShowCAProviderAccess(!provider?.builtin);
+      } else {
+        setShowCAProviderAccess(false);
+      }
+    }, [fieldCAProvider]);
 
     const [nestedFormInst] = Form.useForm();
     const nestedFormName = useAntdFormName({ form: nestedFormInst, name: "workflowNodeApplyConfigFormProviderConfigForm" });
@@ -154,16 +197,18 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
         NOTICE: If you add new child component, please keep ASCII order.
        */
       switch (fieldProvider) {
-        case APPLY_DNS_PROVIDERS.AWS:
-        case APPLY_DNS_PROVIDERS.AWS_ROUTE53:
+        case ACME_DNS01_PROVIDERS.ALIYUN_ESA:
+          return <ApplyNodeConfigFormAliyunESAConfig {...nestedFormProps} />;
+        case ACME_DNS01_PROVIDERS.AWS:
+        case ACME_DNS01_PROVIDERS.AWS_ROUTE53:
           return <ApplyNodeConfigFormAWSRoute53Config {...nestedFormProps} />;
-        case APPLY_DNS_PROVIDERS.HUAWEICLOUD:
-        case APPLY_DNS_PROVIDERS.HUAWEICLOUD_DNS:
+        case ACME_DNS01_PROVIDERS.HUAWEICLOUD:
+        case ACME_DNS01_PROVIDERS.HUAWEICLOUD_DNS:
           return <ApplyNodeConfigFormHuaweiCloudDNSConfig {...nestedFormProps} />;
-        case APPLY_DNS_PROVIDERS.JDCLOUD:
-        case APPLY_DNS_PROVIDERS.JDCLOUD_DNS:
+        case ACME_DNS01_PROVIDERS.JDCLOUD:
+        case ACME_DNS01_PROVIDERS.JDCLOUD_DNS:
           return <ApplyNodeConfigFormJDCloudDNSConfig {...nestedFormProps} />;
-        case APPLY_DNS_PROVIDERS.TENCENTCLOUD_EO:
+        case ACME_DNS01_PROVIDERS.TENCENTCLOUD_EO:
           return <ApplyNodeConfigFormTencentCloudEOConfig {...nestedFormProps} />;
       }
     }, [disabled, initialValues?.providerConfig, fieldProvider, nestedFormInst, nestedFormName]);
@@ -176,7 +221,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
         formInst.setFieldValue("providerAccessId", initialValues?.providerAccessId);
         onValuesChange?.(formInst.getFieldsValue(true));
       } else {
-        if (applyDNSProvidersMap.get(fieldProvider)?.provider !== applyDNSProvidersMap.get(value)?.provider) {
+        if (acmeDns01ProvidersMap.get(fieldProvider)?.provider !== acmeDns01ProvidersMap.get(value)?.provider) {
           formInst.setFieldValue("providerAccessId", undefined);
           onValuesChange?.(formInst.getFieldsValue(true));
         }
@@ -184,14 +229,31 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
     };
 
     const handleProviderAccessSelect = (value: string) => {
-      if (fieldProviderAccessId === value) return;
-
       // 切换授权信息时联动 DNS 提供商
       const access = accesses.find((access) => access.id === value);
-      const provider = Array.from(applyDNSProvidersMap.values()).find((provider) => provider.provider === access?.provider);
+      const provider = Array.from(acmeDns01ProvidersMap.values()).find((provider) => provider.provider === access?.provider);
       if (fieldProvider !== provider?.type) {
         formInst.setFieldValue("provider", provider?.type);
         onValuesChange?.(formInst.getFieldsValue(true));
+      }
+    };
+
+    const handleCAProviderSelect = (value?: string | undefined) => {
+      // 切换 CA 提供商时联动授权信息
+      if (value === "") {
+        setTimeout(() => {
+          formInst.setFieldValue("caProvider", undefined);
+          formInst.setFieldValue("caProviderAccessId", undefined);
+          onValuesChange?.(formInst.getFieldsValue(true));
+        }, 1);
+      } else if (initialValues?.caProvider === value) {
+        formInst.setFieldValue("caProviderAccessId", initialValues?.caProviderAccessId);
+        onValuesChange?.(formInst.getFieldsValue(true));
+      } else {
+        if (caProvidersMap.get(fieldCAProvider)?.provider !== caProvidersMap.get(value!)?.provider) {
+          formInst.setFieldValue("caProviderAccessId", undefined);
+          onValuesChange?.(formInst.getFieldsValue(true));
+        }
       }
     };
 
@@ -273,7 +335,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
           </Form.Item>
 
           <Form.Item name="provider" label={t("workflow_node.apply.form.provider.label")} hidden={!showProvider} rules={[formRule]}>
-            <ApplyDNSProviderSelect
+            <ACMEDns01ProviderSelect
               disabled={!showProvider}
               filter={(record) => {
                 if (fieldProviderAccessId) {
@@ -301,17 +363,19 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                 </div>
                 <div className="text-right">
                   <AccessEditModal
-                    preset="add"
+                    scene="add"
                     trigger={
                       <Button size="small" type="link">
-                        <PlusOutlinedIcon />
                         {t("workflow_node.apply.form.provider_access.button")}
+                        <PlusOutlinedIcon className="text-xs" />
                       </Button>
                     }
+                    usage="both-dns-hosting"
                     afterSubmit={(record) => {
                       const provider = accessProvidersMap.get(record.provider);
-                      if (provider?.usages?.includes(ACCESS_USAGES.APPLY)) {
+                      if (provider?.usages?.includes(ACCESS_USAGES.DNS)) {
                         formInst.setFieldValue("providerAccessId", record.id);
+                        handleProviderAccessSelect(record.id);
                       }
                     }}
                   />
@@ -321,8 +385,10 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
             <Form.Item name="providerAccessId" rules={[formRule]}>
               <AccessSelect
                 filter={(record) => {
+                  if (record.reserve) return false;
+
                   const provider = accessProvidersMap.get(record.provider);
-                  return !!provider?.usages?.includes(ACCESS_USAGES.APPLY);
+                  return !!provider?.usages?.includes(ACCESS_USAGES.DNS);
                 }}
                 placeholder={t("workflow_node.apply.form.provider_access.placeholder")}
                 onChange={handleProviderAccessSelect}
@@ -335,11 +401,81 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
 
         <Divider className="my-1">
           <Typography.Text className="text-xs font-normal" type="secondary">
-            {t("workflow_node.apply.form.advanced_config.label")}
+            {t("workflow_node.apply.form.certificate_config.label")}
           </Typography.Text>
         </Divider>
 
         <Form className={className} style={style} {...formProps} disabled={disabled} layout="vertical" scrollToFirstError onValuesChange={handleFormChange}>
+          <Form.Item className="mb-0">
+            <label className="mb-1 block">
+              <div className="flex w-full items-center justify-between gap-4">
+                <div className="max-w-full grow truncate">
+                  <span>{t("workflow_node.apply.form.ca_provider.label")}</span>
+                </div>
+                <div className="text-right">
+                  <Show when={!fieldCAProvider}>
+                    <Link className="ant-typography" to="/settings/ssl-provider" target="_blank">
+                      <Button size="small" type="link">
+                        {t("workflow_node.apply.form.ca_provider.button")}
+                        <RightOutlinedIcon className="text-xs" />
+                      </Button>
+                    </Link>
+                  </Show>
+                </div>
+              </div>
+            </label>
+            <Form.Item name="caProvider" rules={[formRule]}>
+              <CAProviderSelect
+                allowClear
+                placeholder={t("workflow_node.apply.form.ca_provider.placeholder")}
+                showSearch
+                onSelect={handleCAProviderSelect}
+                onClear={handleCAProviderSelect}
+              />
+            </Form.Item>
+          </Form.Item>
+
+          <Form.Item className="mb-0" hidden={!showCAProviderAccess}>
+            <label className="mb-1 block">
+              <div className="flex w-full items-center justify-between gap-4">
+                <div className="max-w-full grow truncate">
+                  <span>{t("workflow_node.apply.form.ca_provider_access.label")}</span>
+                </div>
+                <div className="text-right">
+                  <AccessEditModal
+                    data={{ provider: caProvidersMap.get(fieldCAProvider!)?.provider }}
+                    scene="add"
+                    trigger={
+                      <Button size="small" type="link">
+                        {t("workflow_node.apply.form.ca_provider_access.button")}
+                        <PlusOutlinedIcon className="text-xs" />
+                      </Button>
+                    }
+                    usage="ca-only"
+                    afterSubmit={(record) => {
+                      const provider = accessProvidersMap.get(record.provider);
+                      if (provider?.usages?.includes(ACCESS_USAGES.CA)) {
+                        formInst.setFieldValue("caProviderAccessId", record.id);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </label>
+            <Form.Item name="caProviderAccessId" rules={[formRule]}>
+              <AccessSelect
+                filter={(record) => {
+                  if (record.reserve !== "ca") return false;
+                  if (fieldCAProvider) return caProvidersMap.get(fieldCAProvider)?.provider === record.provider;
+
+                  const provider = accessProvidersMap.get(record.provider);
+                  return !!provider?.usages?.includes(ACCESS_USAGES.CA);
+                }}
+                placeholder={t("workflow_node.apply.form.ca_provider_access.placeholder")}
+              />
+            </Form.Item>
+          </Form.Item>
+
           <Form.Item name="keyAlgorithm" label={t("workflow_node.apply.form.key_algorithm.label")} rules={[formRule]}>
             <Select
               options={["RSA2048", "RSA3072", "RSA4096", "RSA8192", "EC256", "EC384"].map((e) => ({
@@ -349,7 +485,15 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
               placeholder={t("workflow_node.apply.form.key_algorithm.placeholder")}
             />
           </Form.Item>
+        </Form>
 
+        <Divider className="my-1">
+          <Typography.Text className="text-xs font-normal" type="secondary">
+            {t("workflow_node.apply.form.advanced_config.label")}
+          </Typography.Text>
+        </Divider>
+
+        <Form className={className} style={style} {...formProps} disabled={disabled} layout="vertical" scrollToFirstError onValuesChange={handleFormChange}>
           <Form.Item
             label={t("workflow_node.apply.form.nameservers.label")}
             tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.apply.form.nameservers.tooltip") }}></span>}
@@ -363,6 +507,9 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                   placeholder={t("workflow_node.apply.form.nameservers.placeholder")}
                   onChange={(e) => {
                     formInst.setFieldValue("nameservers", e.target.value);
+                  }}
+                  onClear={() => {
+                    formInst.setFieldValue("nameservers", undefined);
                   }}
                 />
               </Form.Item>
@@ -378,6 +525,22 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                 }}
               />
             </Space.Compact>
+          </Form.Item>
+
+          <Form.Item
+            name="dnsPropagationWait"
+            label={t("workflow_node.apply.form.dns_propagation_wait.label")}
+            rules={[formRule]}
+            tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.apply.form.dns_propagation_wait.tooltip") }}></span>}
+          >
+            <Input
+              type="number"
+              allowClear
+              min={0}
+              max={3600}
+              placeholder={t("workflow_node.apply.form.dns_propagation_wait.placeholder")}
+              addonAfter={t("workflow_node.apply.form.dns_propagation_wait.unit")}
+            />
           </Form.Item>
 
           <Form.Item
@@ -446,9 +609,9 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
               <div>{t("workflow_node.apply.form.skip_before_expiry_days.prefix")}</div>
               <Form.Item name="skipBeforeExpiryDays" noStyle rules={[formRule]}>
                 <InputNumber
-                  className="w-36"
+                  className="w-24"
                   min={1}
-                  max={90}
+                  max={365}
                   placeholder={t("workflow_node.apply.form.skip_before_expiry_days.placeholder")}
                   addonAfter={t("workflow_node.apply.form.skip_before_expiry_days.unit")}
                 />

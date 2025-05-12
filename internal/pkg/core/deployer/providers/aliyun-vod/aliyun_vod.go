@@ -1,4 +1,4 @@
-﻿package aliyunvod
+package aliyunvod
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
 	alivod "github.com/alibabacloud-go/vod-20170321/v4/client"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
 )
@@ -40,7 +39,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -59,7 +58,7 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 设置域名证书
 	// REF: https://help.aliyun.com/zh/vod/developer-reference/api-vod-2017-03-21-setvoddomainsslcertificate
 	setVodDomainSSLCertificateReq := &alivod.SetVodDomainSSLCertificateRequest{
@@ -67,13 +66,13 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		CertName:    tea.String(fmt.Sprintf("certimate-%d", time.Now().UnixMilli())),
 		CertType:    tea.String("upload"),
 		SSLProtocol: tea.String("on"),
-		SSLPub:      tea.String(certPem),
-		SSLPri:      tea.String(privkeyPem),
+		SSLPub:      tea.String(certPEM),
+		SSLPri:      tea.String(privkeyPEM),
 	}
 	setVodDomainSSLCertificateResp, err := d.sdkClient.SetVodDomainSSLCertificate(setVodDomainSSLCertificateReq)
 	d.logger.Debug("sdk request 'live.SetVodDomainSSLCertificate'", slog.Any("request", setVodDomainSSLCertificateReq), slog.Any("response", setVodDomainSSLCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'live.SetVodDomainSSLCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'live.SetVodDomainSSLCertificate': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil

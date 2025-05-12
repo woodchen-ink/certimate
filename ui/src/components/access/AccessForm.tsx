@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import AccessProviderSelect from "@/components/provider/AccessProviderSelect";
 import { type AccessModel } from "@/domain/access";
-import { ACCESS_PROVIDERS } from "@/domain/provider";
+import { ACCESS_PROVIDERS, ACCESS_USAGES } from "@/domain/provider";
 import { useAntdForm, useAntdFormName } from "@/hooks";
 
 import AccessForm1PanelConfig from "./AccessForm1PanelConfig";
@@ -17,6 +17,7 @@ import AccessFormAzureConfig from "./AccessFormAzureConfig";
 import AccessFormBaiduCloudConfig from "./AccessFormBaiduCloudConfig";
 import AccessFormBaishanConfig from "./AccessFormBaishanConfig";
 import AccessFormBaotaPanelConfig from "./AccessFormBaotaPanelConfig";
+import AccessFormBunnyConfig from "./AccessFormBunnyConfig";
 import AccessFormBytePlusConfig from "./AccessFormBytePlusConfig";
 import AccessFormCacheFlyConfig from "./AccessFormCacheFlyConfig";
 import AccessFormCdnflyConfig from "./AccessFormCdnflyConfig";
@@ -24,44 +25,57 @@ import AccessFormCloudflareConfig from "./AccessFormCloudflareConfig";
 import AccessFormClouDNSConfig from "./AccessFormClouDNSConfig";
 import AccessFormCMCCCloudConfig from "./AccessFormCMCCCloudConfig";
 import AccessFormDeSECConfig from "./AccessFormDeSECConfig";
+import AccessFormDingTalkBotConfig from "./AccessFormDingTalkBotConfig";
 import AccessFormDNSLAConfig from "./AccessFormDNSLAConfig";
 import AccessFormDogeCloudConfig from "./AccessFormDogeCloudConfig";
 import AccessFormDynv6Config from "./AccessFormDynv6Config";
 import AccessFormEdgioConfig from "./AccessFormEdgioConfig";
+import AccessFormEmailConfig from "./AccessFormEmailConfig";
 import AccessFormGcoreConfig from "./AccessFormGcoreConfig";
 import AccessFormGnameConfig from "./AccessFormGnameConfig";
 import AccessFormGoDaddyConfig from "./AccessFormGoDaddyConfig";
+import AccessFormGoEdgeConfig from "./AccessFormGoEdgeConfig";
+import AccessFormGoogleTrustServicesConfig from "./AccessFormGoogleTrustServicesConfig";
 import AccessFormHuaweiCloudConfig from "./AccessFormHuaweiCloudConfig";
 import AccessFormJDCloudConfig from "./AccessFormJDCloudConfig";
 import AccessFormKubernetesConfig from "./AccessFormKubernetesConfig";
-import AccessFormLocalConfig from "./AccessFormLocalConfig";
+import AccessFormLarkBotConfig from "./AccessFormLarkBotConfig";
+import AccessFormMattermostConfig from "./AccessFormMattermostConfig";
 import AccessFormNamecheapConfig from "./AccessFormNamecheapConfig";
 import AccessFormNameDotComConfig from "./AccessFormNameDotComConfig";
 import AccessFormNameSiloConfig from "./AccessFormNameSiloConfig";
 import AccessFormNS1Config from "./AccessFormNS1Config";
 import AccessFormPorkbunConfig from "./AccessFormPorkbunConfig";
 import AccessFormPowerDNSConfig from "./AccessFormPowerDNSConfig";
+import AccessFormProxmoxVEConfig from "./AccessFormProxmoxVEConfig";
 import AccessFormQiniuConfig from "./AccessFormQiniuConfig";
 import AccessFormRainYunConfig from "./AccessFormRainYunConfig";
 import AccessFormSafeLineConfig from "./AccessFormSafeLineConfig";
 import AccessFormSSHConfig from "./AccessFormSSHConfig";
+import AccessFormSSLComConfig from "./AccessFormSSLComConfig";
+import AccessFormTelegramConfig from "./AccessFormTelegramConfig";
 import AccessFormTencentCloudConfig from "./AccessFormTencentCloudConfig";
 import AccessFormUCloudConfig from "./AccessFormUCloudConfig";
 import AccessFormUpyunConfig from "./AccessFormUpyunConfig";
 import AccessFormVercelConfig from "./AccessFormVercelConfig";
 import AccessFormVolcEngineConfig from "./AccessFormVolcEngineConfig";
+import AccessFormWangsuConfig from "./AccessFormWangsuConfig";
 import AccessFormWebhookConfig from "./AccessFormWebhookConfig";
+import AccessFormWeComBotConfig from "./AccessFormWeComBotConfig";
 import AccessFormWestcnConfig from "./AccessFormWestcnConfig";
+import AccessFormZeroSSLConfig from "./AccessFormZeroSSLConfig";
 
 type AccessFormFieldValues = Partial<MaybeModelRecord<AccessModel>>;
-type AccessFormPresets = "add" | "edit";
+type AccessFormScenes = "add" | "edit";
+type AccessFormUsages = "both-dns-hosting" | "ca-only" | "notification-only";
 
 export type AccessFormProps = {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: AccessFormFieldValues;
-  preset: AccessFormPresets;
+  scene: AccessFormScenes;
+  usage?: AccessFormUsages;
   onValuesChange?: (values: AccessFormFieldValues) => void;
 };
 
@@ -71,7 +85,7 @@ export type AccessFormInstance = {
   validateFields: FormInstance<AccessFormFieldValues>["validateFields"];
 };
 
-const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className, style, disabled, initialValues, preset, onValuesChange }, ref) => {
+const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className, style, disabled, initialValues, usage, scene, onValuesChange }, ref) => {
   const { t } = useTranslation();
 
   const formSchema = z.object({
@@ -80,13 +94,50 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
       .min(1, t("access.form.name.placeholder"))
       .max(64, t("common.errmsg.string_max", { max: 64 }))
       .trim(),
-    provider: z.nativeEnum(ACCESS_PROVIDERS, { message: t("access.form.provider.placeholder") }),
+    provider: z.nativeEnum(ACCESS_PROVIDERS, {
+      message:
+        usage === "ca-only"
+          ? t("access.form.certificate_authority.placeholder")
+          : usage === "notification-only"
+            ? t("access.form.notification_channel.placeholder")
+            : t("access.form.provider.placeholder"),
+    }),
     config: z.any(),
+    reserve: z.string().nullish(),
   });
   const formRule = createSchemaFieldRule(formSchema);
   const { form: formInst, formProps } = useAntdForm({
     initialValues: initialValues,
   });
+
+  const providerLabel = useMemo(() => {
+    switch (usage) {
+      case "ca-only":
+        return t("access.form.certificate_authority.label");
+      case "notification-only":
+        return t("access.form.notification_channel.label");
+    }
+
+    return t("access.form.provider.label");
+  }, [usage]);
+  const providerPlaceholder = useMemo(() => {
+    switch (usage) {
+      case "ca-only":
+        return t("access.form.certificate_authority.placeholder");
+      case "notification-only":
+        return t("access.form.notification_channel.placeholder");
+    }
+
+    return t("access.form.provider.placeholder");
+  }, [usage]);
+  const providerTooltip = useMemo(() => {
+    switch (usage) {
+      case "both-dns-hosting":
+        return <span dangerouslySetInnerHTML={{ __html: t("access.form.provider.tooltip") }}></span>;
+    }
+
+    return undefined;
+  }, [usage]);
 
   const fieldProvider = Form.useWatch("provider", formInst);
 
@@ -121,6 +172,8 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
         return <AccessFormBaishanConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.BAOTAPANEL:
         return <AccessFormBaotaPanelConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.BUNNY:
+        return <AccessFormBunnyConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.BYTEPLUS:
         return <AccessFormBytePlusConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.CACHEFLY:
@@ -135,6 +188,8 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
         return <AccessFormCMCCCloudConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.DESEC:
         return <AccessFormDeSECConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.DINGTALKBOT:
+        return <AccessFormDingTalkBotConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.DNSLA:
         return <AccessFormDNSLAConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.DOGECLOUD:
@@ -147,16 +202,24 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
         return <AccessFormGnameConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.GODADDY:
         return <AccessFormGoDaddyConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.GOEDGE:
+        return <AccessFormGoEdgeConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.GOOGLETRUSTSERVICES:
+        return <AccessFormGoogleTrustServicesConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.EDGIO:
         return <AccessFormEdgioConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.EMAIL:
+        return <AccessFormEmailConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.HUAWEICLOUD:
         return <AccessFormHuaweiCloudConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.JDCLOUD:
         return <AccessFormJDCloudConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.KUBERNETES:
         return <AccessFormKubernetesConfig {...nestedFormProps} />;
-      case ACCESS_PROVIDERS.LOCAL:
-        return <AccessFormLocalConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.LARKBOT:
+        return <AccessFormLarkBotConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.MATTERMOST:
+        return <AccessFormMattermostConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.NAMECHEAP:
         return <AccessFormNamecheapConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.NAMEDOTCOM:
@@ -169,6 +232,8 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
         return <AccessFormPorkbunConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.POWERDNS:
         return <AccessFormPowerDNSConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.PROXMOXVE:
+        return <AccessFormProxmoxVEConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.QINIU:
         return <AccessFormQiniuConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.RAINYUN:
@@ -177,6 +242,10 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
         return <AccessFormSafeLineConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.SSH:
         return <AccessFormSSHConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.TELEGRAM:
+        return <AccessFormTelegramConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.SSLCOM:
+        return <AccessFormSSLComConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.TENCENTCLOUD:
         return <AccessFormTencentCloudConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.UCLOUD:
@@ -187,10 +256,21 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
         return <AccessFormVercelConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.VOLCENGINE:
         return <AccessFormVolcEngineConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.WANGSU:
+        return <AccessFormWangsuConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.WEBHOOK:
-        return <AccessFormWebhookConfig {...nestedFormProps} />;
+        return (
+          <AccessFormWebhookConfig
+            usage={usage === "notification-only" ? "notification" : usage === "both-dns-hosting" ? "deployment" : "none"}
+            {...nestedFormProps}
+          />
+        );
+      case ACCESS_PROVIDERS.WECOMBOT:
+        return <AccessFormWeComBotConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.WESTCN:
         return <AccessFormWestcnConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.ZEROSSL:
+        return <AccessFormZeroSSLConfig {...nestedFormProps} />;
     }
   }, [disabled, initialValues?.config, fieldProvider, nestedFormInst, nestedFormName]);
 
@@ -210,6 +290,7 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
       getFieldsValue: () => {
         const values = formInst.getFieldsValue(true);
         values.config = nestedFormInst.getFieldsValue();
+        values.reserve = usage === "ca-only" ? "ca" : usage === "notification-only" ? "notification" : undefined;
         return values;
       },
       resetFields: (fields) => {
@@ -235,13 +316,25 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
             <Input placeholder={t("access.form.name.placeholder")} />
           </Form.Item>
 
-          <Form.Item
-            name="provider"
-            label={t("access.form.provider.label")}
-            rules={[formRule]}
-            tooltip={<span dangerouslySetInnerHTML={{ __html: t("access.form.provider.tooltip") }}></span>}
-          >
-            <AccessProviderSelect disabled={preset !== "add"} placeholder={t("access.form.provider.placeholder")} showSearch={!disabled} />
+          <Form.Item name="provider" label={providerLabel} rules={[formRule]} tooltip={providerTooltip}>
+            <AccessProviderSelect
+              filter={(record) => {
+                if (usage == null) return true;
+
+                switch (usage) {
+                  case "both-dns-hosting":
+                    return record.usages.includes(ACCESS_USAGES.DNS) || record.usages.includes(ACCESS_USAGES.HOSTING);
+                  case "ca-only":
+                    return record.usages.includes(ACCESS_USAGES.CA);
+                  case "notification-only":
+                    return record.usages.includes(ACCESS_USAGES.NOTIFICATION);
+                }
+              }}
+              disabled={scene !== "add"}
+              placeholder={providerPlaceholder}
+              showOptionTags={usage == null || (usage === "both-dns-hosting" ? { [ACCESS_USAGES.DNS]: true, [ACCESS_USAGES.HOSTING]: true } : false)}
+              showSearch={!disabled}
+            />
           </Form.Item>
         </Form>
 

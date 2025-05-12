@@ -14,12 +14,14 @@ import { Avatar, Button, Card, Empty, Flex, Input, Modal, Space, Table, type Tab
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
-import AccessEditModal from "@/components/access/AccessEditModal";
+import AccessEditDrawer, { type AccessEditDrawerProps } from "@/components/access/AccessEditDrawer";
 import { type AccessModel } from "@/domain/access";
-import { accessProvidersMap } from "@/domain/provider";
+import { ACCESS_USAGES, accessProvidersMap } from "@/domain/provider";
 import { useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
 import { getErrMsg } from "@/utils/error";
+
+type AccessUsageProp = AccessEditDrawerProps["usage"];
 
 const AccessList = () => {
   const [searchParams] = useSearchParams();
@@ -83,9 +85,10 @@ const AccessList = () => {
       width: 120,
       render: (_, record) => (
         <Space.Compact>
-          <AccessEditModal
+          <AccessEditDrawer
             data={record}
-            preset="edit"
+            usage={filters["usage"] as AccessUsageProp}
+            scene="edit"
             trigger={
               <Tooltip title={t("access.action.edit")}>
                 <Button color="primary" icon={<EditOutlinedIcon />} variant="text" />
@@ -93,9 +96,10 @@ const AccessList = () => {
             }
           />
 
-          <AccessEditModal
+          <AccessEditDrawer
             data={{ ...record, id: undefined, name: `${record.name}-copy` }}
-            preset="add"
+            usage={filters["usage"] as AccessUsageProp}
+            scene="add"
             trigger={
               <Tooltip title={t("access.action.duplicate")}>
                 <Button color="primary" icon={<SnippetsOutlinedIcon />} variant="text" />
@@ -122,6 +126,7 @@ const AccessList = () => {
 
   const [filters, setFilters] = useState<Record<string, unknown>>(() => {
     return {
+      usage: "both-dns-hosting" satisfies AccessUsageProp,
       keyword: searchParams.get("keyword"),
     };
   });
@@ -144,14 +149,26 @@ const AccessList = () => {
     () => {
       const startIndex = (page - 1) * pageSize;
       const endIndex = startIndex + pageSize;
-      const list = accesses.filter((e) => {
-        const keyword = (filters["keyword"] as string | undefined)?.trim();
-        if (keyword) {
-          return e.name.includes(keyword);
-        }
+      const list = accesses
+        .filter((e) => {
+          const keyword = (filters["keyword"] as string | undefined)?.trim();
+          if (keyword) {
+            return e.name.includes(keyword);
+          }
 
-        return true;
-      });
+          return true;
+        })
+        .filter((e) => {
+          const provider = accessProvidersMap.get(e.provider);
+          switch (filters["usage"] as AccessUsageProp) {
+            case "both-dns-hosting":
+              return !e.reserve && (provider?.usages?.includes(ACCESS_USAGES.DNS) || provider?.usages?.includes(ACCESS_USAGES.HOSTING));
+            case "ca-only":
+              return e.reserve === "ca" && provider?.usages?.includes(ACCESS_USAGES.CA);
+            case "notification-only":
+              return e.reserve === "notification" && provider?.usages?.includes(ACCESS_USAGES.NOTIFICATION);
+          }
+        });
       return Promise.resolve({
         items: list.slice(startIndex, endIndex),
         totalItems: list.length,
@@ -166,8 +183,14 @@ const AccessList = () => {
     }
   );
 
+  const handleTabChange = (key: string) => {
+    setFilters((prev) => ({ ...prev, usage: key }));
+    setPage(1);
+  };
+
   const handleSearch = (value: string) => {
     setFilters((prev) => ({ ...prev, keyword: value }));
+    setPage(1);
   };
 
   const handleReloadClick = () => {
@@ -201,9 +224,10 @@ const AccessList = () => {
       <PageHeader
         title={t("access.page.title")}
         extra={[
-          <AccessEditModal
+          <AccessEditDrawer
             key="create"
-            preset="add"
+            usage={filters["usage"] as AccessUsageProp}
+            scene="add"
             trigger={
               <Button type="primary" icon={<PlusOutlinedIcon />}>
                 {t("access.action.add")}
@@ -213,7 +237,32 @@ const AccessList = () => {
         ]}
       />
 
-      <Card size="small">
+      <Card
+        className="rounded-b-none"
+        styles={{
+          body: {
+            padding: 0,
+          },
+        }}
+        tabList={[
+          {
+            key: "both-dns-hosting",
+            label: t("access.props.usage.both_dns_hosting"),
+          },
+          {
+            key: "ca-only",
+            label: t("access.props.usage.ca_only"),
+          },
+          {
+            key: "notification-only",
+            label: t("access.props.usage.notification_only"),
+          },
+        ]}
+        activeTabKey={filters["usage"] as string}
+        onTabChange={(key) => handleTabChange(key)}
+      />
+
+      <Card className="rounded-t-none " size="small">
         <div className="mb-4">
           <Flex gap="small">
             <div className="flex-1">

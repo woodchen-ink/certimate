@@ -1,4 +1,4 @@
-﻿package tencentcloudssldeploy
+package tencentcloudssldeploy
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"time"
 
-	xerrors "github.com/pkg/errors"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	tcssl "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl/v20191205"
@@ -46,7 +45,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 	client, err := createSdkClient(config.SecretId, config.SecretKey, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	uploader, err := uploadersp.NewUploader(&uploadersp.UploaderConfig{
@@ -54,7 +53,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 		SecretKey: config.SecretKey,
 	})
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create ssl uploader")
+		return nil, fmt.Errorf("failed to create ssl uploader: %w", err)
 	}
 
 	return &DeployerProvider{
@@ -75,7 +74,7 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	return d
 }
 
-func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPem string) (*deployer.DeployResult, error) {
+func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.ResourceType == "" {
 		return nil, errors.New("config `resourceType` is required")
 	}
@@ -84,9 +83,9 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	}
 
 	// 上传证书到 SSL
-	upres, err := d.sslUploader.Upload(ctx, certPem, privkeyPem)
+	upres, err := d.sslUploader.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to upload certificate file")
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 	} else {
 		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 	}
@@ -101,7 +100,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	deployCertificateInstanceResp, err := d.sdkClient.DeployCertificateInstance(deployCertificateInstanceReq)
 	d.logger.Debug("sdk request 'ssl.DeployCertificateInstance'", slog.Any("request", deployCertificateInstanceReq), slog.Any("response", deployCertificateInstanceResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'ssl.DeployCertificateInstance'")
+		return nil, fmt.Errorf("failed to execute sdk request 'ssl.DeployCertificateInstance': %w", err)
 	} else if deployCertificateInstanceResp.Response == nil || deployCertificateInstanceResp.Response.DeployRecordId == nil {
 		return nil, errors.New("failed to create deploy record")
 	}
@@ -109,8 +108,10 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 	// 循环获取部署任务详情，等待任务状态变更
 	// REF: https://cloud.tencent.com.cn/document/api/400/91658
 	for {
-		if ctx.Err() != nil {
+		select {
+		case <-ctx.Done():
 			return nil, ctx.Err()
+		default:
 		}
 
 		describeHostDeployRecordDetailReq := tcssl.NewDescribeHostDeployRecordDetailRequest()
@@ -119,7 +120,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPem string, privkeyPe
 		describeHostDeployRecordDetailResp, err := d.sdkClient.DescribeHostDeployRecordDetail(describeHostDeployRecordDetailReq)
 		d.logger.Debug("sdk request 'ssl.DescribeHostDeployRecordDetail'", slog.Any("request", describeHostDeployRecordDetailReq), slog.Any("response", describeHostDeployRecordDetailResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'ssl.DescribeHostDeployRecordDetail'")
+			return nil, fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostDeployRecordDetail': %w", err)
 		}
 
 		if describeHostDeployRecordDetailResp.Response.TotalCount == nil {

@@ -1,4 +1,4 @@
-﻿package aliyunslb
+package aliyunslb
 
 import (
 	"context"
@@ -13,10 +13,9 @@ import (
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	alislb "github.com/alibabacloud-go/slb-20140515/v4/client"
 	"github.com/alibabacloud-go/tea/tea"
-	xerrors "github.com/pkg/errors"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
 )
 
 type UploaderConfig struct {
@@ -43,7 +42,7 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 	client, err := createSdkClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to create sdk client")
+		return nil, fmt.Errorf("failed to create sdk client: %w", err)
 	}
 
 	return &UploaderProvider{
@@ -62,9 +61,9 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +76,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	describeServerCertificatesResp, err := u.sdkClient.DescribeServerCertificates(describeServerCertificatesReq)
 	u.logger.Debug("sdk request 'slb.DescribeServerCertificates'", slog.Any("request", describeServerCertificatesReq), slog.Any("response", describeServerCertificatesResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'slb.DescribeServerCertificates'")
+		return nil, fmt.Errorf("failed to execute sdk request 'slb.DescribeServerCertificates': %w", err)
 	}
 
 	if describeServerCertificatesResp.Body.ServerCertificates != nil && describeServerCertificatesResp.Body.ServerCertificates.ServerCertificate != nil {
@@ -105,21 +104,21 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	// 去除证书和私钥内容中的空白行，以符合阿里云 API 要求
 	// REF: https://github.com/usual2970/certimate/issues/326
 	re := regexp.MustCompile(`(?m)^\s*$\n?`)
-	certPem = strings.TrimSpace(re.ReplaceAllString(certPem, ""))
-	privkeyPem = strings.TrimSpace(re.ReplaceAllString(privkeyPem, ""))
+	certPEM = strings.TrimSpace(re.ReplaceAllString(certPEM, ""))
+	privkeyPEM = strings.TrimSpace(re.ReplaceAllString(privkeyPEM, ""))
 
 	// 上传新证书
 	// REF: https://help.aliyun.com/zh/slb/classic-load-balancer/developer-reference/api-slb-2014-05-15-uploadservercertificate
 	uploadServerCertificateReq := &alislb.UploadServerCertificateRequest{
 		RegionId:              tea.String(u.config.Region),
 		ServerCertificateName: tea.String(certName),
-		ServerCertificate:     tea.String(certPem),
-		PrivateKey:            tea.String(privkeyPem),
+		ServerCertificate:     tea.String(certPEM),
+		PrivateKey:            tea.String(privkeyPEM),
 	}
 	uploadServerCertificateResp, err := u.sdkClient.UploadServerCertificate(uploadServerCertificateReq)
 	u.logger.Debug("sdk request 'slb.UploadServerCertificate'", slog.Any("request", uploadServerCertificateReq), slog.Any("response", uploadServerCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'slb.UploadServerCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'slb.UploadServerCertificate': %w", err)
 	}
 
 	certId = *uploadServerCertificateResp.Body.ServerCertificateId

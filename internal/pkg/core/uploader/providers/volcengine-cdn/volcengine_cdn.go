@@ -10,12 +10,11 @@ import (
 	"strings"
 	"time"
 
-	xerrors "github.com/pkg/errors"
 	vecdn "github.com/volcengine/volc-sdk-golang/service/cdn"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
 
 	"github.com/usual2970/certimate/internal/pkg/core/uploader"
-	"github.com/usual2970/certimate/internal/pkg/utils/certutil"
+	certutil "github.com/usual2970/certimate/internal/pkg/utils/cert"
 )
 
 type UploaderConfig struct {
@@ -58,9 +57,9 @@ func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPem string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
 	// 解析证书内容
-	certX509, err := certutil.ParseCertificateFromPEM(certPem)
+	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
 		return nil, err
 	}
@@ -76,10 +75,16 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 		Source:   "volc_cert_center",
 	}
 	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		listCertInfoResp, err := u.sdkClient.ListCertInfo(listCertInfoReq)
 		u.logger.Debug("sdk request 'cdn.ListCertInfo'", slog.Any("request", listCertInfoReq), slog.Any("response", listCertInfoResp))
 		if err != nil {
-			return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.ListCertInfo'")
+			return nil, fmt.Errorf("failed to execute sdk request 'cdn.ListCertInfo': %w", err)
 		}
 
 		if listCertInfoResp.Result.CertInfo != nil {
@@ -115,15 +120,15 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPem string, privkeyPe
 	// 上传新证书
 	// REF: https://www.volcengine.com/docs/6454/1245763
 	addCertificateReq := &vecdn.AddCertificateRequest{
-		Certificate: certPem,
-		PrivateKey:  privkeyPem,
+		Certificate: certPEM,
+		PrivateKey:  privkeyPEM,
 		Source:      ve.String("volc_cert_center"),
 		Desc:        ve.String(certName),
 	}
 	addCertificateResp, err := u.sdkClient.AddCertificate(addCertificateReq)
 	u.logger.Debug("sdk request 'cdn.AddCertificate'", slog.Any("request", addCertificateResp), slog.Any("response", addCertificateResp))
 	if err != nil {
-		return nil, xerrors.Wrap(err, "failed to execute sdk request 'cdn.AddCertificate'")
+		return nil, fmt.Errorf("failed to execute sdk request 'cdn.AddCertificate': %w", err)
 	}
 
 	certId = addCertificateResp.Result.CertId

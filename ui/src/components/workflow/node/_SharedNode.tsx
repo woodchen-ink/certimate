@@ -336,7 +336,7 @@ const SharedNodeConfigDrawer = ({
       <Drawer
         afterOpenChange={setOpen}
         closable={!pending}
-        destroyOnClose
+        destroyOnHidden
         extra={
           <SharedNodeMenu
             node={node}

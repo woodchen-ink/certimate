@@ -56,18 +56,18 @@ func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 }
 
 func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
-	// 提取 Edgio 所需的服务端证书和中间证书内容
-	privateCertPEM, intermediateCertPEM, err := certutil.ExtractCertificatesFromPEM(certPEM)
+	// 提取服务器证书和中间证书
+	serverCertPEM, intermediaCertPEM, err := certutil.ExtractCertificatesFromPEM(certPEM)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to extract certs: %w", err)
 	}
 
 	// 上传 TLS 证书
 	// REF: https://docs.edg.io/rest_api/#tag/tls-certs/operation/postConfigV01TlsCerts
 	uploadTlsCertReq := edgiodtos.UploadTlsCertRequest{
 		EnvironmentID:    d.config.EnvironmentId,
-		PrimaryCert:      privateCertPEM,
-		IntermediateCert: intermediateCertPEM,
+		PrimaryCert:      serverCertPEM,
+		IntermediateCert: intermediaCertPEM,
 		PrivateKey:       privkeyPEM,
 	}
 	uploadTlsCertResp, err := d.sdkClient.UploadTlsCert(uploadTlsCertReq)

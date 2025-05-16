@@ -41,6 +41,8 @@ export interface AccessModel extends BaseModel {
       | AccessConfigForNamecheap
       | AccessConfigForNameDotCom
       | AccessConfigForNameSilo
+      | AccessConfigForNetcup
+      | AccessConfigForNetlify
       | AccessConfigForPorkbun
       | AccessConfigForPowerDNS
       | AccessConfigForProxmoxVE
@@ -199,6 +201,7 @@ export type AccessConfigForGoDaddy = {
 
 export type AccessConfigForGoEdge = {
   apiUrl: string;
+  apiRole: string;
   accessKeyId: string;
   accessKey: string;
   allowInsecureConnections?: boolean;
@@ -246,6 +249,16 @@ export type AccessConfigForNameDotCom = {
 
 export type AccessConfigForNameSilo = {
   apiKey: string;
+};
+
+export type AccessConfigForNetcup = {
+  customerNumber: string;
+  apiKey: string;
+  apiPassword: string;
+};
+
+export type AccessConfigForNetlify = {
+  apiToken: string;
 };
 
 export type AccessConfigForNS1 = {

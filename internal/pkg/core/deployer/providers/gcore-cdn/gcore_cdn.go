@@ -24,7 +24,7 @@ type DeployerConfig struct {
 	// CDN 资源 ID。
 	ResourceId int64 `json:"resourceId"`
 	// 证书 ID。
-	// 选填。
+	// 选填。零值时表示新建证书；否则表示更新证书。
 	CertificateId int64 `json:"certificateId,omitempty"`
 }
 
@@ -112,7 +112,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPE
 			ValidateRootCA: false,
 		}
 		changeCertificateResp, err := d.sdkClients.SSLCerts.Update(context.TODO(), getCertificateDetailResp.ID, changeCertificateReq)
-		d.logger.Debug("sdk request 'sslcerts.Create'", slog.Any("request", changeCertificateReq), slog.Any("response", changeCertificateResp))
+		d.logger.Debug("sdk request 'sslcerts.Update'", slog.Any("sslId", getCertificateDetailResp.ID), slog.Any("request", changeCertificateReq), slog.Any("response", changeCertificateResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'sslcerts.Update': %w", err)
 		}

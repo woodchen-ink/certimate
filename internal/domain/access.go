@@ -149,6 +149,7 @@ type AccessConfigForGoDaddy struct {
 
 type AccessConfigForGoEdge struct {
 	ApiUrl                   string `json:"apiUrl"`
+	ApiRole                  string `json:"apiRole"`
 	AccessKeyId              string `json:"accessKeyId"`
 	AccessKey                string `json:"accessKey"`
 	AllowInsecureConnections bool   `json:"allowInsecureConnections,omitempty"`
@@ -196,6 +197,16 @@ type AccessConfigForNameDotCom struct {
 
 type AccessConfigForNameSilo struct {
 	ApiKey string `json:"apiKey"`
+}
+
+type AccessConfigForNetcup struct {
+	CustomerNumber string `json:"customerNumber"`
+	ApiKey         string `json:"apiKey"`
+	ApiPassword    string `json:"apiPassword"`
+}
+
+type AccessConfigForNetlify struct {
+	ApiToken string `json:"apiToken"`
 }
 
 type AccessConfigForNS1 struct {

@@ -20,13 +20,21 @@ type Client struct {
 }
 
 func NewClient(username, password string) *Client {
-	client := resty.New()
-
-	return &Client{
+	client := &Client{
 		username: username,
 		password: password,
-		client:   client,
 	}
+	client.client = resty.New().
+		SetBaseURL("https://console.upyun.com").
+		SetPreRequestHook(func(c *resty.Client, req *http.Request) error {
+			if client.loginCookie != "" {
+				req.Header.Set("Cookie", client.loginCookie)
+			}
+
+			return nil
+		})
+
+	return client
 }
 
 func (c *Client) WithTimeout(timeout time.Duration) *Client {
@@ -35,9 +43,7 @@ func (c *Client) WithTimeout(timeout time.Duration) *Client {
 }
 
 func (c *Client) sendRequest(method string, path string, params interface{}) (*resty.Response, error) {
-	req := c.client.R().SetBasicAuth(c.username, c.password)
-	req.Method = method
-	req.URL = "https://console.upyun.com" + path
+	req := c.client.R()
 	if strings.EqualFold(method, http.MethodGet) {
 		qs := make(map[string]string)
 		if params != nil {
@@ -51,21 +57,16 @@ func (c *Client) sendRequest(method string, path string, params interface{}) (*r
 			}
 		}
 
-		req = req.
-			SetQueryParams(qs).
-			SetHeader("Cookie", c.loginCookie)
+		req = req.SetQueryParams(qs)
 	} else {
-		req = req.
-			SetHeader("Content-Type", "application/json").
-			SetHeader("Cookie", c.loginCookie).
-			SetBody(params)
+		req = req.SetHeader("Content-Type", "application/json").SetBody(params)
 	}
 
-	resp, err := req.Send()
+	resp, err := req.Execute(method, path)
 	if err != nil {
 		return resp, fmt.Errorf("upyun api error: failed to send request: %w", err)
 	} else if resp.IsError() {
-		return resp, fmt.Errorf("upyun api error: unexpected status code: %d, resp: %s", resp.StatusCode(), resp.Body())
+		return resp, fmt.Errorf("upyun api error: unexpected status code: %d, resp: %s", resp.StatusCode(), resp.String())
 	}
 
 	return resp, nil
@@ -81,12 +82,12 @@ func (c *Client) sendRequestWithResult(method string, path string, params interf
 	}
 
 	if err := json.Unmarshal(resp.Body(), &result); err != nil {
-		return fmt.Errorf("upyun api error: failed to parse response: %w", err)
+		return fmt.Errorf("upyun api error: failed to unmarshal response: %w", err)
 	}
 
 	tresp := &baseResponse{}
 	if err := json.Unmarshal(resp.Body(), &tresp); err != nil {
-		return fmt.Errorf("upyun api error: failed to parse response: %w", err)
+		return fmt.Errorf("upyun api error: failed to unmarshal response: %w", err)
 	} else if tdata := tresp.GetData(); tdata == nil {
 		return fmt.Errorf("upyun api error: empty data")
 	} else if errcode := tdata.GetErrorCode(); errcode > 0 {

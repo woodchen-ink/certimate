@@ -134,8 +134,6 @@ func (c *Client) WithTimeout(timeout time.Duration) *Client {
 
 func (c *Client) sendRequest(method string, path string, params interface{}, configureReq ...func(req *resty.Request)) (*resty.Response, error) {
 	req := c.client.R()
-	req.Method = method
-	req.URL = path
 	if strings.EqualFold(method, http.MethodGet) {
 		qs := make(map[string]string)
 		if params != nil {
@@ -151,18 +149,20 @@ func (c *Client) sendRequest(method string, path string, params interface{}, con
 
 		req = req.SetQueryParams(qs)
 	} else {
-		req = req.SetBody(params)
+		req = req.SetHeader("Content-Type", "application/json").SetBody(params)
 	}
 
-	for _, fn := range configureReq {
-		fn(req)
+	if configureReq != nil {
+		for _, fn := range configureReq {
+			fn(req)
+		}
 	}
 
-	resp, err := req.Send()
+	resp, err := req.Execute(method, path)
 	if err != nil {
 		return resp, fmt.Errorf("wangsu api error: failed to send request: %w", err)
 	} else if resp.IsError() {
-		return resp, fmt.Errorf("wangsu api error: unexpected status code: %d, resp: %s", resp.StatusCode(), resp.Body())
+		return resp, fmt.Errorf("wangsu api error: unexpected status code: %d, resp: %s", resp.StatusCode(), resp.String())
 	}
 
 	return resp, nil
@@ -181,7 +181,7 @@ func (c *Client) SendRequestWithResult(method string, path string, params interf
 	respBody := resp.Body()
 	if len(respBody) != 0 {
 		if err := json.Unmarshal(respBody, &result); err != nil {
-			return resp, fmt.Errorf("wangsu api error: failed to parse response: %w", err)
+			return resp, fmt.Errorf("wangsu api error: failed to unmarshal response: %w", err)
 		}
 	}
 

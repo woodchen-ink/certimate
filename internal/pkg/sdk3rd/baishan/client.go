@@ -13,17 +13,16 @@ import (
 )
 
 type Client struct {
-	apiToken string
-
 	client *resty.Client
 }
 
 func NewClient(apiToken string) *Client {
-	client := resty.New()
+	client := resty.New().
+		SetBaseURL("https://cdn.api.baishan.com").
+		SetHeader("token", apiToken)
 
 	return &Client{
-		apiToken: apiToken,
-		client:   client,
+		client: client,
 	}
 }
 
@@ -34,8 +33,6 @@ func (c *Client) WithTimeout(timeout time.Duration) *Client {
 
 func (c *Client) sendRequest(method string, path string, params interface{}) (*resty.Response, error) {
 	req := c.client.R()
-	req.Method = method
-	req.URL = "https://cdn.api.baishan.com" + path
 	if strings.EqualFold(method, http.MethodGet) {
 		qs := url.Values{}
 		if params != nil {
@@ -61,21 +58,16 @@ func (c *Client) sendRequest(method string, path string, params interface{}) (*r
 			}
 		}
 
-		req = req.
-			SetQueryParam("token", c.apiToken).
-			SetQueryParamsFromValues(qs)
+		req = req.SetQueryParamsFromValues(qs)
 	} else {
-		req = req.
-			SetHeader("Content-Type", "application/json").
-			SetQueryParam("token", c.apiToken).
-			SetBody(params)
+		req = req.SetHeader("Content-Type", "application/json").SetBody(params)
 	}
 
-	resp, err := req.Send()
+	resp, err := req.Execute(method, path)
 	if err != nil {
 		return resp, fmt.Errorf("baishan api error: failed to send request: %w", err)
 	} else if resp.IsError() {
-		return resp, fmt.Errorf("baishan api error: unexpected status code: %d, resp: %s", resp.StatusCode(), resp.Body())
+		return resp, fmt.Errorf("baishan api error: unexpected status code: %d, resp: %s", resp.StatusCode(), resp.String())
 	}
 
 	return resp, nil
@@ -91,7 +83,7 @@ func (c *Client) sendRequestWithResult(method string, path string, params interf
 	}
 
 	if err := json.Unmarshal(resp.Body(), &result); err != nil {
-		return fmt.Errorf("baishan api error: failed to parse response: %w", err)
+		return fmt.Errorf("baishan api error: failed to unmarshal response: %w", err)
 	} else if errcode := result.GetCode(); errcode != 0 {
 		return fmt.Errorf("baishan api error: code='%d', message='%s'", errcode, result.GetMessage())
 	}

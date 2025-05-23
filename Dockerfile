@@ -15,7 +15,8 @@ RUN apk add --no-cache tzdata
 COPY ../. /app/
 RUN rm -rf /app/ui/dist
 COPY --from=webui-builder /app/ui/dist /app/ui/dist
-RUN go build -o certimate
+ENV CGO_ENABLED=0
+RUN go build -ldflags="-s -w" -o certimate
 
 
 

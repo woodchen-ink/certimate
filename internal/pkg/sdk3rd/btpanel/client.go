@@ -14,19 +14,18 @@ import (
 )
 
 type Client struct {
-	apiHost string
-	apiKey  string
+	apiKey string
 
 	client *resty.Client
 }
 
 func NewClient(apiHost, apiKey string) *Client {
-	client := resty.New()
+	client := resty.New().
+		SetBaseURL(strings.TrimRight(apiHost, "/"))
 
 	return &Client{
-		apiHost: strings.TrimRight(apiHost, "/"),
-		apiKey:  apiKey,
-		client:  client,
+		apiKey: apiKey,
+		client: client,
 	}
 }
 
@@ -78,15 +77,14 @@ func (c *Client) sendRequest(path string, params interface{}) (*resty.Response, 
 	data["request_time"] = fmt.Sprintf("%d", timestamp)
 	data["request_token"] = c.generateSignature(fmt.Sprintf("%d", timestamp))
 
-	url := c.apiHost + path
 	req := c.client.R().
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetFormData(data)
-	resp, err := req.Post(url)
+	resp, err := req.Post(path)
 	if err != nil {
 		return resp, fmt.Errorf("baota api error: failed to send request: %w", err)
 	} else if resp.IsError() {
-		return resp, fmt.Errorf("baota api error: unexpected status code: %d, resp: %s", resp.StatusCode(), resp.Body())
+		return resp, fmt.Errorf("baota api error: unexpected status code: %d, resp: %s", resp.StatusCode(), resp.String())
 	}
 
 	return resp, nil
@@ -99,7 +97,7 @@ func (c *Client) sendRequestWithResult(path string, params interface{}, result B
 	}
 
 	if err := json.Unmarshal(resp.Body(), &result); err != nil {
-		return fmt.Errorf("baota api error: failed to parse response: %w", err)
+		return fmt.Errorf("baota api error: failed to unmarshal response: %w", err)
 	} else if errstatus := result.GetStatus(); errstatus != nil && !*errstatus {
 		if result.GetMessage() == nil {
 			return fmt.Errorf("baota api error: unknown error")

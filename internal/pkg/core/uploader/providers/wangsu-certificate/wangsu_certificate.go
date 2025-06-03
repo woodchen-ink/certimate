@@ -50,14 +50,14 @@ func NewUploader(config *UploaderConfig) (*UploaderProvider, error) {
 
 func (u *UploaderProvider) WithLogger(logger *slog.Logger) uploader.Uploader {
 	if logger == nil {
-		u.logger = slog.Default()
+		u.logger = slog.New(slog.DiscardHandler)
 	} else {
 		u.logger = logger
 	}
 	return u
 }
 
-func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (res *uploader.UploadResult, err error) {
+func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*uploader.UploadResult, error) {
 	// 解析证书内容
 	certX509, err := certutil.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -65,7 +65,7 @@ func (u *UploaderProvider) Upload(ctx context.Context, certPEM string, privkeyPE
 	}
 
 	// 查询证书列表，避免重复上传
-	// REF: https://www.wangsu.com/document/api-doc/26426
+	// REF: https://www.wangsu.com/document/api-doc/22675?productCode=certificatemanagement
 	listCertificatesResp, err := u.sdkClient.ListCertificates()
 	u.logger.Debug("sdk request 'certificatemanagement.ListCertificates'", slog.Any("response", listCertificatesResp))
 	if err != nil {

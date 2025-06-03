@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { produce } from "immer";
+import { Immer, produce } from "immer";
 import { nanoid } from "nanoid";
 
 import i18n from "@/i18n";
@@ -31,6 +31,7 @@ export enum WorkflowNodeType {
   End = "end",
   Apply = "apply",
   Upload = "upload",
+  Monitor = "monitor",
   Deploy = "deploy",
   Notify = "notify",
   Branch = "branch",
@@ -42,22 +43,24 @@ export enum WorkflowNodeType {
 }
 
 const workflowNodeTypeDefaultNames: Map<WorkflowNodeType, string> = new Map([
-  [WorkflowNodeType.Start, i18n.t("workflow_node.start.label")],
-  [WorkflowNodeType.End, i18n.t("workflow_node.end.label")],
-  [WorkflowNodeType.Apply, i18n.t("workflow_node.apply.label")],
-  [WorkflowNodeType.Upload, i18n.t("workflow_node.upload.label")],
-  [WorkflowNodeType.Deploy, i18n.t("workflow_node.deploy.label")],
-  [WorkflowNodeType.Notify, i18n.t("workflow_node.notify.label")],
-  [WorkflowNodeType.Branch, i18n.t("workflow_node.branch.label")],
-  [WorkflowNodeType.Condition, i18n.t("workflow_node.condition.label")],
-  [WorkflowNodeType.ExecuteResultBranch, i18n.t("workflow_node.execute_result_branch.label")],
-  [WorkflowNodeType.ExecuteSuccess, i18n.t("workflow_node.execute_success.label")],
-  [WorkflowNodeType.ExecuteFailure, i18n.t("workflow_node.execute_failure.label")],
-  [WorkflowNodeType.Custom, i18n.t("workflow_node.custom.title")],
+  [WorkflowNodeType.Start, i18n.t("workflow_node.start.default_name")],
+  [WorkflowNodeType.End, i18n.t("workflow_node.end.default_name")],
+  [WorkflowNodeType.Apply, i18n.t("workflow_node.apply.default_name")],
+  [WorkflowNodeType.Upload, i18n.t("workflow_node.upload.default_name")],
+  [WorkflowNodeType.Monitor, i18n.t("workflow_node.monitor.default_name")],
+  [WorkflowNodeType.Deploy, i18n.t("workflow_node.deploy.default_name")],
+  [WorkflowNodeType.Notify, i18n.t("workflow_node.notify.default_name")],
+  [WorkflowNodeType.Branch, i18n.t("workflow_node.branch.default_name")],
+  [WorkflowNodeType.Condition, i18n.t("workflow_node.condition.default_name")],
+  [WorkflowNodeType.ExecuteResultBranch, i18n.t("workflow_node.execute_result_branch.default_name")],
+  [WorkflowNodeType.ExecuteSuccess, i18n.t("workflow_node.execute_success.default_name")],
+  [WorkflowNodeType.ExecuteFailure, i18n.t("workflow_node.execute_failure.default_name")],
 ]);
 
 const workflowNodeTypeDefaultInputs: Map<WorkflowNodeType, WorkflowNodeIO[]> = new Map([
   [WorkflowNodeType.Apply, []],
+  [WorkflowNodeType.Upload, []],
+  [WorkflowNodeType.Monitor, []],
   [
     WorkflowNodeType.Deploy,
     [
@@ -65,7 +68,7 @@ const workflowNodeTypeDefaultInputs: Map<WorkflowNodeType, WorkflowNodeIO[]> = n
         name: "certificate",
         type: "certificate",
         required: true,
-        label: "证书",
+        label: i18n.t("workflow.variables.type.certificate.label"),
       },
     ],
   ],
@@ -80,7 +83,7 @@ const workflowNodeTypeDefaultOutputs: Map<WorkflowNodeType, WorkflowNodeIO[]> = 
         name: "certificate",
         type: "certificate",
         required: true,
-        label: "证书",
+        label: i18n.t("workflow.variables.type.certificate.label"),
       },
     ],
   ],
@@ -91,7 +94,18 @@ const workflowNodeTypeDefaultOutputs: Map<WorkflowNodeType, WorkflowNodeIO[]> = 
         name: "certificate",
         type: "certificate",
         required: true,
-        label: "证书",
+        label: i18n.t("workflow.variables.type.certificate.label"),
+      },
+    ],
+  ],
+  [
+    WorkflowNodeType.Monitor,
+    [
+      {
+        name: "certificate",
+        type: "certificate",
+        required: true,
+        label: i18n.t("workflow.variables.type.certificate.label"),
       },
     ],
   ],
@@ -145,6 +159,13 @@ export type WorkflowNodeConfigForUpload = {
   privateKey: string;
 };
 
+export type WorkflowNodeConfigForMonitor = {
+  host: string;
+  port: number;
+  domain?: string;
+  requestPath?: string;
+};
+
 export type WorkflowNodeConfigForDeploy = {
   certificate: string;
   provider: string;
@@ -165,6 +186,10 @@ export type WorkflowNodeConfigForNotify = {
   providerConfig?: Record<string, unknown>;
 };
 
+export type WorkflowNodeConfigForCondition = {
+  expression?: Expr;
+};
+
 export type WorkflowNodeConfigForBranch = never;
 
 export type WorkflowNodeConfigForEnd = never;
@@ -178,37 +203,189 @@ export type WorkflowNodeIO = {
   valueSelector?: WorkflowNodeIOValueSelector;
 };
 
-export type WorkflowNodeIOValueSelector = {
-  id: string;
-  name: string;
-};
-
+export type WorkflowNodeIOValueSelector = ExprValueSelector;
 // #endregion
 
-const isBranchLike = (node: WorkflowNode) => {
+// #region Expression
+export enum ExprType {
+  Constant = "const",
+  Variant = "var",
+  Comparison = "comparison",
+  Logical = "logical",
+  Not = "not",
+}
+
+export type ExprValue = string | number | boolean;
+export type ExprValueType = "string" | "number" | "boolean";
+export type ExprValueSelector = {
+  id: string;
+  name: string;
+  type: ExprValueType;
+};
+
+export type ExprComparisonOperator = "gt" | "gte" | "lt" | "lte" | "eq" | "neq";
+export type ExprLogicalOperator = "and" | "or" | "not";
+
+export type ConstantExpr = { type: ExprType.Constant; value: string; valueType: ExprValueType };
+export type VariantExpr = { type: ExprType.Variant; selector: ExprValueSelector };
+export type ComparisonExpr = { type: ExprType.Comparison; operator: ExprComparisonOperator; left: Expr; right: Expr };
+export type LogicalExpr = { type: ExprType.Logical; operator: ExprLogicalOperator; left: Expr; right: Expr };
+export type NotExpr = { type: ExprType.Not; expr: Expr };
+export type Expr = ConstantExpr | VariantExpr | ComparisonExpr | LogicalExpr | NotExpr;
+// #endregion
+
+const isBranchNode = (node: WorkflowNode) => {
   return node.type === WorkflowNodeType.Branch || node.type === WorkflowNodeType.ExecuteResultBranch;
 };
 
 type InitWorkflowOptions = {
-  template?: "standard";
+  template?: "standard" | "certtest";
 };
 
 export const initWorkflow = (options: InitWorkflowOptions = {}): WorkflowModel => {
   const root = newNode(WorkflowNodeType.Start, {}) as WorkflowNode;
   root.config = { trigger: WORKFLOW_TRIGGERS.MANUAL };
 
-  if (options.template === "standard") {
-    let current = root;
-    current.next = newNode(WorkflowNodeType.Apply, {});
+  switch (options.template) {
+    case "standard":
+      {
+        let current = root;
 
-    current = current.next;
-    current.next = newNode(WorkflowNodeType.Deploy, {});
+        const applyNode = newNode(WorkflowNodeType.Apply);
+        current.next = applyNode;
 
-    current = current.next;
-    current.next = newNode(WorkflowNodeType.ExecuteResultBranch, {});
+        current = current.next;
+        current.next = newNode(WorkflowNodeType.ExecuteResultBranch);
 
-    current = current.next!.branches![1];
-    current.next = newNode(WorkflowNodeType.Notify, {});
+        current = current.next!.branches![1];
+        current.next = newNode(WorkflowNodeType.Notify, {
+          nodeConfig: {
+            subject: "[Certimate] Workflow Failure Alert!",
+            message: "Your workflow run for the certificate application has failed. Please check the details.",
+          } as WorkflowNodeConfigForNotify,
+        });
+
+        current = applyNode.next!.branches![0];
+        current.next = newNode(WorkflowNodeType.Deploy, {
+          nodeConfig: {
+            certificate: `${applyNode.id}#certificate`,
+            skipOnLastSucceeded: true,
+          } as WorkflowNodeConfigForDeploy,
+        });
+
+        current = current.next;
+        current.next = newNode(WorkflowNodeType.ExecuteResultBranch);
+
+        current = current.next!.branches![1];
+        current.next = newNode(WorkflowNodeType.Notify, {
+          nodeConfig: {
+            subject: "[Certimate] Workflow Failure Alert!",
+            message: "Your workflow run for the certificate deployment has failed. Please check the details.",
+          } as WorkflowNodeConfigForNotify,
+        });
+      }
+      break;
+
+    case "certtest":
+      {
+        let current = root;
+
+        const monitorNode = newNode(WorkflowNodeType.Monitor);
+        current.next = monitorNode;
+
+        current = current.next;
+        current.next = newNode(WorkflowNodeType.ExecuteResultBranch);
+
+        current = current.next!.branches![1];
+        current.next = newNode(WorkflowNodeType.Notify, {
+          nodeConfig: {
+            subject: "[Certimate] Workflow Failure Alert!",
+            message: "Your workflow run for the certificate monitoring has failed. Please check the details.",
+          } as WorkflowNodeConfigForNotify,
+        });
+
+        current = monitorNode.next!.branches![0];
+        const branchNode = newNode(WorkflowNodeType.Branch);
+        current.next = branchNode;
+
+        current = branchNode.branches![0];
+        current.name = i18n.t("workflow_node.condition.default_name.template_certtest_on_expire_soon");
+        current.config = {
+          expression: {
+            left: {
+              left: {
+                selector: {
+                  id: monitorNode.id,
+                  name: "certificate.validity",
+                  type: "boolean",
+                },
+                type: "var",
+              },
+              operator: "eq",
+              right: {
+                type: "const",
+                value: "true",
+                valueType: "boolean",
+              },
+              type: "comparison",
+            },
+            operator: "and",
+            right: {
+              left: {
+                selector: {
+                  id: monitorNode.id,
+                  name: "certificate.daysLeft",
+                  type: "number",
+                },
+                type: "var",
+              },
+              operator: "lte",
+              right: {
+                type: "const",
+                value: "30",
+                valueType: "number",
+              },
+              type: "comparison",
+            },
+            type: "logical",
+          },
+        } as WorkflowNodeConfigForCondition;
+        current.next = newNode(WorkflowNodeType.Notify, {
+          nodeConfig: {
+            subject: "[Certimate] Certificate Expiry Alert!",
+            message: "The certificate will expire soon. Please pay attention to your website.",
+          } as WorkflowNodeConfigForNotify,
+        });
+
+        current = branchNode.branches![1];
+        current.name = i18n.t("workflow_node.condition.default_name.template_certtest_on_expired");
+        current.config = {
+          expression: {
+            left: {
+              selector: {
+                id: monitorNode.id,
+                name: "certificate.validity",
+                type: "boolean",
+              },
+              type: "var",
+            },
+            operator: "eq",
+            right: {
+              type: "const",
+              value: "false",
+              valueType: "boolean",
+            },
+            type: "comparison",
+          },
+        } as WorkflowNodeConfigForCondition;
+        current.next = newNode(WorkflowNodeType.Notify, {
+          nodeConfig: {
+            subject: "[Certimate] Certificate Expiry Alert!",
+            message: "The certificate has already expired. Please pay attention to your website.",
+          } as WorkflowNodeConfigForNotify,
+        });
+      }
+      break;
   }
 
   return {
@@ -225,6 +402,8 @@ export const initWorkflow = (options: InitWorkflowOptions = {}): WorkflowModel =
 };
 
 type NewNodeOptions = {
+  nodeName?: string;
+  nodeConfig?: Record<string, unknown>;
   branchIndex?: number;
 };
 
@@ -234,13 +413,15 @@ export const newNode = (nodeType: WorkflowNodeType, options: NewNodeOptions = {}
 
   const node: WorkflowNode = {
     id: nanoid(),
-    name: nodeName,
+    name: options.nodeName ?? nodeName,
     type: nodeType,
+    config: options.nodeConfig,
   };
 
   switch (nodeType) {
     case WorkflowNodeType.Apply:
     case WorkflowNodeType.Upload:
+    case WorkflowNodeType.Monitor:
     case WorkflowNodeType.Deploy:
       {
         node.inputs = workflowNodeTypeDefaultInputs.get(nodeType);
@@ -277,8 +458,75 @@ export const newNode = (nodeType: WorkflowNodeType, options: NewNodeOptions = {}
   return node;
 };
 
-export const updateNode = (node: WorkflowNode, targetNode: WorkflowNode) => {
-  return produce(node, (draft) => {
+export const cloneNode = (sourceNode: WorkflowNode): WorkflowNode => {
+  const { produce } = new Immer({ autoFreeze: false });
+  const deepClone = (node: WorkflowNode): WorkflowNode => {
+    return produce(node, (draft) => {
+      draft.id = nanoid();
+
+      if (draft.next) {
+        draft.next = cloneNode(draft.next);
+      }
+
+      if (draft.branches) {
+        draft.branches = draft.branches.map((branch) => cloneNode(branch));
+      }
+
+      return draft;
+    });
+  };
+
+  const copyNode = produce(sourceNode, (draft) => {
+    draft.name = `${draft.name}-copy`;
+  });
+  return deepClone(copyNode);
+};
+
+export const addNode = (root: WorkflowNode, targetNode: WorkflowNode, previousNodeId: string) => {
+  if (isBranchNode(targetNode)) {
+    throw new Error("Cannot add a branch node directly. Use `addBranch` instead.");
+  }
+
+  return produce(root, (draft) => {
+    let current = draft;
+    while (current) {
+      if (current.id === previousNodeId && !isBranchNode(targetNode)) {
+        targetNode.next = current.next;
+        current.next = targetNode;
+        break;
+      } else if (current.id === previousNodeId && isBranchNode(targetNode)) {
+        targetNode.branches![0].next = current.next;
+        current.next = targetNode;
+        break;
+      }
+
+      if (isBranchNode(current)) {
+        current.branches ??= [];
+        current.branches = current.branches.map((branch) => addNode(branch, targetNode, previousNodeId));
+      }
+
+      current = current.next as WorkflowNode;
+    }
+
+    return draft;
+  });
+};
+
+export const duplicateNode = (root: WorkflowNode, targetNode: WorkflowNode) => {
+  if (isBranchNode(targetNode)) {
+    throw new Error("Cannot duplicate a branch node directly. Use `duplicateBranch` instead.");
+  }
+
+  const copiedNode = cloneNode(targetNode);
+  return addNode(root, copiedNode, targetNode.id);
+};
+
+export const updateNode = (root: WorkflowNode, targetNode: WorkflowNode) => {
+  if (isBranchNode(targetNode)) {
+    throw new Error("Cannot update a branch node directly. Use `updateBranch` instead.");
+  }
+
+  return produce(root, (draft) => {
     let current = draft;
     while (current) {
       if (current.id === targetNode.id) {
@@ -295,7 +543,7 @@ export const updateNode = (node: WorkflowNode, targetNode: WorkflowNode) => {
         break;
       }
 
-      if (isBranchLike(current)) {
+      if (isBranchNode(current)) {
         current.branches ??= [];
         current.branches = current.branches.map((branch) => updateNode(branch, targetNode));
       }
@@ -307,23 +555,18 @@ export const updateNode = (node: WorkflowNode, targetNode: WorkflowNode) => {
   });
 };
 
-export const addNode = (node: WorkflowNode, previousNodeId: string, targetNode: WorkflowNode) => {
-  return produce(node, (draft) => {
+export const removeNode = (root: WorkflowNode, targetNodeId: string) => {
+  return produce(root, (draft) => {
     let current = draft;
     while (current) {
-      if (current.id === previousNodeId && !isBranchLike(targetNode)) {
-        targetNode.next = current.next;
-        current.next = targetNode;
-        break;
-      } else if (current.id === previousNodeId && isBranchLike(targetNode)) {
-        targetNode.branches![0].next = current.next;
-        current.next = targetNode;
+      if (current.next?.id === targetNodeId) {
+        current.next = current.next.next;
         break;
       }
 
-      if (isBranchLike(current)) {
+      if (isBranchNode(current)) {
         current.branches ??= [];
-        current.branches = current.branches.map((branch) => addNode(branch, previousNodeId, targetNode));
+        current.branches = current.branches.map((branch) => removeNode(branch, targetNodeId));
       }
 
       current = current.next as WorkflowNode;
@@ -333,8 +576,8 @@ export const addNode = (node: WorkflowNode, previousNodeId: string, targetNode: 
   });
 };
 
-export const addBranch = (node: WorkflowNode, branchNodeId: string) => {
-  return produce(node, (draft) => {
+export const addBranch = (root: WorkflowNode, branchNodeId: string) => {
+  return produce(root, (draft) => {
     let current = draft;
     while (current) {
       if (current.id === branchNodeId) {
@@ -351,7 +594,7 @@ export const addBranch = (node: WorkflowNode, branchNodeId: string) => {
         break;
       }
 
-      if (isBranchLike(current)) {
+      if (isBranchNode(current)) {
         current.branches ??= [];
         current.branches = current.branches.map((branch) => addBranch(branch, branchNodeId));
       }
@@ -363,29 +606,8 @@ export const addBranch = (node: WorkflowNode, branchNodeId: string) => {
   });
 };
 
-export const removeNode = (node: WorkflowNode, targetNodeId: string) => {
-  return produce(node, (draft) => {
-    let current = draft;
-    while (current) {
-      if (current.next?.id === targetNodeId) {
-        current.next = current.next.next;
-        break;
-      }
-
-      if (isBranchLike(current)) {
-        current.branches ??= [];
-        current.branches = current.branches.map((branch) => removeNode(branch, targetNodeId));
-      }
-
-      current = current.next as WorkflowNode;
-    }
-
-    return draft;
-  });
-};
-
-export const removeBranch = (node: WorkflowNode, branchNodeId: string, branchIndex: number) => {
-  return produce(node, (draft) => {
+export const duplicateBranch = (root: WorkflowNode, branchNodeId: string, branchIndex: number) => {
+  return produce(root, (draft) => {
     let current = draft;
     let last: WorkflowNode | undefined = {
       id: "",
@@ -395,7 +617,41 @@ export const removeBranch = (node: WorkflowNode, branchNodeId: string, branchInd
     };
     while (current && last) {
       if (current.id === branchNodeId) {
-        if (!isBranchLike(current)) {
+        if (!isBranchNode(current)) {
+          return draft;
+        }
+
+        current.branches ??= [];
+        current.branches.splice(branchIndex + 1, 0, cloneNode(current.branches[branchIndex]));
+
+        break;
+      }
+
+      if (isBranchNode(current)) {
+        current.branches ??= [];
+        current.branches = current.branches.map((branch) => duplicateBranch(branch, branchNodeId, branchIndex));
+      }
+
+      current = current.next as WorkflowNode;
+      last = last.next;
+    }
+
+    return draft;
+  });
+};
+
+export const removeBranch = (root: WorkflowNode, branchNodeId: string, branchIndex: number) => {
+  return produce(root, (draft) => {
+    let current = draft;
+    let last: WorkflowNode | undefined = {
+      id: "",
+      name: "",
+      type: WorkflowNodeType.Start,
+      next: draft,
+    };
+    while (current && last) {
+      if (current.id === branchNodeId) {
+        if (!isBranchNode(current)) {
           return draft;
         }
 
@@ -420,7 +676,7 @@ export const removeBranch = (node: WorkflowNode, branchNodeId: string, branchInd
         break;
       }
 
-      if (isBranchLike(current)) {
+      if (isBranchNode(current)) {
         current.branches ??= [];
         current.branches = current.branches.map((branch) => removeBranch(branch, branchNodeId, branchIndex));
       }
@@ -433,9 +689,23 @@ export const removeBranch = (node: WorkflowNode, branchNodeId: string, branchInd
   });
 };
 
-export const getOutputBeforeNodeId = (root: WorkflowNode, nodeId: string, type: string): WorkflowNode[] => {
+export const getOutputBeforeNodeId = (root: WorkflowNode, nodeId: string, typeFilter?: string | string[]): WorkflowNode[] => {
   // 某个分支的节点，不应该能获取到相邻分支上节点的输出
   const outputs: WorkflowNode[] = [];
+
+  const filter = (io: WorkflowNodeIO) => {
+    if (typeFilter == null) {
+      return true;
+    }
+
+    if (Array.isArray(typeFilter) && typeFilter.includes(io.type)) {
+      return true;
+    } else if (io.type === typeFilter) {
+      return true;
+    }
+
+    return false;
+  };
 
   const traverse = (current: WorkflowNode, output: WorkflowNode[]) => {
     if (!current) {
@@ -445,14 +715,14 @@ export const getOutputBeforeNodeId = (root: WorkflowNode, nodeId: string, type: 
       return true;
     }
 
-    if (current.type !== WorkflowNodeType.Branch && current.outputs && current.outputs.some((io) => io.type === type)) {
+    if (current.type !== WorkflowNodeType.Branch && current.outputs && current.outputs.some((io) => filter(io))) {
       output.push({
         ...current,
-        outputs: current.outputs.filter((io) => io.type === type),
+        outputs: current.outputs.filter((io) => filter(io)),
       });
     }
 
-    if (isBranchLike(current)) {
+    if (isBranchNode(current)) {
       let currentLength = output.length;
       const latestOutput = output.length > 0 ? output[output.length - 1] : null;
       for (const branch of current.branches!) {
@@ -484,7 +754,7 @@ export const getOutputBeforeNodeId = (root: WorkflowNode, nodeId: string, type: 
 export const isAllNodesValidated = (node: WorkflowNode): boolean => {
   let current = node as typeof node | undefined;
   while (current) {
-    if (isBranchLike(current)) {
+    if (isBranchNode(current)) {
       for (const branch of current.branches!) {
         if (!isAllNodesValidated(branch)) {
           return false;

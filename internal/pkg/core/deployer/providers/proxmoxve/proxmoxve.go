@@ -13,6 +13,7 @@ import (
 	"github.com/luthermonson/go-proxmox"
 
 	"github.com/usual2970/certimate/internal/pkg/core/deployer"
+	httputil "github.com/usual2970/certimate/internal/pkg/utils/http"
 )
 
 type DeployerConfig struct {
@@ -57,7 +58,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	if logger == nil {
-		d.logger = slog.Default()
+		d.logger = slog.New(slog.DiscardHandler)
 	} else {
 		d.logger = logger
 	}
@@ -101,15 +102,16 @@ func createSdkClient(serverUrl, apiToken, apiTokenSecret string, skipTlsVerify b
 	}
 
 	httpClient := &http.Client{
-		Transport: http.DefaultTransport,
+		Transport: httputil.NewDefaultTransport(),
 		Timeout:   http.DefaultClient.Timeout,
 	}
 	if skipTlsVerify {
-		httpClient.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
+		transport := httputil.NewDefaultTransport()
+		if transport.TLSClientConfig == nil {
+			transport.TLSClientConfig = &tls.Config{}
 		}
+		transport.TLSClientConfig.InsecureSkipVerify = true
+		httpClient.Transport = transport
 	}
 	client := proxmox.NewClient(
 		strings.TrimRight(serverUrl, "/")+"/api2/json",

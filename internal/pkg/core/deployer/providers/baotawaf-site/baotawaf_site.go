@@ -23,7 +23,7 @@ type DeployerConfig struct {
 	// 网站名称。
 	SiteName string `json:"siteName"`
 	// 网站 SSL 端口。
-	// 零值时默认为 443。
+	// 零值时默认值 443。
 	SitePort int32 `json:"sitePort,omitempty"`
 }
 
@@ -54,7 +54,7 @@ func NewDeployer(config *DeployerConfig) (*DeployerProvider, error) {
 
 func (d *DeployerProvider) WithLogger(logger *slog.Logger) deployer.Deployer {
 	if logger == nil {
-		d.logger = slog.Default()
+		d.logger = slog.New(slog.DiscardHandler)
 	} else {
 		d.logger = logger
 	}
@@ -116,7 +116,7 @@ func (d *DeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPE
 		SiteId: siteId,
 		Type:   typeutil.ToPtr("openCert"),
 		Server: &btsdk.SiteServerInfo{
-			ListenSSLPort: typeutil.ToPtr(d.config.SitePort),
+			ListenSSLPorts: typeutil.ToPtr([]int32{d.config.SitePort}),
 			SSL: &btsdk.SiteServerSSLInfo{
 				IsSSL:      typeutil.ToPtr(int32(1)),
 				FullChain:  typeutil.ToPtr(certPEM),

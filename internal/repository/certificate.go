@@ -77,13 +77,14 @@ func (r *CertificateRepository) GetByWorkflowNodeId(ctx context.Context, workflo
 	return r.castRecordToModel(records[0])
 }
 
-func (r *CertificateRepository) GetByWorkflowRunId(ctx context.Context, workflowRunId string) (*domain.Certificate, error) {
+func (r *CertificateRepository) GetByWorkflowRunIdAndNodeId(ctx context.Context, workflowRunId string, workflowNodeId string) (*domain.Certificate, error) {
 	records, err := app.GetApp().FindRecordsByFilter(
 		domain.CollectionNameCertificate,
-		"workflowRunId={:workflowRunId} && deleted=null",
+		"workflowRunId={:workflowRunId} && workflowNodeId={:workflowNodeId} && deleted=null",
 		"-created",
 		1, 0,
 		dbx.Params{"workflowRunId": workflowRunId},
+		dbx.Params{"workflowNodeId": workflowNodeId},
 	)
 	if err != nil {
 		return nil, err

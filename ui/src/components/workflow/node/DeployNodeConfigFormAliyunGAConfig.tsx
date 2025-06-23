@@ -25,7 +25,9 @@ const RESOURCE_TYPE_ACCELERATOR = "accelerator" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;
 
 const initFormModel = (): DeployNodeConfigFormAliyunGAConfigFieldValues => {
-  return {};
+  return {
+    resourceType: RESOURCE_TYPE_LISTENER,
+  };
 };
 
 const DeployNodeConfigFormAliyunGAConfig = ({ form: formInst, formName, disabled, initialValues, onValuesChange }: DeployNodeConfigFormAliyunGAConfigProps) => {
@@ -35,14 +37,10 @@ const DeployNodeConfigFormAliyunGAConfig = ({ form: formInst, formName, disabled
     resourceType: z.union([z.literal(RESOURCE_TYPE_ACCELERATOR), z.literal(RESOURCE_TYPE_LISTENER)], {
       message: t("workflow_node.deploy.form.aliyun_ga_resource_type.placeholder"),
     }),
-    acceleratorId: z
-      .string()
-      .max(64, t("common.errmsg.string_max", { max: 64 }))
-      .trim(),
+    acceleratorId: z.string().max(64, t("common.errmsg.string_max", { max: 64 })),
     listenerId: z
       .string()
       .max(64, t("common.errmsg.string_max", { max: 64 }))
-      .trim()
       .nullish()
       .refine((v) => fieldResourceType !== RESOURCE_TYPE_LISTENER || !!v?.trim(), t("workflow_node.deploy.form.aliyun_ga_listener_id.placeholder")),
     domain: z

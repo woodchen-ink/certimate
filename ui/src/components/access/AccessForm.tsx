@@ -15,6 +15,7 @@ import AccessForm1PanelConfig from "./AccessForm1PanelConfig";
 import AccessFormACMECAConfig from "./AccessFormACMECAConfig";
 import AccessFormACMEHttpReqConfig from "./AccessFormACMEHttpReqConfig";
 import AccessFormAliyunConfig from "./AccessFormAliyunConfig";
+import AccessFormAPISIXConfig from "./AccessFormAPISIXConfig";
 import AccessFormAWSConfig from "./AccessFormAWSConfig";
 import AccessFormAzureConfig from "./AccessFormAzureConfig";
 import AccessFormBaiduCloudConfig from "./AccessFormBaiduCloudConfig";
@@ -29,6 +30,7 @@ import AccessFormCloudflareConfig from "./AccessFormCloudflareConfig";
 import AccessFormClouDNSConfig from "./AccessFormClouDNSConfig";
 import AccessFormCMCCCloudConfig from "./AccessFormCMCCCloudConfig";
 import AccessFormConstellixConfig from "./AccessFormConstellixConfig";
+import AccessFormCTCCCloudConfig from "./AccessFormCTCCCloudConfig";
 import AccessFormDeSECConfig from "./AccessFormDeSECConfig";
 import AccessFormDigitalOceanConfig from "./AccessFormDigitalOceanConfig";
 import AccessFormDingTalkBotConfig from "./AccessFormDingTalkBotConfig";
@@ -107,7 +109,6 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
   const formSchema = z.object({
     name: z
       .string({ message: t("access.form.name.placeholder") })
-      .trim()
       .min(1, t("access.form.name.placeholder"))
       .max(64, t("common.errmsg.string_max", { max: 64 })),
     provider: z.nativeEnum(ACCESS_PROVIDERS, {
@@ -194,6 +195,8 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
         return <AccessFormACMEHttpReqConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.ALIYUN:
         return <AccessFormAliyunConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.APISIX:
+        return <AccessFormAPISIXConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.AWS:
         return <AccessFormAWSConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.AZURE:
@@ -222,6 +225,8 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
         return <AccessFormCMCCCloudConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.CONSTELLIX:
         return <AccessFormConstellixConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.CTCCCLOUD:
+        return <AccessFormCTCCCloudConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.DESEC:
         return <AccessFormDeSECConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.DIGITALOCEAN:

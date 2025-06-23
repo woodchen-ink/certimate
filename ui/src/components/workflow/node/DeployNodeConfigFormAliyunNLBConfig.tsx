@@ -24,7 +24,9 @@ const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;
 
 const initFormModel = (): DeployNodeConfigFormAliyunNLBConfigFieldValues => {
-  return {};
+  return {
+    resourceType: RESOURCE_TYPE_LISTENER,
+  };
 };
 
 const DeployNodeConfigFormAliyunNLBConfig = ({
@@ -42,18 +44,15 @@ const DeployNodeConfigFormAliyunNLBConfig = ({
     }),
     region: z
       .string({ message: t("workflow_node.deploy.form.aliyun_nlb_region.placeholder") })
-      .nonempty(t("workflow_node.deploy.form.aliyun_nlb_region.placeholder"))
-      .trim(),
+      .nonempty(t("workflow_node.deploy.form.aliyun_nlb_region.placeholder")),
     loadbalancerId: z
       .string()
       .max(64, t("common.errmsg.string_max", { max: 64 }))
-      .trim()
       .nullish()
       .refine((v) => fieldResourceType !== RESOURCE_TYPE_LOADBALANCER || !!v?.trim(), t("workflow_node.deploy.form.aliyun_nlb_loadbalancer_id.placeholder")),
     listenerId: z
       .string()
       .max(64, t("common.errmsg.string_max", { max: 64 }))
-      .trim()
       .nullish()
       .refine((v) => fieldResourceType !== RESOURCE_TYPE_LISTENER || !!v?.trim(), t("workflow_node.deploy.form.aliyun_nlb_listener_id.placeholder")),
   });

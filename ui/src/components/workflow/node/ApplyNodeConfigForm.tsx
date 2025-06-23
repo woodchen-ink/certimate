@@ -1,23 +1,14 @@
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import { PlusOutlined as PlusOutlinedIcon, QuestionCircleOutlined as QuestionCircleOutlinedIcon, RightOutlined as RightOutlinedIcon } from "@ant-design/icons";
-import { useControllableValue } from "ahooks";
 import {
-  AutoComplete,
-  type AutoCompleteProps,
-  Button,
-  Divider,
-  Flex,
-  Form,
-  type FormInstance,
-  Input,
-  InputNumber,
-  Select,
-  Switch,
-  Tooltip,
-  Typography,
-} from "antd";
+  CloseOutlined as CloseOutlinedIcon,
+  PlusOutlined as PlusOutlinedIcon,
+  QuestionCircleOutlined as QuestionCircleOutlinedIcon,
+  RightOutlined as RightOutlinedIcon,
+} from "@ant-design/icons";
+import { useControllableValue } from "ahooks";
+import { AutoComplete, Button, Divider, Flex, Form, type FormInstance, Input, InputNumber, Select, Switch, Tooltip, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
@@ -589,8 +580,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
 
 const EmailInput = memo(
   ({ disabled, placeholder, ...props }: { disabled?: boolean; placeholder?: string; value?: string; onChange?: (value: string) => void }) => {
-    const { emails, fetchEmails } = useContactEmailsStore();
-    const emailsToOptions = () => emails.map((email) => ({ label: email, value: email }));
+    const { emails, fetchEmails, removeEmail } = useContactEmailsStore();
     useEffect(() => {
       fetchEmails();
     }, []);
@@ -601,24 +591,49 @@ const EmailInput = memo(
       trigger: "onChange",
     });
 
-    const [options, setOptions] = useState<AutoCompleteProps["options"]>([]);
-    useEffect(() => {
-      setOptions(emailsToOptions());
-    }, [emails]);
+    const [inputValue, setInputValue] = useState<string>();
+
+    const renderOptionLabel = (email: string, removable: boolean = false) => (
+      <div className="flex items-center gap-2 overflow-hidden">
+        <span className="flex-1 overflow-hidden truncate">{email}</span>
+        {removable && (
+          <Button
+            color="default"
+            disabled={disabled}
+            icon={<CloseOutlinedIcon />}
+            size="small"
+            type="text"
+            onClick={(e) => {
+              removeEmail(email);
+              e.stopPropagation();
+            }}
+          />
+        )}
+      </div>
+    );
+
+    const options = useMemo(() => {
+      const temp = emails.map((email) => ({
+        label: renderOptionLabel(email, true),
+        value: email,
+      }));
+
+      if (!!inputValue && temp.every((option) => option.value !== inputValue)) {
+        temp.unshift({
+          label: renderOptionLabel(inputValue),
+          value: inputValue,
+        });
+      }
+
+      return temp;
+    }, [emails, inputValue]);
 
     const handleChange = (value: string) => {
       setValue(value);
     };
 
-    const handleSearch = (text: string) => {
-      const temp = emailsToOptions();
-      if (text?.trim()) {
-        if (temp.every((option) => option.label !== text)) {
-          temp.unshift({ label: text, value: text });
-        }
-      }
-
-      setOptions(temp);
+    const handleSearch = (value: string) => {
+      setInputValue(value?.trim());
     };
 
     return (

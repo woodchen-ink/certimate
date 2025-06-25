@@ -1,11 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import { validDomainName } from "@/utils/validators";
 
 type DeployNodeConfigFormTencentCloudVODConfigFieldValues = Nullish<{
+  endpoint?: string;
   subAppId?: string | number;
   domain: string;
 }>;
@@ -32,16 +33,15 @@ const DeployNodeConfigFormTencentCloudVODConfig = ({
   const { t } = useTranslation();
 
   const formSchema = z.object({
+    endpoint: z.string().nullish(),
     subAppId: z
-      .union([z.string(), z.number()])
+      .union([z.string(), z.number().int()])
       .nullish()
       .refine((v) => {
         if (v == null) return true;
         return /^\d+$/.test(v + "") && +v > 0;
       }, t("workflow_node.deploy.form.tencentcloud_vod_sub_app_id.placeholder")),
-    domain: z
-      .string({ message: t("workflow_node.deploy.form.tencentcloud_vod_domain.placeholder") })
-      .refine((v) => validDomainName(v), t("common.errmsg.domain_invalid")),
+    domain: z.string(t("workflow_node.deploy.form.tencentcloud_vod_domain.placeholder")).refine((v) => validDomainName(v), t("common.errmsg.domain_invalid")),
   });
   const formRule = createSchemaFieldRule(formSchema);
 
@@ -58,6 +58,15 @@ const DeployNodeConfigFormTencentCloudVODConfig = ({
       name={formName}
       onValuesChange={handleFormChange}
     >
+      <Form.Item
+        name="endpoint"
+        label={t("workflow_node.deploy.form.tencentcloud_vod_endpoint.label")}
+        rules={[formRule]}
+        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_vod_endpoint.tooltip") }}></span>}
+      >
+        <Input placeholder={t("workflow_node.deploy.form.tencentcloud_vod_endpoint.placeholder")} />
+      </Form.Item>
+
       <Form.Item
         name="subAppId"
         label={t("workflow_node.deploy.form.tencentcloud_vod_sub_app_id.label")}

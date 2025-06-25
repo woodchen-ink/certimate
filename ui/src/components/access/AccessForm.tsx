@@ -2,7 +2,7 @@ import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import AccessProviderPicker from "@/components/provider/AccessProviderPicker";
 import AccessProviderSelect from "@/components/provider/AccessProviderSelect";
@@ -68,6 +68,7 @@ import AccessFormRainYunConfig from "./AccessFormRainYunConfig";
 import AccessFormRatPanelConfig from "./AccessFormRatPanelConfig";
 import AccessFormSafeLineConfig from "./AccessFormSafeLineConfig";
 import AccessFormSlackBotConfig from "./AccessFormSlackBotConfig";
+import AccessFormSpaceshipConfig from "./AccessFormSpaceshipConfig";
 import AccessFormSSHConfig from "./AccessFormSSHConfig";
 import AccessFormSSLComConfig from "./AccessFormSSLComConfig";
 import AccessFormTelegramBotConfig from "./AccessFormTelegramBotConfig";
@@ -108,7 +109,7 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
 
   const formSchema = z.object({
     name: z
-      .string({ message: t("access.form.name.placeholder") })
+      .string(t("access.form.name.placeholder"))
       .min(1, t("access.form.name.placeholder"))
       .max(64, t("common.errmsg.string_max", { max: 64 })),
     provider: z.nativeEnum(ACCESS_PROVIDERS, {
@@ -301,6 +302,8 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
         return <AccessFormSafeLineConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.SLACKBOT:
         return <AccessFormSlackBotConfig {...nestedFormProps} />;
+      case ACCESS_PROVIDERS.SPACESHIP:
+        return <AccessFormSpaceshipConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.SSH:
         return <AccessFormSSHConfig {...nestedFormProps} />;
       case ACCESS_PROVIDERS.TELEGRAMBOT:

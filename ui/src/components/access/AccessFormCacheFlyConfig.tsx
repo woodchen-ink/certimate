@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import { type AccessConfigForCacheFly } from "@/domain/access";
 
@@ -25,10 +25,7 @@ const AccessFormCacheFlyConfig = ({ form: formInst, formName, disabled, initialV
   const { t } = useTranslation();
 
   const formSchema = z.object({
-    apiToken: z
-      .string()
-      .min(1, t("access.form.cachefly_api_token.placeholder"))
-      .max(64, t("common.errmsg.string_max", { max: 64 })),
+    apiToken: z.string().nonempty(t("access.form.cachefly_api_token.placeholder")),
   });
   const formRule = createSchemaFieldRule(formSchema);
 

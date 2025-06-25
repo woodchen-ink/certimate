@@ -151,6 +151,7 @@ export type WorkflowNodeConfigForApply = {
   caProviderAccessId?: string;
   caProviderConfig?: Record<string, unknown>;
   keyAlgorithm: string;
+  acmeProfile?: string;
   nameservers?: string;
   dnsPropagationTimeout?: number;
   dnsTTL?: number;
@@ -511,20 +512,75 @@ export const newNode = (nodeType: WorkflowNodeType, options: NewNodeOptions = {}
 
 type CloneNodeOptions = {
   withCopySuffix?: boolean;
+  nodeIdMap?: Map<string, string>;
 };
 
-export const cloneNode = (sourceNode: WorkflowNode, { withCopySuffix }: CloneNodeOptions = { withCopySuffix: true }): WorkflowNode => {
+export const cloneNode = (sourceNode: WorkflowNode, { withCopySuffix, nodeIdMap }: CloneNodeOptions = { withCopySuffix: true }): WorkflowNode => {
   const { produce } = new Immer({ autoFreeze: false });
   const deepClone = (node: WorkflowNode): WorkflowNode => {
     return produce(node, (draft) => {
       draft.id = nanoid();
 
+      nodeIdMap ??= new Map(); // 原节点 ID 映射到新节点 ID
+      nodeIdMap.set(node.id, draft.id);
+
       if (draft.next) {
-        draft.next = cloneNode(draft.next, { withCopySuffix });
+        draft.next = cloneNode(draft.next, { withCopySuffix, nodeIdMap });
       }
 
       if (draft.branches) {
-        draft.branches = draft.branches.map((branch) => cloneNode(branch, { withCopySuffix }));
+        draft.branches = draft.branches.map((branch) => cloneNode(branch, { withCopySuffix, nodeIdMap }));
+      }
+
+      if (draft.config) {
+        switch (draft.type) {
+          case WorkflowNodeType.Deploy:
+            {
+              const prevNodeId = (draft.config as WorkflowNodeConfigForDeploy).certificate?.split("#")?.[0];
+              if (nodeIdMap.has(prevNodeId)) {
+                draft.config = {
+                  ...draft.config,
+                  certificate: `${nodeIdMap.get(prevNodeId)}#certificate`,
+                } as WorkflowNodeConfigForDeploy;
+              }
+            }
+            break;
+
+          case WorkflowNodeType.Condition:
+            {
+              const stack = [] as Expr[];
+
+              const expr = (draft.config as WorkflowNodeConfigForCondition).expression;
+              if (expr) {
+                stack.push(expr);
+
+                while (stack.length > 0) {
+                  const n = stack.pop()!;
+
+                  if ("left" in n) {
+                    stack.push(n.left);
+
+                    if ("selector" in n.left) {
+                      const prevNodeId = n.left.selector.id;
+                      if (nodeIdMap.has(prevNodeId)) {
+                        n.left.selector.id = nodeIdMap.get(prevNodeId)!;
+                      }
+                    }
+                  }
+
+                  if ("right" in n) {
+                    stack.push(n.right);
+                  }
+                }
+
+                draft.config = {
+                  ...draft.config,
+                  expression: expr,
+                } as WorkflowNodeConfigForCondition;
+              }
+            }
+            break;
+        }
       }
 
       return draft;

@@ -1,14 +1,15 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import Show from "@/components/Show";
 import { validDomainName } from "@/utils/validators";
 
 type DeployNodeConfigFormTencentCloudCLBConfigFieldValues = Nullish<{
-  resourceType: string;
+  endpoint?: string;
   region: string;
+  resourceType: string;
   loadbalancerId?: string;
   listenerId?: string;
   domain?: string;
@@ -22,10 +23,10 @@ export type DeployNodeConfigFormTencentCloudCLBConfigProps = {
   onValuesChange?: (values: DeployNodeConfigFormTencentCloudCLBConfigFieldValues) => void;
 };
 
-const RESOURCE_TYPE_VIA_SSLDEPLOY = "ssl-deploy" as const;
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;
 const RESOURCE_TYPE_RULEDOMAIN = "ruledomain" as const;
+const RESOURCE_TYPE_VIA_SSLDEPLOY = "ssl-deploy" as const;
 
 const initFormModel = (): DeployNodeConfigFormTencentCloudCLBConfigFieldValues => {
   return {
@@ -43,12 +44,13 @@ const DeployNodeConfigFormTencentCloudCLBConfig = ({
   const { t } = useTranslation();
 
   const formSchema = z.object({
-    resourceType: z.union(
-      [z.literal(RESOURCE_TYPE_VIA_SSLDEPLOY), z.literal(RESOURCE_TYPE_LOADBALANCER), z.literal(RESOURCE_TYPE_LISTENER), z.literal(RESOURCE_TYPE_RULEDOMAIN)],
-      { message: t("workflow_node.deploy.form.tencentcloud_clb_resource_type.placeholder") }
+    endpoint: z.string().nullish(),
+    resourceType: z.literal(
+      [RESOURCE_TYPE_LOADBALANCER, RESOURCE_TYPE_LISTENER, RESOURCE_TYPE_RULEDOMAIN, RESOURCE_TYPE_VIA_SSLDEPLOY],
+      t("workflow_node.deploy.form.tencentcloud_clb_resource_type.placeholder")
     ),
     region: z
-      .string({ message: t("workflow_node.deploy.form.tencentcloud_clb_region.placeholder") })
+      .string(t("workflow_node.deploy.form.tencentcloud_clb_region.placeholder"))
       .nonempty(t("workflow_node.deploy.form.tencentcloud_clb_region.placeholder")),
     loadbalancerId: z
       .string()
@@ -59,7 +61,7 @@ const DeployNodeConfigFormTencentCloudCLBConfig = ({
       .max(64, t("common.errmsg.string_max", { max: 64 }))
       .nullish()
       .refine(
-        (v) => ![RESOURCE_TYPE_VIA_SSLDEPLOY, RESOURCE_TYPE_LISTENER, RESOURCE_TYPE_RULEDOMAIN].includes(fieldResourceType) || !!v?.trim(),
+        (v) => ![RESOURCE_TYPE_LISTENER, RESOURCE_TYPE_RULEDOMAIN, RESOURCE_TYPE_VIA_SSLDEPLOY].includes(fieldResourceType) || !!v?.trim(),
         t("workflow_node.deploy.form.tencentcloud_clb_listener_id.placeholder")
       ),
     domain: z
@@ -84,21 +86,13 @@ const DeployNodeConfigFormTencentCloudCLBConfig = ({
       name={formName}
       onValuesChange={handleFormChange}
     >
-      <Form.Item name="resourceType" label={t("workflow_node.deploy.form.tencentcloud_clb_resource_type.label")} rules={[formRule]}>
-        <Select placeholder={t("workflow_node.deploy.form.tencentcloud_clb_resource_type.placeholder")}>
-          <Select.Option key={RESOURCE_TYPE_VIA_SSLDEPLOY} value={RESOURCE_TYPE_VIA_SSLDEPLOY}>
-            {t("workflow_node.deploy.form.tencentcloud_clb_resource_type.option.ssl_deploy.label")}
-          </Select.Option>
-          <Select.Option key={RESOURCE_TYPE_LOADBALANCER} value={RESOURCE_TYPE_LOADBALANCER}>
-            {t("workflow_node.deploy.form.tencentcloud_clb_resource_type.option.loadbalancer.label")}
-          </Select.Option>
-          <Select.Option key={RESOURCE_TYPE_LISTENER} value={RESOURCE_TYPE_LISTENER}>
-            {t("workflow_node.deploy.form.tencentcloud_clb_resource_type.option.listener.label")}
-          </Select.Option>
-          <Select.Option key={RESOURCE_TYPE_RULEDOMAIN} value={RESOURCE_TYPE_RULEDOMAIN}>
-            {t("workflow_node.deploy.form.tencentcloud_clb_resource_type.option.ruledomain.label")}
-          </Select.Option>
-        </Select>
+      <Form.Item
+        name="endpoint"
+        label={t("workflow_node.deploy.form.tencentcloud_clb_endpoint.label")}
+        rules={[formRule]}
+        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_clb_endpoint.tooltip") }}></span>}
+      >
+        <Input placeholder={t("workflow_node.deploy.form.tencentcloud_clb_endpoint.placeholder")} />
       </Form.Item>
 
       <Form.Item
@@ -108,6 +102,23 @@ const DeployNodeConfigFormTencentCloudCLBConfig = ({
         tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_clb_region.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.tencentcloud_clb_region.placeholder")} />
+      </Form.Item>
+
+      <Form.Item name="resourceType" label={t("workflow_node.deploy.form.tencentcloud_clb_resource_type.label")} rules={[formRule]}>
+        <Select placeholder={t("workflow_node.deploy.form.tencentcloud_clb_resource_type.placeholder")}>
+          <Select.Option key={RESOURCE_TYPE_LOADBALANCER} value={RESOURCE_TYPE_LOADBALANCER}>
+            {t("workflow_node.deploy.form.tencentcloud_clb_resource_type.option.loadbalancer.label")}
+          </Select.Option>
+          <Select.Option key={RESOURCE_TYPE_LISTENER} value={RESOURCE_TYPE_LISTENER}>
+            {t("workflow_node.deploy.form.tencentcloud_clb_resource_type.option.listener.label")}
+          </Select.Option>
+          <Select.Option key={RESOURCE_TYPE_RULEDOMAIN} value={RESOURCE_TYPE_RULEDOMAIN}>
+            {t("workflow_node.deploy.form.tencentcloud_clb_resource_type.option.ruledomain.label")}
+          </Select.Option>
+          <Select.Option key={RESOURCE_TYPE_VIA_SSLDEPLOY} value={RESOURCE_TYPE_VIA_SSLDEPLOY}>
+            {t("workflow_node.deploy.form.tencentcloud_clb_resource_type.option.ssl_deploy.label")}
+          </Select.Option>
+        </Select>
       </Form.Item>
 
       <Form.Item

@@ -64,6 +64,7 @@ func NewWithWorkflowNode(config ApplicantWithWorkflowNodeConfig) (Applicant, err
 		CAProviderAccessConfig:  make(map[string]any),
 		CAProviderServiceConfig: nodeCfg.CAProviderConfig,
 		KeyAlgorithm:            nodeCfg.KeyAlgorithm,
+		ACMEProfile:             nodeCfg.ACMEProfile,
 		Nameservers:             xslices.Filter(strings.Split(nodeCfg.Nameservers, ";"), func(s string) bool { return s != "" }),
 		DnsPropagationWait:      nodeCfg.DnsPropagationWait,
 		DnsPropagationTimeout:   nodeCfg.DnsPropagationTimeout,
@@ -235,6 +236,7 @@ func applyUseLego(legoProvider challenge.Provider, options *applicantProviderOpt
 	certRequest := certificate.ObtainRequest{
 		Domains: options.Domains,
 		Bundle:  true,
+		Profile: options.ACMEProfile,
 	}
 	if options.ARIReplaceAcct == user.Registration.URI {
 		certRequest.ReplacesCertID = options.ARIReplaceCert

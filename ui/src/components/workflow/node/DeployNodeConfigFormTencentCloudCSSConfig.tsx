@@ -1,11 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import { validDomainName } from "@/utils/validators";
 
 type DeployNodeConfigFormTencentCloudCSSConfigFieldValues = Nullish<{
+  endpoint?: string;
   domain: string;
 }>;
 
@@ -31,8 +32,9 @@ const DeployNodeConfigFormTencentCloudCSSConfig = ({
   const { t } = useTranslation();
 
   const formSchema = z.object({
+    endpoint: z.string().nullish(),
     domain: z
-      .string({ message: t("workflow_node.deploy.form.tencentcloud_css_domain.placeholder") })
+      .string(t("workflow_node.deploy.form.tencentcloud_css_domain.placeholder"))
       .refine((v) => validDomainName(v, { allowWildcard: true }), t("common.errmsg.domain_invalid")),
   });
   const formRule = createSchemaFieldRule(formSchema);
@@ -50,6 +52,15 @@ const DeployNodeConfigFormTencentCloudCSSConfig = ({
       name={formName}
       onValuesChange={handleFormChange}
     >
+      <Form.Item
+        name="endpoint"
+        label={t("workflow_node.deploy.form.tencentcloud_css_endpoint.label")}
+        rules={[formRule]}
+        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_css_endpoint.tooltip") }}></span>}
+      >
+        <Input placeholder={t("workflow_node.deploy.form.tencentcloud_css_endpoint.placeholder")} />
+      </Form.Item>
+
       <Form.Item
         name="domain"
         label={t("workflow_node.deploy.form.tencentcloud_css_domain.label")}

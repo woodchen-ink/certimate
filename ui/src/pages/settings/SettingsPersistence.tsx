@@ -83,7 +83,7 @@ const SettingsPersistence = () => {
       {NotificationContextHolder}
 
       <Show when={!loading} fallback={<Skeleton active />}>
-        <div className="md:max-w-[40rem]">
+        <div className="md:max-w-160">
           <Form {...formProps} form={formInst} disabled={formPending} layout="vertical">
             <Form.Item
               name="workflowRunsMaxDaysRetention"
@@ -92,7 +92,7 @@ const SettingsPersistence = () => {
               rules={[formRule]}
             >
               <InputNumber
-                className="w-full"
+                style={{ width: "100%" }}
                 min={0}
                 max={36500}
                 placeholder={t("settings.persistence.form.workflow_runs_max_days.placeholder")}
@@ -108,7 +108,7 @@ const SettingsPersistence = () => {
               rules={[formRule]}
             >
               <InputNumber
-                className="w-full"
+                style={{ width: "100%" }}
                 min={0}
                 max={36500}
                 placeholder={t("settings.persistence.form.expired_certificates_max_days.placeholder")}

@@ -62,7 +62,7 @@ const SettingsPassword = () => {
       {MessageContextHolder}
       {NotificationContextHolder}
 
-      <div className="md:max-w-[40rem]">
+      <div className="md:max-w-160">
         <Form {...formProps} form={formInst} disabled={formPending} layout="vertical">
           <Form.Item name="oldPassword" label={t("settings.password.form.old_password.label")} rules={[formRule]}>
             <Input.Password placeholder={t("settings.password.form.old_password.placeholder")} onChange={handleInputChange} />

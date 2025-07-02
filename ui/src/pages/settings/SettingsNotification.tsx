@@ -16,17 +16,17 @@ const SettingsNotification = () => {
 
   return (
     <div>
-      <Card className="shadow" title={t("settings.notification.template.card.title")}>
-        <div className="md:max-w-[40rem]">
+      <Card className="shadow-sm" title={t("settings.notification.template.card.title")}>
+        <div className="md:max-w-160">
           <NotifyTemplate />
         </div>
       </Card>
 
       <Divider />
 
-      <Card className="shadow" styles={{ body: loadedAtOnce ? { padding: 0 } : {} }} title={t("settings.notification.channels.card.title")}>
+      <Card className="shadow-sm" styles={{ body: loadedAtOnce ? { padding: 0 } : {} }} title={t("settings.notification.channels.card.title")}>
         <Alert type="warning" banner message="本页面相关功能即将在后续版本中废弃，请使用「授权管理」页面来管理通知渠道。" />
-        <NotifyChannels classNames={{ form: "md:max-w-[40rem]" }} />
+        <NotifyChannels classNames={{ form: "md:max-w-160" }} />
       </Card>
     </div>
   );

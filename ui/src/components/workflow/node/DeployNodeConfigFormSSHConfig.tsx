@@ -431,7 +431,7 @@ const DeployNodeConfigFormSSHConfig = ({ form: formInst, formName, disabled, ini
         </Form.Item>
       </Show>
 
-      <Form.Item className="mb-0" htmlFor="null">
+      <Form.Item noStyle>
         <label className="mb-1 block">
           <div className="flex w-full items-center justify-between gap-4">
             <div className="max-w-full grow truncate">
@@ -467,7 +467,7 @@ const DeployNodeConfigFormSSHConfig = ({ form: formInst, formName, disabled, ini
         </Form.Item>
       </Form.Item>
 
-      <Form.Item className="mb-0" htmlFor="null">
+      <Form.Item noStyle>
         <label className="mb-1 block">
           <div className="flex w-full items-center justify-between gap-4">
             <div className="max-w-full grow truncate">

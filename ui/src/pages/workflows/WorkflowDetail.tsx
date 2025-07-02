@@ -270,7 +270,7 @@ const WorkflowDetail = () => {
             }}
             loading={!initialized}
           >
-            <div className="absolute inset-x-6 top-4 z-[2] flex items-center justify-between gap-4">
+            <div className="absolute inset-x-6 top-4 z-2 flex items-center justify-between gap-4">
               <div className="flex-1 overflow-hidden">
                 <Show when={workflow.hasDraft!}>
                   <Alert banner message={<div className="truncate">{t("workflow.detail.orchestration.draft.alert")}</div>} type="warning" />

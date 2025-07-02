@@ -119,7 +119,7 @@ const WorkflowNew = () => {
       </Card>
 
       <div className="p-4">
-        <div className="mx-auto max-w-[1600px] px-2">
+        <div className="mx-auto max-w-400 px-2">
           <Typography.Text type="secondary">
             <div className="mb-8 mt-4 text-xl">{t("workflow.new.templates.title")}</div>
           </Typography.Text>

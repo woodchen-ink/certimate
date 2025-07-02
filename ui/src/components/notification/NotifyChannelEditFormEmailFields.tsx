@@ -51,7 +51,7 @@ const NotifyChannelEditFormEmailFields = () => {
 
         <div className="w-2/5">
           <Form.Item name="smtpPort" label={t("settings.notification.channel.form.email_smtp_port.label")} rules={[formRule]}>
-            <InputNumber className="w-full" placeholder={t("settings.notification.channel.form.email_smtp_port.placeholder")} min={1} max={65535} />
+            <InputNumber style={{ width: "100%" }} placeholder={t("settings.notification.channel.form.email_smtp_port.placeholder")} min={1} max={65535} />
           </Form.Item>
         </div>
 

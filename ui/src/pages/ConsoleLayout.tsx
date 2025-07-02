@@ -51,12 +51,12 @@ const ConsoleLayout = () => {
         </div>
       </Layout.Sider>
 
-      <Layout className="flex flex-col overflow-hidden pl-[256px] max-md:pl-0">
+      <Layout className="flex flex-col overflow-hidden">
         <Show when={!isBrowserHappy()}>
           <Alert message={t("common.text.happy_browser")} type="warning" showIcon closable />
         </Show>
 
-        <Layout.Header className="p-0 shadow-sm" style={{ background: themeToken.colorBgContainer }}>
+        <Layout.Header className="shadow-xs" style={{ background: themeToken.colorBgContainer, padding: 0 }}>
           <div className="flex size-full items-center justify-between overflow-hidden px-4">
             <div className="flex items-center gap-4">
               <SiderMenuDrawer trigger={<Button className="md:hidden" icon={<MenuOutlinedIcon />} size="large" />} />

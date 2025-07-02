@@ -430,7 +430,11 @@ const SettingsSSLProvider = () => {
 
       <Show when={!loading} fallback={<Skeleton active />}>
         <Form form={formInst} disabled={formPending} layout="vertical" initialValues={{ provider: providerType }}>
-          <Form.Item className="mb-2" name="provider" label={t("settings.sslprovider.form.provider.label")}>
+          <Form.Item>
+            <Alert type="warning" message={<span dangerouslySetInnerHTML={{ __html: t("settings.sslprovider.form.provider.alert") }}></span>} />
+          </Form.Item>
+
+          <Form.Item name="provider" label={t("settings.sslprovider.form.provider.label")}>
             <CheckCard.Group className="w-full" onChange={(value) => setProviderType(value as CAProviderType)}>
               <CheckCard
                 avatar={<img src={"/imgs/providers/letsencrypt.svg"} className="size-8" />}
@@ -476,13 +480,9 @@ const SettingsSSLProvider = () => {
               />
             </CheckCard.Group>
           </Form.Item>
-
-          <Form.Item>
-            <Alert type="warning" message={<span dangerouslySetInnerHTML={{ __html: t("settings.sslprovider.form.provider.alert") }}></span>} />
-          </Form.Item>
         </Form>
 
-        <div className="md:max-w-[40rem]">{providerFormEl}</div>
+        <div className="md:max-w-160">{providerFormEl}</div>
       </Show>
     </SSLProviderContext.Provider>
   );

@@ -15,7 +15,7 @@ module.exports = {
     "plugin:import/typescript",
     "plugin:prettier/recommended",
     "plugin:react-hooks/recommended",
-    "plugin:tailwindcss/recommended",
+    "plugin:better-tailwindcss/recommended-warn",
   ],
   ignorePatterns: ["dist", ".eslintrc.cjs"],
   parser: "@typescript-eslint/parser",
@@ -88,6 +88,9 @@ module.exports = {
         },
       },
     ],
+    "better-tailwindcss": {
+      entryPoint: "src/global.css",
+    },
     "react-refresh/only-export-components": [
       "warn",
       {
@@ -100,7 +103,6 @@ module.exports = {
         ignoreDeclarationSort: true,
       },
     ],
-    "tailwindcss/no-custom-classname": "off",
   },
   settings: {
     "import/resolver": {

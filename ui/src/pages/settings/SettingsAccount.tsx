@@ -57,7 +57,7 @@ const SettingsAccount = () => {
       {MessageContextHolder}
       {NotificationContextHolder}
 
-      <div className="md:max-w-[40rem]">
+      <div className="md:max-w-160">
         <Form {...formProps} form={formInst} disabled={formPending} layout="vertical">
           <Form.Item name="username" label={t("settings.account.form.email.label")} rules={[formRule]}>
             <Input placeholder={t("settings.account.form.email.placeholder")} onChange={handleInputChange} />

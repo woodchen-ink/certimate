@@ -60,7 +60,7 @@ const RootApp = () => {
       theme={{
         ...antdTheme,
         token: {
-          /* @see tailwind.config.js */
+          /* @see tailwind.config.mjs */
           colorPrimary: browserTheme === "dark" ? "hsl(20.5 90.2% 48.2%)" : "hsl(24.6 95% 53.1%)",
           colorLink: browserTheme === "dark" ? "hsl(20.5 90.2% 48.2%)" : "hsl(24.6 95% 53.1%)",
         },

@@ -141,19 +141,11 @@ export default defineConfig(
       ...tailwindcssPlugin.configs["recommended-warn"].rules,
       ...tailwindcssPlugin.configs["recommended-error"].rules,
 
-      "better-tailwindcss/enforce-consistent-line-wrapping": [
-        "warn",
-        {
-          group: "newLine",
-          lineBreakStyle: "windows",
-          preferSingleLine: false,
-        },
-      ],
+      "better-tailwindcss/enforce-consistent-line-wrapping": "off",
     },
     settings: {
       "better-tailwindcss": {
         entryPoint: "src/global.css",
-        tailwindConfig: "tailwind.config.mjs",
       },
     },
   }

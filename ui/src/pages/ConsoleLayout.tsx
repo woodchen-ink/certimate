@@ -40,7 +40,7 @@ const ConsoleLayout = () => {
 
   return (
     <Layout className="h-screen" hasSider>
-      <Layout.Sider className="fixed left-0 top-0 z-20 h-full max-md:static max-md:hidden" width="256px" theme="light">
+      <Layout.Sider className="fixed top-0 left-0 z-20 h-full max-md:static max-md:hidden" width="256px" theme="light">
         <div className="flex size-full flex-col items-center justify-between overflow-hidden">
           <div className="w-full">
             <SiderMenu />
@@ -51,7 +51,7 @@ const ConsoleLayout = () => {
         </div>
       </Layout.Sider>
 
-      <Layout className="flex flex-col overflow-hidden">
+      <Layout className="flex flex-col overflow-hidden pl-[256px] max-md:pl-0">
         <Show when={!isBrowserHappy()}>
           <Alert message={t("common.text.happy_browser")} type="warning" showIcon closable />
         </Show>
@@ -75,7 +75,7 @@ const ConsoleLayout = () => {
           </div>
         </Layout.Header>
 
-        <Layout.Content className="flex-1 overflow-y-auto overflow-x-hidden">
+        <Layout.Content className="flex-1 overflow-x-hidden overflow-y-auto">
           <Outlet />
         </Layout.Content>
       </Layout>
@@ -141,7 +141,7 @@ const SiderMenu = memo(({ onSelect }: { onSelect?: (key: string) => void }) => {
         <img src="/logo.svg" className="size-[36px]" />
         <span className="h-[64px] w-[74px] truncate leading-[64px] dark:text-white">Certimate</span>
       </div>
-      <div className="w-full grow overflow-y-auto overflow-x-hidden">
+      <div className="w-full grow overflow-x-hidden overflow-y-auto">
         <Menu
           items={menuItems}
           mode="vertical"

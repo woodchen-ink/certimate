@@ -14,16 +14,10 @@ import {
   SyncOutlined as SyncOutlinedIcon,
 } from "@ant-design/icons";
 import { PageHeader } from "@ant-design/pro-components";
+import { IconActivity, IconCircuitChangeover, IconShield, IconShieldExclamation, IconShieldX } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { Button, Card, Col, Divider, Empty, Flex, Grid, Row, Space, Statistic, Table, type TableProps, Tag, Typography, notification, theme } from "antd";
 import dayjs from "dayjs";
-import {
-  CalendarClock as CalendarClockIcon,
-  CalendarX2 as CalendarX2Icon,
-  FolderCheck as FolderCheckIcon,
-  SquareSigma as SquareSigmaIcon,
-  Workflow as WorkflowIcon,
-} from "lucide-react";
 import { ClientResponseError } from "pocketbase";
 
 import { get as getStatistics } from "@/api/statistics";
@@ -206,7 +200,7 @@ const Dashboard = () => {
       <Row className="justify-stretch" gutter={[16, 16]}>
         <Col {...statisticsGridSpans}>
           <StatisticCard
-            icon={<SquareSigmaIcon size={48} strokeWidth={1} color={themeToken.colorInfo} />}
+            icon={<IconShield size={48} strokeWidth={1} color={themeToken.colorInfo} />}
             label={t("dashboard.statistics.all_certificates")}
             loading={statisticsLoading}
             value={statistics?.certificateTotal ?? "-"}
@@ -216,7 +210,7 @@ const Dashboard = () => {
         </Col>
         <Col {...statisticsGridSpans}>
           <StatisticCard
-            icon={<CalendarClockIcon size={48} strokeWidth={1} color={themeToken.colorWarning} />}
+            icon={<IconShieldExclamation size={48} strokeWidth={1} color={themeToken.colorWarning} />}
             label={t("dashboard.statistics.expire_soon_certificates")}
             loading={statisticsLoading}
             value={statistics?.certificateExpireSoon ?? "-"}
@@ -226,7 +220,7 @@ const Dashboard = () => {
         </Col>
         <Col {...statisticsGridSpans}>
           <StatisticCard
-            icon={<CalendarX2Icon size={48} strokeWidth={1} color={themeToken.colorError} />}
+            icon={<IconShieldX size={48} strokeWidth={1} color={themeToken.colorError} />}
             label={t("dashboard.statistics.expired_certificates")}
             loading={statisticsLoading}
             value={statistics?.certificateExpired ?? "-"}
@@ -236,7 +230,7 @@ const Dashboard = () => {
         </Col>
         <Col {...statisticsGridSpans}>
           <StatisticCard
-            icon={<WorkflowIcon size={48} strokeWidth={1} color={themeToken.colorInfo} />}
+            icon={<IconCircuitChangeover size={48} strokeWidth={1} color={themeToken.colorInfo} />}
             label={t("dashboard.statistics.all_workflows")}
             loading={statisticsLoading}
             value={statistics?.workflowTotal ?? "-"}
@@ -246,7 +240,7 @@ const Dashboard = () => {
         </Col>
         <Col {...statisticsGridSpans}>
           <StatisticCard
-            icon={<FolderCheckIcon size={48} strokeWidth={1} color={themeToken.colorSuccess} />}
+            icon={<IconActivity size={48} strokeWidth={1} color={themeToken.colorSuccess} />}
             label={t("dashboard.statistics.enabled_workflows")}
             loading={statisticsLoading}
             value={statistics?.workflowEnabled ?? "-"}

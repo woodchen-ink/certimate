@@ -3,21 +3,21 @@ import { useTranslation } from "react-i18next";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   CloudServerOutlined as CloudServerOutlinedIcon,
-  GlobalOutlined as GlobalOutlinedIcon,
   HomeOutlined as HomeOutlinedIcon,
-  LogoutOutlined as LogoutOutlinedIcon,
   MenuOutlined as MenuOutlinedIcon,
-  MoonOutlined as MoonOutlinedIcon,
   NodeIndexOutlined as NodeIndexOutlinedIcon,
   SafetyOutlined as SafetyOutlinedIcon,
   SettingOutlined as SettingOutlinedIcon,
-  SunOutlined as SunOutlinedIcon,
 } from "@ant-design/icons";
-import { Alert, Button, type ButtonProps, Drawer, Dropdown, Layout, Menu, type MenuProps, Tooltip, theme } from "antd";
+import { IconLogout } from "@tabler/icons-react";
+import { Alert, Button, Divider, Drawer, Layout, Menu, type MenuProps, Space, Tooltip, theme } from "antd";
 
+import AppDocument from "@/components/AppDocument";
+import AppLocale from "@/components/AppLocale";
+import AppTheme from "@/components/AppTheme";
+import AppVersion from "@/components/AppVersion";
 import Show from "@/components/Show";
-import Version from "@/components/Version";
-import { useBrowserTheme, useTriggerElement } from "@/hooks";
+import { useTriggerElement } from "@/hooks";
 import { getAuthStore } from "@/repository/admin";
 import { isBrowserHappy } from "@/utils/browser";
 
@@ -46,7 +46,10 @@ const ConsoleLayout = () => {
             <SiderMenu />
           </div>
           <div className="w-full py-2 text-center">
-            <Version />
+            <Space align="center" split={<Divider type="vertical" />} size={4}>
+              <AppDocument.LinkButton />
+              <AppVersion.LinkButton />
+            </Space>
           </div>
         </div>
       </Layout.Sider>
@@ -63,13 +66,17 @@ const ConsoleLayout = () => {
             </div>
             <div className="flex size-full grow items-center justify-end gap-4 overflow-hidden">
               <Tooltip title={t("common.menu.theme")} mouseEnterDelay={2}>
-                <ThemeToggleButton size="large" />
+                <AppTheme.Dropdown>
+                  <Button icon={<AppTheme.Icon stroke="1.25" />} size="large" />
+                </AppTheme.Dropdown>
               </Tooltip>
               <Tooltip title={t("common.menu.locale")} mouseEnterDelay={2}>
-                <LocaleToggleButton size="large" />
+                <AppLocale.Dropdown>
+                  <Button icon={<AppLocale.Icon stroke="1.25" />} size="large" />
+                </AppLocale.Dropdown>
               </Tooltip>
               <Tooltip title={t("common.menu.logout")} mouseEnterDelay={2}>
-                <Button danger icon={<LogoutOutlinedIcon />} size="large" onClick={handleLogoutClick} />
+                <Button danger icon={<IconLogout stroke="1.25" />} size="large" onClick={handleLogoutClick} />
               </Tooltip>
             </div>
           </div>
@@ -180,53 +187,6 @@ const SiderMenuDrawer = memo(({ trigger }: { trigger: React.ReactNode }) => {
         <SiderMenu onSelect={() => setSiderOpen(false)} />
       </Drawer>
     </>
-  );
-});
-
-const ThemeToggleButton = memo(({ size }: { size?: ButtonProps["size"] }) => {
-  const { t } = useTranslation();
-
-  const { theme, themeMode, setThemeMode } = useBrowserTheme();
-
-  const items: Required<MenuProps>["items"] = [
-    ["light", t("common.theme.light")],
-    ["dark", t("common.theme.dark")],
-    ["system", t("common.theme.system")],
-  ].map(([key, label]) => {
-    return {
-      key: key as string,
-      label: label,
-      onClick: () => {
-        setThemeMode(key as Parameters<typeof setThemeMode>[0]);
-        if (key !== themeMode) {
-          window.location.reload();
-        }
-      },
-    };
-  });
-
-  return (
-    <Dropdown menu={{ items }} trigger={["click"]}>
-      <Button icon={theme === "dark" ? <MoonOutlinedIcon /> : <SunOutlinedIcon />} size={size} />
-    </Dropdown>
-  );
-});
-
-const LocaleToggleButton = memo(({ size }: { size?: ButtonProps["size"] }) => {
-  const { i18n } = useTranslation();
-
-  const items: Required<MenuProps>["items"] = Object.keys(i18n.store.data).map((key) => {
-    return {
-      key: key,
-      label: <>{i18n.store.data[key].name as string}</>,
-      onClick: () => i18n.changeLanguage(key),
-    };
-  });
-
-  return (
-    <Dropdown menu={{ items }} trigger={["click"]}>
-      <Button icon={<GlobalOutlinedIcon />} size={size} />
-    </Dropdown>
   );
 });
 

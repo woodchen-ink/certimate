@@ -24,4 +24,9 @@
     --foreground: 60 9.1% 97.8%;
     --primary: 20.5 90.2% 48.2%;
   }
+
+  .ant-btn > .ant-btn-icon {
+    /* Fix non-antd icon's position not correct */
+    line-height: 1;
+  }
 }

@@ -4,12 +4,11 @@ import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   CloudServerOutlined as CloudServerOutlinedIcon,
   HomeOutlined as HomeOutlinedIcon,
-  MenuOutlined as MenuOutlinedIcon,
   NodeIndexOutlined as NodeIndexOutlinedIcon,
   SafetyOutlined as SafetyOutlinedIcon,
   SettingOutlined as SettingOutlinedIcon,
 } from "@ant-design/icons";
-import { IconLogout } from "@tabler/icons-react";
+import { IconLogout, IconMenu2 } from "@tabler/icons-react";
 import { Alert, Button, Divider, Drawer, Layout, Menu, type MenuProps, Space, Tooltip, theme } from "antd";
 
 import AppDocument from "@/components/AppDocument";
@@ -62,21 +61,21 @@ const ConsoleLayout = () => {
         <Layout.Header className="shadow-xs" style={{ background: themeToken.colorBgContainer, padding: 0 }}>
           <div className="flex size-full items-center justify-between overflow-hidden px-4">
             <div className="flex items-center gap-4">
-              <SiderMenuDrawer trigger={<Button className="md:hidden" icon={<MenuOutlinedIcon />} size="large" />} />
+              <SiderMenuDrawer trigger={<Button className="md:hidden" icon={<IconMenu2 size={20} stroke="1.25" />} />} />
             </div>
             <div className="flex size-full grow items-center justify-end gap-4 overflow-hidden">
-              <Tooltip title={t("common.menu.theme")} mouseEnterDelay={2}>
-                <AppTheme.Dropdown>
-                  <Button icon={<AppTheme.Icon stroke="1.25" />} size="large" />
-                </AppTheme.Dropdown>
-              </Tooltip>
-              <Tooltip title={t("common.menu.locale")} mouseEnterDelay={2}>
-                <AppLocale.Dropdown>
-                  <Button icon={<AppLocale.Icon stroke="1.25" />} size="large" />
-                </AppLocale.Dropdown>
-              </Tooltip>
+              <AppTheme.Dropdown>
+                <Tooltip title={t("common.menu.theme")} mouseEnterDelay={2}>
+                  <Button icon={<AppTheme.Icon size={20} stroke="1.25" />} />
+                </Tooltip>
+              </AppTheme.Dropdown>
+              <AppLocale.Dropdown>
+                <Tooltip title={t("common.menu.locale")} mouseEnterDelay={2}>
+                  <Button icon={<AppLocale.Icon size={20} stroke="1.25" />} />
+                </Tooltip>
+              </AppLocale.Dropdown>
               <Tooltip title={t("common.menu.logout")} mouseEnterDelay={2}>
-                <Button danger icon={<IconLogout stroke="1.25" />} size="large" onClick={handleLogoutClick} />
+                <Button danger icon={<IconLogout size={20} stroke="1.25" />} onClick={handleLogoutClick} />
               </Tooltip>
             </div>
           </div>

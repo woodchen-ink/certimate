@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { IconLanguage, type IconProps } from "@tabler/icons-react";
 import { Dropdown, type DropdownProps, type MenuProps, Typography } from "antd";
 
-import localeResources from "@/i18n/locales";
+import { IconLanguageEnZh, IconLanguageZhEn } from "@/components/icons";
+import { localeNames, localeResources } from "@/i18n";
 import { mergeCls } from "@/utils/css";
 
 export type AppLocaleDropdownProps = {
@@ -39,9 +40,15 @@ const AppLocaleDropdown = (props: AppLocaleDropdownProps) => {
 export type AppLocaleIconProps = IconProps;
 
 const AppLocaleIcon = (props: AppLocaleIconProps) => {
-  // const { i18n } = useTranslation();
+  const { i18n } = useTranslation();
 
-  return <IconLanguage {...props} />;
+  return i18n.language === localeNames.EN ? (
+    <IconLanguageEnZh {...props} />
+  ) : i18n.language === localeNames.ZH ? (
+    <IconLanguageZhEn {...props} />
+  ) : (
+    <IconLanguage {...props} />
+  );
 };
 
 export type AppLocaleLinkButtonProps = {

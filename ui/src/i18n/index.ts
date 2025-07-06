@@ -25,4 +25,6 @@ export const localeNames = {
   EN: LOCALE_EN_NAME,
 };
 
+export const localeResources = resources;
+
 export default i18n;

@@ -25,8 +25,8 @@ type SSLDeployerProviderConfig struct {
 	Endpoint string `json:"endpoint,omitempty"`
 	// 站点 ID。
 	ZoneId string `json:"zoneId"`
-	// 加速域名（支持泛域名）。
-	Domain string `json:"domain"`
+	// 加速域名列表（支持泛域名）。
+	Domains []string `json:"domains"`
 }
 
 type SSLDeployerProvider struct {
@@ -82,8 +82,8 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	if d.config.ZoneId == "" {
 		return nil, errors.New("config `zoneId` is required")
 	}
-	if d.config.Domain == "" {
-		return nil, errors.New("config `domain` is required")
+	if len(d.config.Domains) == 0 {
+		return nil, errors.New("config `domains` is required")
 	}
 
 	// 上传证书
@@ -99,7 +99,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	modifyHostsCertificateReq := tcteo.NewModifyHostsCertificateRequest()
 	modifyHostsCertificateReq.ZoneId = common.StringPtr(d.config.ZoneId)
 	modifyHostsCertificateReq.Mode = common.StringPtr("sslcert")
-	modifyHostsCertificateReq.Hosts = common.StringPtrs([]string{d.config.Domain})
+	modifyHostsCertificateReq.Hosts = common.StringPtrs(d.config.Domains)
 	modifyHostsCertificateReq.ServerCertInfo = []*tcteo.ServerCertInfo{{CertId: common.StringPtr(upres.CertId)}}
 	modifyHostsCertificateResp, err := d.sdkClient.ModifyHostsCertificate(modifyHostsCertificateReq)
 	d.logger.Debug("sdk request 'teo.ModifyHostsCertificate'", slog.Any("request", modifyHostsCertificateReq), slog.Any("response", modifyHostsCertificateResp))

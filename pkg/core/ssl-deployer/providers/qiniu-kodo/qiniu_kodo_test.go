@@ -1,4 +1,4 @@
-package tencentcloudeo_test
+package qiniukodo_test
 
 import (
 	"context"
@@ -8,39 +8,36 @@ import (
 	"strings"
 	"testing"
 
-	provider "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-eo"
+	provider "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/qiniu-kodo"
 )
 
 var (
 	fInputCertPath string
 	fInputKeyPath  string
-	fSecretId      string
+	fAccessKey     string
 	fSecretKey     string
-	fZoneId        string
-	fDomains       string
+	fDomain        string
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_"
+	argsPrefix := "CERTIMATE_SSLDEPLOYER_QINIUKODO_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
-	flag.StringVar(&fSecretId, argsPrefix+"SECRETID", "", "")
+	flag.StringVar(&fAccessKey, argsPrefix+"ACCESSKEY", "", "")
 	flag.StringVar(&fSecretKey, argsPrefix+"SECRETKEY", "", "")
-	flag.StringVar(&fZoneId, argsPrefix+"ZONEID", "", "")
-	flag.StringVar(&fDomains, argsPrefix+"DOMAINS", "", "")
+	flag.StringVar(&fDomain, argsPrefix+"DOMAIN", "", "")
 }
 
 /*
 Shell command to run this test:
 
-	go test -v ./tencentcloud_eo_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_SECRETID="your-secret-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_SECRETKEY="your-secret-key" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_ZONEID="your-zone-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_DOMAINS="example.com"
+	go test -v ./qiniu_kodo_test.go -args \
+	--CERTIMATE_SSLDEPLOYER_QINIUKODO_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--CERTIMATE_SSLDEPLOYER_QINIUKODO_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--CERTIMATE_SSLDEPLOYER_QINIUKODO_ACCESSKEY="your-access-key" \
+	--CERTIMATE_SSLDEPLOYER_QINIUKODO_SECRETKEY="your-secret-key" \
+	--CERTIMATE_SSLDEPLOYER_QINIUKODO_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()
@@ -50,17 +47,15 @@ func TestDeploy(t *testing.T) {
 			"args:",
 			fmt.Sprintf("INPUTCERTPATH: %v", fInputCertPath),
 			fmt.Sprintf("INPUTKEYPATH: %v", fInputKeyPath),
-			fmt.Sprintf("SECRETID: %v", fSecretId),
+			fmt.Sprintf("ACCESSKEY: %v", fAccessKey),
 			fmt.Sprintf("SECRETKEY: %v", fSecretKey),
-			fmt.Sprintf("ZONEID: %v", fZoneId),
-			fmt.Sprintf("DOMAINS: %v", fDomains),
+			fmt.Sprintf("DOMAIN: %v", fDomain),
 		}, "\n"))
 
 		deployer, err := provider.NewSSLDeployerProvider(&provider.SSLDeployerProviderConfig{
-			SecretId:  fSecretId,
+			AccessKey: fAccessKey,
 			SecretKey: fSecretKey,
-			ZoneId:    fZoneId,
-			Domains:   strings.Split(fDomains, ";"),
+			Domain:    fDomain,
 		})
 		if err != nil {
 			t.Errorf("err: %+v", err)

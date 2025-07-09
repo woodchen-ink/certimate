@@ -16,6 +16,7 @@ import (
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 	"github.com/certimate-go/certimate/pkg/utils/ifelse"
+	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -333,6 +334,34 @@ func (d *SSLDeployerProvider) modifyListenerCertificate(ctx context.Context, clo
 	d.logger.Debug("sdk request 'clb.ModifyListener'", slog.Any("request", modifyListenerReq), slog.Any("response", modifyListenerResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'clb.ModifyListener': %w", err)
+	}
+
+	// 循环查询异步任务状态，等待任务状态变更
+	// REF: https://cloud.tencent.com/document/product/214/30683
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		describeTaskStatusReq := tcclb.NewDescribeTaskStatusRequest()
+		describeTaskStatusReq.TaskId = modifyListenerResp.Response.RequestId
+		describeTaskStatusResp, err := d.sdkClients.CLB.DescribeTaskStatus(describeTaskStatusReq)
+		d.logger.Debug("sdk request 'clb.DescribeTaskStatus'", slog.Any("request", describeTaskStatusReq), slog.Any("response", describeTaskStatusResp))
+		if err != nil {
+			return fmt.Errorf("failed to execute sdk request 'clb.DescribeTaskStatus': %w", err)
+		}
+
+		taskStatus := xtypes.ToVal(describeTaskStatusResp.Response.Status)
+		if taskStatus != 0 && taskStatus != 1 {
+			return errors.New("unexpected task status")
+		} else if taskStatus == 0 {
+			break
+		}
+
+		d.logger.Info("waiting for task completion ...")
+		time.Sleep(time.Second * 5)
 	}
 
 	return nil

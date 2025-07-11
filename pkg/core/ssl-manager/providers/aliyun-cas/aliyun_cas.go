@@ -93,13 +93,23 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		}
 
 		if listUserCertificateOrderResp.Body.CertificateOrderList != nil {
-			for _, certDetail := range listUserCertificateOrderResp.Body.CertificateOrderList {
-				if !strings.EqualFold(certX509.SerialNumber.Text(16), *certDetail.SerialNo) {
+			for _, certOrder := range listUserCertificateOrderResp.Body.CertificateOrderList {
+				// 先对比证书通用名称
+				if !strings.EqualFold(certX509.Subject.CommonName, tea.StringValue(certOrder.CommonName)) {
 					continue
 				}
 
+				// 再对比证书序列号
+				// 注意阿里云 CAS 会在序列号前补零，需去除后再比较
+				oldCertSN := strings.TrimLeft(tea.StringValue(certOrder.SerialNo), "0")
+				newCertSN := strings.TrimLeft(certX509.SerialNumber.Text(16), "0")
+				if !strings.EqualFold(newCertSN, oldCertSN) {
+					continue
+				}
+
+				// 最后对比证书内容
 				getUserCertificateDetailReq := &alicas.GetUserCertificateDetailRequest{
-					CertId: certDetail.CertificateId,
+					CertId: certOrder.CertificateId,
 				}
 				getUserCertificateDetailResp, err := m.sdkClient.GetUserCertificateDetail(getUserCertificateDetailReq)
 				m.logger.Debug("sdk request 'cas.GetUserCertificateDetail'", slog.Any("request", getUserCertificateDetailReq), slog.Any("response", getUserCertificateDetailResp))
@@ -123,8 +133,8 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 				if isSameCert {
 					m.logger.Info("ssl certificate already exists")
 					return &core.SSLManageUploadResult{
-						CertId:   fmt.Sprintf("%d", tea.Int64Value(certDetail.CertificateId)),
-						CertName: *certDetail.Name,
+						CertId:   fmt.Sprintf("%d", tea.Int64Value(certOrder.CertificateId)),
+						CertName: *certOrder.Name,
 						ExtendedData: map[string]any{
 							"instanceId":     tea.StringValue(getUserCertificateDetailResp.Body.InstanceId),
 							"certIdentifier": tea.StringValue(getUserCertificateDetailResp.Body.CertIdentifier),

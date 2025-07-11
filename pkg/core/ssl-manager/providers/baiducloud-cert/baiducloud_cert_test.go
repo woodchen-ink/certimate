@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLMANAGER_BAIDUCLOUDCAS_"
+	argsPrefix := "CERTIMATE_SSLMANAGER_BAIDUCLOUDCERT_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -31,11 +31,11 @@ func init() {
 /*
 Shell command to run this test:
 
-	go test -v ./baiducloud_cas_test.go -args \
-	--CERTIMATE_SSLMANAGER_BAIDUCLOUDCAS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLMANAGER_BAIDUCLOUDCAS_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLMANAGER_BAIDUCLOUDCAS_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLMANAGER_BAIDUCLOUDCAS_SECRETACCESSKEY="your-access-key-secret"
+	go test -v ./baiducloud_cert_test.go -args \
+	--CERTIMATE_SSLMANAGER_BAIDUCLOUDCERT_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--CERTIMATE_SSLMANAGER_BAIDUCLOUDCERT_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--CERTIMATE_SSLMANAGER_BAIDUCLOUDCERT_ACCESSKEYID="your-access-key-id" \
+	--CERTIMATE_SSLMANAGER_BAIDUCLOUDCERT_SECRETACCESSKEY="your-access-key-secret"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

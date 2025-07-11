@@ -63,11 +63,13 @@ import (
 	pJDCloudLive "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/jdcloud-live"
 	pJDCloudVOD "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/jdcloud-vod"
 	pK8sSecret "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/k8s-secret"
+	pKong "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/kong"
 	pLeCDN "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/lecdn"
 	pLocal "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/local"
 	pNetlifySite "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/netlify-site"
 	pProxmoxVE "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/proxmoxve"
 	pQiniuCDN "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/qiniu-cdn"
+	pQiniuKodo "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/qiniu-kodo"
 	pQiniuPili "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/qiniu-pili"
 	pRainYunRCDN "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/rainyun-rcdn"
 	pRatPanelConsole "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/ratpanel-console"
@@ -924,6 +926,24 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 			return deployer, err
 		}
 
+	case domain.DeploymentProviderTypeKong:
+		{
+			access := domain.AccessConfigForKong{}
+			if err := xmaps.Populate(options.ProviderAccessConfig, &access); err != nil {
+				return nil, fmt.Errorf("failed to populate provider access config: %w", err)
+			}
+
+			deployer, err := pKong.NewSSLDeployerProvider(&pKong.SSLDeployerProviderConfig{
+				ServerUrl:                access.ServerUrl,
+				ApiToken:                 access.ApiToken,
+				AllowInsecureConnections: access.AllowInsecureConnections,
+				ResourceType:             pKong.ResourceType(xmaps.GetString(options.ProviderServiceConfig, "resourceType")),
+				Workspace:                xmaps.GetString(options.ProviderServiceConfig, "workspace"),
+				CertificateId:            xmaps.GetString(options.ProviderServiceConfig, "certificateId"),
+			})
+			return deployer, err
+		}
+
 	case domain.DeploymentProviderTypeKubernetesSecret:
 		{
 			access := domain.AccessConfigForKubernetes{}
@@ -982,8 +1002,16 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 			}
 
 			switch options.Provider {
-			case domain.DeploymentProviderTypeQiniuCDN, domain.DeploymentProviderTypeQiniuKodo:
+			case domain.DeploymentProviderTypeQiniuCDN:
 				deployer, err := pQiniuCDN.NewSSLDeployerProvider(&pQiniuCDN.SSLDeployerProviderConfig{
+					AccessKey: access.AccessKey,
+					SecretKey: access.SecretKey,
+					Domain:    xmaps.GetString(options.ProviderServiceConfig, "domain"),
+				})
+				return deployer, err
+
+			case domain.DeploymentProviderTypeQiniuKodo:
+				deployer, err := pQiniuKodo.NewSSLDeployerProvider(&pQiniuKodo.SSLDeployerProviderConfig{
 					AccessKey: access.AccessKey,
 					SecretKey: access.SecretKey,
 					Domain:    xmaps.GetString(options.ProviderServiceConfig, "domain"),
@@ -1183,7 +1211,7 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 					SecretKey: access.SecretKey,
 					Endpoint:  xmaps.GetString(options.ProviderServiceConfig, "endpoint"),
 					ZoneId:    xmaps.GetString(options.ProviderServiceConfig, "zoneId"),
-					Domain:    xmaps.GetString(options.ProviderServiceConfig, "domain"),
+					Domains:   xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "domains"), ";"), func(s string) bool { return s != "" }),
 				})
 				return deployer, err
 
@@ -1232,7 +1260,7 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 					SecretId:        access.SecretId,
 					SecretKey:       access.SecretKey,
 					Endpoint:        xmaps.GetString(options.ProviderServiceConfig, "endpoint"),
-					CertificiateId:  xmaps.GetString(options.ProviderServiceConfig, "certificiateId"),
+					CertificateId:   xmaps.GetString(options.ProviderServiceConfig, "certificateId"),
 					IsReplaced:      xmaps.GetBool(options.ProviderServiceConfig, "isReplaced"),
 					ResourceTypes:   xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "resourceTypes"), ";"), func(s string) bool { return s != "" }),
 					ResourceRegions: xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "resourceRegions"), ";"), func(s string) bool { return s != "" }),

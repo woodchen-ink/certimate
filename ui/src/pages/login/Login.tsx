@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { IconArrowRight, IconLock, IconMail } from "@tabler/icons-react";
@@ -9,7 +10,8 @@ import AppDocument from "@/components/AppDocument";
 import AppLocale from "@/components/AppLocale";
 import AppTheme from "@/components/AppTheme";
 import AppVersion from "@/components/AppVersion";
-import { useAntdForm } from "@/hooks";
+import { useAntdForm, useBrowserTheme } from "@/hooks";
+
 import { authWithPassword } from "@/repository/admin";
 import { getErrMsg } from "@/utils/error";
 
@@ -17,6 +19,25 @@ const Login = () => {
   const navigage = useNavigate();
 
   const { t } = useTranslation();
+
+  const { theme: browserTheme } = useBrowserTheme();
+
+  const bgStyle = useMemo<React.CSSProperties>(() => {
+    let svg = "";
+    let mask = "";
+    if (browserTheme === "dark") {
+      svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="rgb(202 78 13 / 0.12)"><path d="M0 .5H31.5V32"/></svg>`;
+      mask = "white";
+    } else {
+      svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="rgb(249 115 22 / 0.08)"><path d="M0 .5H31.5V32"/></svg>`;
+      mask = "black";
+    }
+
+    return {
+      backgroundImage: `url('data:image/svg+xml;base64,${btoa(svg)}')`,
+      maskImage: `linear-gradient(to bottom right, transparent, ${mask}, transparent)`,
+    };
+  }, [browserTheme]);
 
   const formSchema = z.object({
     username: z.email(t("login.username.errmsg.invalid")),
@@ -46,17 +67,10 @@ const Login = () => {
 
   return (
     <>
-      <div
-        className="pointer-events-none fixed min-h-screen w-full"
-        style={{
-          backgroundImage:
-            "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMicgd2lkdGg9JzMyJyBoZWlnaHQ9JzMyJyBmaWxsPSdub25lJyBzdHJva2U9J3JnYigxNSAyMyA0MiAvIDAuMDQpJz48cGF0aCBkPSdNMCAuNUgzMS41VjMyJy8+PC9zdmc+')",
-          maskImage: "linear-gradient(transparent, black, transparent)",
-        }}
-      ></div>
+      <div className="pointer-events-none fixed min-h-screen w-full" style={bgStyle}></div>
 
       <div className="flex h-screen w-full flex-col items-center justify-center">
-        <Card className="w-120 max-w-full rounded-md shadow-md max-sm:h-full max-sm:w-full">
+        <Card className="w-120 max-w-full rounded-md shadow-md max-sm:h-full max-sm:w-full max-sm:rounded-none">
           <div className="px-4 py-8">
             <div className="mb-12 flex items-center justify-center">
               <img src="/logo.svg" className="w-16" />

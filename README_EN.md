@@ -16,6 +16,11 @@
 
 </div>
 
+> [!WARNING]
+> The current branch is `next`, which is the development branch for v0.4.x. It is currently unstable and should not be used in production environments.
+>
+> To access the previous versions, please switch to the `main` branch.
+
 ---
 
 ## 🚩 Introduction

@@ -159,7 +159,7 @@ func (d *SSLDeployerProvider) executeUpdateCertificateInstance(ctx context.Conte
 
 		var runningCount, succeededCount, failedCount, totalCount int64
 		if describeHostUpdateRecordDetailResp.Response.TotalCount == nil {
-			return errors.New("unexpected deployment job status")
+			return errors.New("unexpected tencentcloud deployment job status")
 		} else {
 			if describeHostUpdateRecordDetailResp.Response.RunningTotalCount != nil {
 				runningCount = *describeHostUpdateRecordDetailResp.Response.RunningTotalCount
@@ -176,13 +176,13 @@ func (d *SSLDeployerProvider) executeUpdateCertificateInstance(ctx context.Conte
 
 			if succeededCount+failedCount == totalCount {
 				if failedCount > 0 {
-					return fmt.Errorf("deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
+					return fmt.Errorf("tencentcloud deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
 				}
 				break
 			}
 		}
 
-		d.logger.Info(fmt.Sprintf("waiting for deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount))
+		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount))
 		time.Sleep(time.Second * 5)
 	}
 
@@ -242,7 +242,7 @@ func (d *SSLDeployerProvider) executeUploadUpdateCertificateInstance(ctx context
 
 		var runningCount, succeededCount, failedCount, totalCount int64
 		if describeHostUploadUpdateRecordDetailResp.Response.DeployRecordDetail == nil {
-			return errors.New("unexpected deployment job status")
+			return errors.New("unexpected tencentcloud deployment job status")
 		} else {
 			for _, record := range describeHostUploadUpdateRecordDetailResp.Response.DeployRecordDetail {
 				if record.RunningTotalCount != nil {
@@ -261,13 +261,13 @@ func (d *SSLDeployerProvider) executeUploadUpdateCertificateInstance(ctx context
 
 			if succeededCount+failedCount == totalCount {
 				if failedCount > 0 {
-					return fmt.Errorf("deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
+					return fmt.Errorf("tencentcloud deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
 				}
 				break
 			}
 		}
 
-		d.logger.Info(fmt.Sprintf("waiting for deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount))
+		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount))
 		time.Sleep(time.Second * 5)
 	}
 

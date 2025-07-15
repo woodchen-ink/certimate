@@ -211,12 +211,12 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		}
 
 		if getDeploymentTaskDetailResp.Status == "failed" {
-			return nil, errors.New("unexpected deployment task status")
+			return nil, errors.New("unexpected wangsu deployment task status")
 		} else if getDeploymentTaskDetailResp.Status == "succeeded" || getDeploymentTaskDetailResp.FinishTime != "" {
 			break
 		}
 
-		d.logger.Info(fmt.Sprintf("waiting for deployment task completion (current status: %s) ...", getDeploymentTaskDetailResp.Status))
+		d.logger.Info(fmt.Sprintf("waiting for wangsu deployment task completion (current status: %s) ...", getDeploymentTaskDetailResp.Status))
 		time.Sleep(time.Second * 5)
 	}
 

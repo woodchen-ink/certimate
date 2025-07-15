@@ -136,8 +136,8 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 						CertId:   fmt.Sprintf("%d", tea.Int64Value(certOrder.CertificateId)),
 						CertName: *certOrder.Name,
 						ExtendedData: map[string]any{
-							"instanceId":     tea.StringValue(getUserCertificateDetailResp.Body.InstanceId),
-							"certIdentifier": tea.StringValue(getUserCertificateDetailResp.Body.CertIdentifier),
+							"InstanceId":     tea.StringValue(getUserCertificateDetailResp.Body.InstanceId),
+							"CertIdentifier": tea.StringValue(getUserCertificateDetailResp.Body.CertIdentifier),
 						},
 					}, nil
 				}
@@ -184,8 +184,8 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		CertId:   fmt.Sprintf("%d", tea.Int64Value(getUserCertificateDetailResp.Body.Id)),
 		CertName: certName,
 		ExtendedData: map[string]any{
-			"instanceId":     tea.StringValue(getUserCertificateDetailResp.Body.InstanceId),
-			"certIdentifier": tea.StringValue(getUserCertificateDetailResp.Body.CertIdentifier),
+			"InstanceId":     tea.StringValue(getUserCertificateDetailResp.Body.InstanceId),
+			"CertIdentifier": tea.StringValue(getUserCertificateDetailResp.Body.CertIdentifier),
 		},
 	}, nil
 }

@@ -103,7 +103,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		CertId:   fmt.Sprintf("%d", uploadNormalCertificateResp.CertificateID),
 		CertName: certName,
 		ExtendedData: map[string]any{
-			"resourceId": uploadNormalCertificateResp.LongResourceID,
+			"ResourceId": uploadNormalCertificateResp.LongResourceID,
 		},
 	}, nil
 }
@@ -215,7 +215,7 @@ func (m *SSLManagerProvider) findCertIfExists(ctx context.Context, certPEM strin
 					CertId:   fmt.Sprintf("%d", certItem.CertificateID),
 					CertName: certItem.Name,
 					ExtendedData: map[string]any{
-						"resourceId": certItem.CertificateSN,
+						"ResourceId": certItem.CertificateSN,
 					},
 				}, nil
 			}

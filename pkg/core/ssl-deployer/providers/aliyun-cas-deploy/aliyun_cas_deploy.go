@@ -145,14 +145,14 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		}
 
 		if describeDeploymentJobResp.Body.Status == nil || *describeDeploymentJobResp.Body.Status == "editing" {
-			return nil, errors.New("unexpected deployment job status")
+			return nil, errors.New("unexpected aliyun deployment job status")
 		}
 
 		if *describeDeploymentJobResp.Body.Status == "success" || *describeDeploymentJobResp.Body.Status == "error" {
 			break
 		}
 
-		d.logger.Info("waiting for deployment job completion ...")
+		d.logger.Info("waiting for aliyun deployment job completion ...")
 		time.Sleep(time.Second * 5)
 	}
 

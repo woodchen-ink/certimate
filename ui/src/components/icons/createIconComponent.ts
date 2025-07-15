@@ -33,7 +33,7 @@ const createIconComponent = (type: "outline" | "filled", iconName: string, iconA
         ...iconAttrs,
         width: size,
         height: size,
-        className: className,
+        className: ["icon", className],
         ...(type === "filled"
           ? {
               fill: color,

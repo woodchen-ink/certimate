@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { IconBook } from "@tabler/icons-react";
 import { Typography } from "antd";
 
+import { APP_DOCUMENT_URL } from "@/domain/app";
+
 export type AppDocumentLinkButtonProps = {
   className?: string;
   style?: React.CSSProperties;
@@ -15,9 +17,9 @@ const AppDocumentLinkButton = (props: AppDocumentLinkButtonProps) => {
   const { t } = useTranslation();
 
   return (
-    <Typography.Link className={className} style={style} type="secondary" href="https://docs.certimate.me" target="_blank">
+    <Typography.Link className={className} style={style} type="secondary" href={APP_DOCUMENT_URL} target="_blank">
       <div className="flex items-center justify-center space-x-1">
-        {showIcon ? <IconBook size={16} /> : <></>}
+        {showIcon ? <IconBook size="1em" /> : <></>}
         <span>{t("common.menu.document")}</span>
       </div>
     </Typography.Link>

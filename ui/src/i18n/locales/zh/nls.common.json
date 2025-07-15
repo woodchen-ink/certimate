@@ -23,6 +23,7 @@
   "common.menu.document": "文档",
   "common.menu.theme": "切换主题",
   "common.menu.locale": "切换语言",
+  "common.menu.gethelp": "获取帮助",
   "common.menu.logout": "退出登录",
 
   "common.theme.light": "浅色",

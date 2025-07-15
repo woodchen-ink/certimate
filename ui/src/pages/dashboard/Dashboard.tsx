@@ -14,7 +14,7 @@ import {
   SyncOutlined as SyncOutlinedIcon,
 } from "@ant-design/icons";
 import { PageHeader } from "@ant-design/pro-components";
-import { IconActivity, IconCircuitChangeover, IconShield, IconShieldExclamation, IconShieldX } from "@tabler/icons-react";
+import { IconActivity, IconCircuitChangeover, IconShieldCheckered, IconShieldExclamation, IconShieldX } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { Button, Card, Col, Divider, Empty, Flex, Grid, Row, Space, Statistic, Table, type TableProps, Tag, Typography, notification, theme } from "antd";
 import dayjs from "dayjs";
@@ -200,7 +200,7 @@ const Dashboard = () => {
       <Row className="justify-stretch" gutter={[16, 16]}>
         <Col {...statisticsGridSpans}>
           <StatisticCard
-            icon={<IconShield size={48} strokeWidth={1} color={themeToken.colorInfo} />}
+            icon={<IconShieldCheckered size={48} strokeWidth={1} color={themeToken.colorInfo} />}
             label={t("dashboard.statistics.all_certificates")}
             loading={statisticsLoading}
             value={statistics?.certificateTotal ?? "-"}

@@ -7,14 +7,7 @@ import { IconLanguageEnZh, IconLanguageZhEn } from "@/components/icons";
 import { localeNames, localeResources } from "@/i18n";
 import { mergeCls } from "@/utils/css";
 
-export type AppLocaleDropdownProps = {
-  children?: React.ReactNode;
-  trigger?: DropdownProps["trigger"];
-};
-
-const AppLocaleDropdown = (props: AppLocaleDropdownProps) => {
-  const { children, trigger = ["click"] } = props;
-
+export const useAppLocaleMenuItems = () => {
   const { i18n } = useTranslation();
 
   const items: Required<MenuProps>["items"] = Object.keys(i18n.store.data).map((key) => {
@@ -29,6 +22,19 @@ const AppLocaleDropdown = (props: AppLocaleDropdownProps) => {
       },
     };
   });
+
+  return items;
+};
+
+export type AppLocaleDropdownProps = {
+  children?: React.ReactNode;
+  trigger?: DropdownProps["trigger"];
+};
+
+const AppLocaleDropdown = (props: AppLocaleDropdownProps) => {
+  const { children, trigger = ["click"] } = props;
+
+  const items = useAppLocaleMenuItems();
 
   return (
     <Dropdown menu={{ items }} trigger={trigger}>
@@ -67,7 +73,7 @@ const AppLocaleLinkButton = (props: AppLocaleLinkButtonProps) => {
     <AppLocaleDropdown trigger={["click", "hover"]}>
       <Typography.Text className={mergeCls("cursor-pointer", className)} style={style} type="secondary">
         <div className="flex items-center justify-center space-x-1">
-          {showIcon ? <AppLocaleIcon size={16} /> : <></>}
+          {showIcon ? <AppLocaleIcon size="1em" /> : <></>}
           <span>{String(localeResources[i18n.language]?.name ?? t("common.menu.locale"))}</span>
         </div>
       </Typography.Text>

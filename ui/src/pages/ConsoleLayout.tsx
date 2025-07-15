@@ -2,20 +2,23 @@ import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
-  CloudServerOutlined as CloudServerOutlinedIcon,
-  HomeOutlined as HomeOutlinedIcon,
-  NodeIndexOutlined as NodeIndexOutlinedIcon,
-  SafetyOutlined as SafetyOutlinedIcon,
-  SettingOutlined as SettingOutlinedIcon,
-} from "@ant-design/icons";
-import { IconLogout, IconMenu2 } from "@tabler/icons-react";
-import { Alert, Button, Divider, Drawer, Layout, Menu, type MenuProps, Space, Tooltip, theme } from "antd";
+  IconBrandGithub,
+  IconCircuitChangeover,
+  IconDashboard,
+  IconFingerprint,
+  IconHelpCircle,
+  IconLogout,
+  IconMenu2,
+  IconSettings,
+  IconShieldCheckered,
+} from "@tabler/icons-react";
+import { Alert, Button, Drawer, Layout, Menu, type MenuProps, theme } from "antd";
 
-import AppDocument from "@/components/AppDocument";
-import AppLocale from "@/components/AppLocale";
-import AppTheme from "@/components/AppTheme";
+import AppLocale, { useAppLocaleMenuItems } from "@/components/AppLocale";
+import AppTheme, { useAppThemeMenuItems } from "@/components/AppTheme";
 import AppVersion from "@/components/AppVersion";
 import Show from "@/components/Show";
+import { APP_DOCUMENT_URL, APP_REPO_URL } from "@/domain/app";
 import { useTriggerElement } from "@/hooks";
 import { getAuthStore } from "@/repository/admin";
 import { isBrowserHappy } from "@/utils/browser";
@@ -27,9 +30,20 @@ const ConsoleLayout = () => {
 
   const { token: themeToken } = theme.useToken();
 
+  const localeMenuItems = useAppLocaleMenuItems();
+  const themeMenuItems = useAppThemeMenuItems();
+
   const handleLogoutClick = () => {
     auth.clear();
     navigate("/login");
+  };
+
+  const handleDocumentClick = () => {
+    window.open(APP_DOCUMENT_URL, "_blank");
+  };
+
+  const handleGitHubClick = () => {
+    window.open(APP_REPO_URL, "_blank");
   };
 
   const auth = getAuthStore();
@@ -38,52 +52,98 @@ const ConsoleLayout = () => {
   }
 
   return (
-    <Layout className="h-screen" hasSider>
-      <Layout.Sider className="fixed top-0 left-0 z-20 h-full max-md:static max-md:hidden" width="256px" theme="light">
-        <div className="flex size-full flex-col items-center justify-between overflow-hidden">
-          <div className="w-full">
-            <SiderMenu />
-          </div>
-          <div className="w-full py-2 text-center">
-            <Space align="center" split={<Divider type="vertical" />} size={4}>
-              <AppDocument.LinkButton />
-              <AppVersion.LinkButton />
-            </Space>
-          </div>
-        </div>
-      </Layout.Sider>
+    <Layout className="h-screen">
+      <Show when={!isBrowserHappy()}>
+        <Alert message={t("common.text.happy_browser")} type="warning" showIcon closable />
+      </Show>
 
-      <Layout className="flex flex-col overflow-hidden pl-[256px] max-md:pl-0">
-        <Show when={!isBrowserHappy()}>
-          <Alert message={t("common.text.happy_browser")} type="warning" showIcon closable />
-        </Show>
-
-        <Layout.Header className="shadow-xs" style={{ background: themeToken.colorBgContainer, padding: 0 }}>
-          <div className="flex size-full items-center justify-between overflow-hidden px-4">
-            <div className="flex items-center gap-4">
-              <SiderMenuDrawer trigger={<Button className="md:hidden" icon={<IconMenu2 size={20} stroke="1.25" />} />} />
+      <Layout className="h-screen" hasSider>
+        <Layout.Sider className="z-20 h-full max-md:static max-md:hidden" width="256px" theme="light">
+          <div className="flex size-full flex-col items-center justify-between overflow-hidden select-none">
+            <div className="w-full">
+              <SiderMenu />
             </div>
-            <div className="flex size-full grow items-center justify-end gap-4 overflow-hidden">
-              <AppTheme.Dropdown>
-                <Tooltip title={t("common.menu.theme")} mouseEnterDelay={2}>
-                  <Button icon={<AppTheme.Icon size={20} stroke="1.25" />} />
-                </Tooltip>
-              </AppTheme.Dropdown>
-              <AppLocale.Dropdown>
-                <Tooltip title={t("common.menu.locale")} mouseEnterDelay={2}>
-                  <Button icon={<AppLocale.Icon size={20} stroke="1.25" />} />
-                </Tooltip>
-              </AppLocale.Dropdown>
-              <Tooltip title={t("common.menu.logout")} mouseEnterDelay={2}>
-                <Button danger icon={<IconLogout size={20} stroke="1.25" />} onClick={handleLogoutClick} />
-              </Tooltip>
+            <div className="w-full">
+              <Menu
+                style={{ borderInlineEnd: "none" }}
+                items={[
+                  {
+                    type: "divider",
+                  },
+                  {
+                    key: "theme",
+                    icon: (
+                      <span className="anticon">
+                        <AppTheme.Icon size="1em" />
+                      </span>
+                    ),
+                    label: t("common.menu.theme"),
+                    children: themeMenuItems,
+                  },
+                  {
+                    key: "locale",
+                    icon: (
+                      <span className="anticon">
+                        <AppLocale.Icon size="1em" />
+                      </span>
+                    ),
+                    label: t("common.menu.locale"),
+                    children: localeMenuItems,
+                  },
+                  {
+                    key: "document",
+                    icon: (
+                      <span className="anticon">
+                        <IconHelpCircle size="1em" />
+                      </span>
+                    ),
+                    label: t("common.menu.gethelp"),
+                    onClick: handleDocumentClick,
+                  },
+                  {
+                    key: "logout",
+                    danger: true,
+                    icon: (
+                      <span className="anticon">
+                        <IconLogout size="1em" />
+                      </span>
+                    ),
+                    label: t("common.menu.logout"),
+                    onClick: handleLogoutClick,
+                  },
+                ]}
+                mode="vertical"
+                selectable={false}
+              />
             </div>
           </div>
-        </Layout.Header>
+        </Layout.Sider>
 
-        <Layout.Content className="flex-1 overflow-x-hidden overflow-y-auto">
-          <Outlet />
-        </Layout.Content>
+        <Layout className="flex flex-col overflow-hidden">
+          <Layout.Header className="shadow-xs md:hidden" style={{ background: themeToken.colorBgContainer, padding: 0 }}>
+            <div className="flex size-full items-center justify-between overflow-hidden px-4">
+              <div className="flex items-center gap-4">
+                <SiderMenuDrawer trigger={<Button icon={<IconMenu2 size={18} stroke="1.25" />} />} />
+              </div>
+              <div className="flex size-full grow items-center justify-end gap-4 overflow-hidden">
+                <AppTheme.Dropdown>
+                  <Button icon={<AppTheme.Icon size={18} stroke="1.25" />} />
+                </AppTheme.Dropdown>
+                <AppLocale.Dropdown>
+                  <Button icon={<AppLocale.Icon size={18} stroke="1.25" />} />
+                </AppLocale.Dropdown>
+                <AppVersion.Badge>
+                  <Button icon={<IconBrandGithub size={18} stroke="1.25" />} onClick={handleGitHubClick} />
+                </AppVersion.Badge>
+                <Button danger icon={<IconLogout size={18} stroke="1.25" />} onClick={handleLogoutClick} />
+              </div>
+            </div>
+          </Layout.Header>
+
+          <Layout.Content className="flex-1 overflow-x-hidden overflow-y-auto">
+            <Outlet />
+          </Layout.Content>
+        </Layout>
       </Layout>
     </Layout>
   );
@@ -101,15 +161,15 @@ const SiderMenu = memo(({ onSelect }: { onSelect?: (key: string) => void }) => {
   const MENU_KEY_ACCESSES = "/accesses";
   const MENU_KEY_SETTINGS = "/settings";
   const menuItems: Required<MenuProps>["items"] = [
-    [MENU_KEY_HOME, <HomeOutlinedIcon />, t("dashboard.page.title")],
-    [MENU_KEY_WORKFLOWS, <NodeIndexOutlinedIcon />, t("workflow.page.title")],
-    [MENU_KEY_CERTIFICATES, <SafetyOutlinedIcon />, t("certificate.page.title")],
-    [MENU_KEY_ACCESSES, <CloudServerOutlinedIcon />, t("access.page.title")],
-    [MENU_KEY_SETTINGS, <SettingOutlinedIcon />, t("settings.page.title")],
+    [MENU_KEY_HOME, <IconDashboard size="1em" />, t("dashboard.page.title")],
+    [MENU_KEY_WORKFLOWS, <IconCircuitChangeover size="1em" />, t("workflow.page.title")],
+    [MENU_KEY_CERTIFICATES, <IconShieldCheckered size="1em" />, t("certificate.page.title")],
+    [MENU_KEY_ACCESSES, <IconFingerprint size="1em" />, t("access.page.title")],
+    [MENU_KEY_SETTINGS, <IconSettings size="1em" />, t("settings.page.title")],
   ].map(([key, icon, label]) => {
     return {
       key: key as string,
-      icon: icon,
+      icon: <span className="anticon">{icon}</span>,
       label: label,
       onClick: () => {
         navigate(key as string);
@@ -143,12 +203,14 @@ const SiderMenu = memo(({ onSelect }: { onSelect?: (key: string) => void }) => {
 
   return (
     <>
-      <div className="flex w-full items-center gap-2 overflow-hidden px-4 font-semibold">
+      <div className="flex w-full items-center gap-2 overflow-hidden px-4">
         <img src="/logo.svg" className="size-[36px]" />
-        <span className="h-[64px] w-[74px] truncate leading-[64px] dark:text-white">Certimate</span>
+        <span className="h-[64px] w-[81px] truncate text-base leading-[64px] font-semibold">Certimate</span>
+        <AppVersion.LinkButton className="text-xs" />
       </div>
       <div className="w-full grow overflow-x-hidden overflow-y-auto">
         <Menu
+          style={{ borderInlineEnd: "none" }}
           items={menuItems}
           mode="vertical"
           selectedKeys={menuSelectedKey ? [menuSelectedKey] : []}

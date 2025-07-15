@@ -142,6 +142,7 @@ export default defineConfig(
       ...tailwindcssPlugin.configs["recommended-error"].rules,
 
       "better-tailwindcss/enforce-consistent-line-wrapping": "off",
+      "better-tailwindcss/no-unregistered-classes": "off",
     },
     settings: {
       "better-tailwindcss": {

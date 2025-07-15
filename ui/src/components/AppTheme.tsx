@@ -7,26 +7,19 @@ import { Dropdown, type DropdownProps, type MenuProps, Typography } from "antd";
 import { useBrowserTheme } from "@/hooks";
 import { mergeCls } from "@/utils/css";
 
-export type AppThemeDropdownProps = {
-  children?: React.ReactNode;
-  trigger?: DropdownProps["trigger"];
-};
-
-const AppThemeDropdown = (props: AppThemeDropdownProps) => {
-  const { children, trigger = ["click"] } = props;
-
+export const useAppThemeMenuItems = () => {
   const { t } = useTranslation();
 
   const { themeMode, setThemeMode } = useBrowserTheme();
 
   const items: Required<MenuProps>["items"] = [
-    ["light", t("common.theme.light"), <IconSun size={16} />],
-    ["dark", t("common.theme.dark"), <IconMoon size={16} />],
-    ["system", t("common.theme.system"), <IconSunMoon size={16} />],
+    ["light", "common.theme.light", <IconSun size="1em" />],
+    ["dark", "common.theme.dark", <IconMoon size="1em" />],
+    ["system", "common.theme.system", <IconSunMoon size="1em" />],
   ].map(([key, label, icon]) => {
     return {
       key: key as string,
-      label: label as string,
+      label: t(label as string),
       icon: icon as React.ReactElement,
       onClick: () => {
         if (key !== themeMode) {
@@ -36,6 +29,19 @@ const AppThemeDropdown = (props: AppThemeDropdownProps) => {
       },
     };
   });
+
+  return items;
+};
+
+export type AppThemeDropdownProps = {
+  children?: React.ReactNode;
+  trigger?: DropdownProps["trigger"];
+};
+
+const AppThemeDropdown = (props: AppThemeDropdownProps) => {
+  const { children, trigger = ["click"] } = props;
+
+  const items = useAppThemeMenuItems();
 
   return (
     <Dropdown menu={{ items }} trigger={trigger}>
@@ -69,7 +75,7 @@ const AppThemeLinkButton = (props: AppThemeLinkButtonProps) => {
     <AppThemeDropdown trigger={["click", "hover"]}>
       <Typography.Text className={mergeCls("cursor-pointer", className)} style={style} type="secondary">
         <div className="flex items-center justify-center space-x-1">
-          {showIcon ? <AppThemeIcon size={16} /> : <></>}
+          {showIcon ? <AppThemeIcon size="1em" /> : <></>}
           <span>{t(`common.theme.${themeMode}`)}</span>
         </div>
       </Typography.Text>

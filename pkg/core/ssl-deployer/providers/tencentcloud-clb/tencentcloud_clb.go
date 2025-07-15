@@ -178,7 +178,7 @@ func (d *SSLDeployerProvider) deployViaSslService(ctx context.Context, cloudCert
 
 		var runningCount, succeededCount, failedCount, totalCount int64
 		if describeHostDeployRecordDetailResp.Response.TotalCount == nil {
-			return errors.New("unexpected deployment job status")
+			return errors.New("unexpected tencentcloud deployment job status")
 		} else {
 			if describeHostDeployRecordDetailResp.Response.RunningTotalCount != nil {
 				runningCount = *describeHostDeployRecordDetailResp.Response.RunningTotalCount
@@ -195,13 +195,13 @@ func (d *SSLDeployerProvider) deployViaSslService(ctx context.Context, cloudCert
 
 			if succeededCount+failedCount == totalCount {
 				if failedCount > 0 {
-					return fmt.Errorf("deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
+					return fmt.Errorf("tencentcloud deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
 				}
 				break
 			}
 		}
 
-		d.logger.Info(fmt.Sprintf("waiting for deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount))
+		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount))
 		time.Sleep(time.Second * 5)
 	}
 
@@ -321,12 +321,12 @@ func (d *SSLDeployerProvider) deployToRuleDomain(ctx context.Context, cloudCertI
 		}
 
 		if describeTaskStatusResp.Response.Status == nil || *describeTaskStatusResp.Response.Status == 1 {
-			return errors.New("unexpected task status")
+			return errors.New("unexpected tencentcloud task status")
 		} else if *describeTaskStatusResp.Response.Status == 0 {
 			break
 		}
 
-		d.logger.Info("waiting for task completion ...")
+		d.logger.Info("waiting for tencentcloud task completion ...")
 		time.Sleep(time.Second * 5)
 	}
 
@@ -383,12 +383,12 @@ func (d *SSLDeployerProvider) modifyListenerCertificate(ctx context.Context, clo
 		}
 
 		if describeTaskStatusResp.Response.Status == nil || *describeTaskStatusResp.Response.Status == 1 {
-			return errors.New("unexpected task status")
+			return errors.New("unexpected tencentcloud task status")
 		} else if *describeTaskStatusResp.Response.Status == 0 {
 			break
 		}
 
-		d.logger.Info("waiting for task completion ...")
+		d.logger.Info("waiting for tencentcloud task completion ...")
 		time.Sleep(time.Second * 5)
 	}
 

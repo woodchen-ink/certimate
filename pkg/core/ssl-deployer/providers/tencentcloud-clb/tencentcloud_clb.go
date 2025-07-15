@@ -16,7 +16,6 @@ import (
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 	"github.com/certimate-go/certimate/pkg/utils/ifelse"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -195,6 +194,9 @@ func (d *SSLDeployerProvider) deployViaSslService(ctx context.Context, cloudCert
 			}
 
 			if succeededCount+failedCount == totalCount {
+				if failedCount > 0 {
+					return fmt.Errorf("deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
+				}
 				break
 			}
 		}
@@ -301,6 +303,33 @@ func (d *SSLDeployerProvider) deployToRuleDomain(ctx context.Context, cloudCertI
 		return fmt.Errorf("failed to execute sdk request 'clb.ModifyDomainAttributes': %w", err)
 	}
 
+	// 循环查询异步任务状态，等待任务状态变更
+	// REF: https://cloud.tencent.com/document/product/214/30683
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		describeTaskStatusReq := tcclb.NewDescribeTaskStatusRequest()
+		describeTaskStatusReq.TaskId = modifyDomainAttributesResp.Response.RequestId
+		describeTaskStatusResp, err := d.sdkClients.CLB.DescribeTaskStatus(describeTaskStatusReq)
+		d.logger.Debug("sdk request 'clb.DescribeTaskStatus'", slog.Any("request", describeTaskStatusReq), slog.Any("response", describeTaskStatusResp))
+		if err != nil {
+			return fmt.Errorf("failed to execute sdk request 'clb.DescribeTaskStatus': %w", err)
+		}
+
+		if describeTaskStatusResp.Response.Status == nil || *describeTaskStatusResp.Response.Status == 1 {
+			return errors.New("unexpected task status")
+		} else if *describeTaskStatusResp.Response.Status == 0 {
+			break
+		}
+
+		d.logger.Info("waiting for task completion ...")
+		time.Sleep(time.Second * 5)
+	}
+
 	return nil
 }
 
@@ -353,10 +382,9 @@ func (d *SSLDeployerProvider) modifyListenerCertificate(ctx context.Context, clo
 			return fmt.Errorf("failed to execute sdk request 'clb.DescribeTaskStatus': %w", err)
 		}
 
-		taskStatus := xtypes.ToVal(describeTaskStatusResp.Response.Status)
-		if taskStatus != 0 && taskStatus != 1 {
+		if describeTaskStatusResp.Response.Status == nil || *describeTaskStatusResp.Response.Status == 1 {
 			return errors.New("unexpected task status")
-		} else if taskStatus == 0 {
+		} else if *describeTaskStatusResp.Response.Status == 0 {
 			break
 		}
 

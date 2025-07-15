@@ -221,7 +221,7 @@ func (d *SSLDeployerProvider) deployToCloudNative(ctx context.Context, certPEM s
 		TlsMin:                getDomainResp.Body.Data.TlsMin,
 		TlsMax:                getDomainResp.Body.Data.TlsMax,
 		TlsCipherSuitesConfig: getDomainResp.Body.Data.TlsCipherSuitesConfig,
-		CertIdentifier:        tea.String(upres.ExtendedData["certIdentifier"].(string)),
+		CertIdentifier:        tea.String(upres.ExtendedData["CertIdentifier"].(string)),
 	}
 	updateDomainResp, err := d.sdkClients.CloudNativeAPIGateway.UpdateDomain(tea.String(domainId), updateDomainReq)
 	d.logger.Debug("sdk request 'apig.UpdateDomain'", slog.Any("domainId", domainId), slog.Any("request", updateDomainReq), slog.Any("response", updateDomainResp))

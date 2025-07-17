@@ -4,9 +4,9 @@ import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   IconBrandGithub,
   IconCircuitChangeover,
-  IconDashboard,
   IconFingerprint,
   IconHelpCircle,
+  IconHome,
   IconLogout,
   IconMenu2,
   IconSettings,
@@ -26,7 +26,7 @@ import { isBrowserHappy } from "@/utils/browser";
 const ConsoleLayout = () => {
   const navigate = useNavigate();
 
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const { token: themeToken } = theme.useToken();
 
@@ -39,7 +39,11 @@ const ConsoleLayout = () => {
   };
 
   const handleDocumentClick = () => {
-    window.open(APP_DOCUMENT_URL, "_blank");
+    if (i18n.language.startsWith("en")) {
+      window.open(APP_DOCUMENT_URL + "/en/", "_blank");
+    } else {
+      window.open(APP_DOCUMENT_URL, "_blank");
+    }
   };
 
   const handleGitHubClick = () => {
@@ -73,7 +77,7 @@ const ConsoleLayout = () => {
                   {
                     key: "theme",
                     icon: (
-                      <span className="anticon">
+                      <span className="anticon scale-125">
                         <AppTheme.Icon size="1em" />
                       </span>
                     ),
@@ -83,7 +87,7 @@ const ConsoleLayout = () => {
                   {
                     key: "locale",
                     icon: (
-                      <span className="anticon">
+                      <span className="anticon scale-115">
                         <AppLocale.Icon size="1em" />
                       </span>
                     ),
@@ -93,7 +97,7 @@ const ConsoleLayout = () => {
                   {
                     key: "document",
                     icon: (
-                      <span className="anticon">
+                      <span className="anticon scale-125">
                         <IconHelpCircle size="1em" />
                       </span>
                     ),
@@ -104,7 +108,7 @@ const ConsoleLayout = () => {
                     key: "logout",
                     danger: true,
                     icon: (
-                      <span className="anticon">
+                      <span className="anticon scale-125">
                         <IconLogout size="1em" />
                       </span>
                     ),
@@ -161,7 +165,7 @@ const SiderMenu = memo(({ onSelect }: { onSelect?: (key: string) => void }) => {
   const MENU_KEY_ACCESSES = "/accesses";
   const MENU_KEY_SETTINGS = "/settings";
   const menuItems: Required<MenuProps>["items"] = [
-    [MENU_KEY_HOME, <IconDashboard size="1em" />, t("dashboard.page.title")],
+    [MENU_KEY_HOME, <IconHome size="1em" />, t("dashboard.page.title")],
     [MENU_KEY_WORKFLOWS, <IconCircuitChangeover size="1em" />, t("workflow.page.title")],
     [MENU_KEY_CERTIFICATES, <IconShieldCheckered size="1em" />, t("certificate.page.title")],
     [MENU_KEY_ACCESSES, <IconFingerprint size="1em" />, t("access.page.title")],
@@ -169,7 +173,7 @@ const SiderMenu = memo(({ onSelect }: { onSelect?: (key: string) => void }) => {
   ].map(([key, icon, label]) => {
     return {
       key: key as string,
-      icon: <span className="anticon">{icon}</span>,
+      icon: <span className="anticon scale-125">{icon}</span>,
       label: label,
       onClick: () => {
         navigate(key as string);

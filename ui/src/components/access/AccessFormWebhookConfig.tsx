@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { DownOutlined as DownOutlinedIcon } from "@ant-design/icons";
+import { IconChevronDown } from "@tabler/icons-react";
 import { Alert, Button, Dropdown, Form, type FormInstance, Input, Select, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod/v4";
@@ -354,7 +354,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
                 >
                   <Button size="small" type="link">
                     {t("access.form.webhook_preset_data.button")}
-                    <DownOutlinedIcon />
+                    <IconChevronDown size="1em" />
                   </Button>
                 </Dropdown>
               </div>

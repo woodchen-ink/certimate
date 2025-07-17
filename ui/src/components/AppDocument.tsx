@@ -14,10 +14,18 @@ export type AppDocumentLinkButtonProps = {
 const AppDocumentLinkButton = (props: AppDocumentLinkButtonProps) => {
   const { className, style, showIcon = true } = props;
 
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+
+  const handleDocumentClick = () => {
+    if (i18n.language.startsWith("en")) {
+      window.open(APP_DOCUMENT_URL + "/en/", "_blank");
+    } else {
+      window.open(APP_DOCUMENT_URL, "_blank");
+    }
+  };
 
   return (
-    <Typography.Link className={className} style={style} type="secondary" href={APP_DOCUMENT_URL} target="_blank">
+    <Typography.Link className={className} style={style} type="secondary" onClick={handleDocumentClick}>
       <div className="flex items-center justify-center space-x-1">
         {showIcon ? <IconBook size="1em" /> : <></>}
         <span>{t("common.menu.document")}</span>

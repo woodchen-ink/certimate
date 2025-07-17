@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { DownOutlined as DownOutlinedIcon } from "@ant-design/icons";
+import { IconChevronDown } from "@tabler/icons-react";
 import { Alert, Button, Dropdown, Form, type FormInstance, Input, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod/v4";
@@ -425,7 +425,7 @@ const DeployNodeConfigFormLocalConfig = ({ form: formInst, formName, disabled, i
               >
                 <Button size="small" type="link">
                   {t("workflow_node.deploy.form.local_preset_scripts.button")}
-                  <DownOutlinedIcon />
+                  <IconChevronDown size="1em" />
                 </Button>
               </Dropdown>
             </div>
@@ -461,7 +461,7 @@ const DeployNodeConfigFormLocalConfig = ({ form: formInst, formName, disabled, i
               >
                 <Button size="small" type="link">
                   {t("workflow_node.deploy.form.local_preset_scripts.button")}
-                  <DownOutlinedIcon />
+                  <IconChevronDown size="1em" />
                 </Button>
               </Dropdown>
             </div>

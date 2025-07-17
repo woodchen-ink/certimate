@@ -56,24 +56,26 @@ const ConsoleLayout = () => {
   }
 
   return (
-    <Layout className="h-screen">
+    <Layout className="h-screen bg-background text-foreground">
       <Show when={!isBrowserHappy()}>
         <Alert message={t("common.text.happy_browser")} type="warning" showIcon closable />
       </Show>
 
       <Layout className="h-screen" hasSider>
-        <Layout.Sider className="z-20 h-full max-md:static max-md:hidden" width="256px" theme="light">
+        <Layout.Sider
+          className="z-20 h-full border-r bg-background max-md:static max-md:hidden"
+          style={{ borderColor: themeToken.colorBorderSecondary }}
+          theme="light"
+          width="256px"
+        >
           <div className="flex size-full flex-col items-center justify-between overflow-hidden select-none">
-            <div className="w-full">
+            <div className="w-full px-2">
               <SiderMenu />
             </div>
-            <div className="w-full">
+            <div className="w-full px-2">
               <Menu
-                style={{ borderInlineEnd: "none" }}
+                style={{ background: "transparent", borderInlineEnd: "none" }}
                 items={[
-                  {
-                    type: "divider",
-                  },
                   {
                     key: "theme",
                     icon: (
@@ -124,7 +126,7 @@ const ConsoleLayout = () => {
         </Layout.Sider>
 
         <Layout className="flex flex-col overflow-hidden">
-          <Layout.Header className="shadow-xs md:hidden" style={{ background: themeToken.colorBgContainer, padding: 0 }}>
+          <Layout.Header className="shadow-xs md:hidden" style={{ padding: 0 }}>
             <div className="flex size-full items-center justify-between overflow-hidden px-4">
               <div className="flex items-center gap-4">
                 <SiderMenuDrawer trigger={<Button icon={<IconMenu2 size={18} stroke="1.25" />} />} />
@@ -207,14 +209,14 @@ const SiderMenu = memo(({ onSelect }: { onSelect?: (key: string) => void }) => {
 
   return (
     <>
-      <div className="flex w-full items-center gap-2 overflow-hidden px-4">
+      <div className="flex w-full items-center gap-2 overflow-hidden px-4 py-2 max-md:py-0">
         <img src="/logo.svg" className="size-[36px]" />
         <span className="h-[64px] w-[81px] truncate text-base leading-[64px] font-semibold">Certimate</span>
         <AppVersion.LinkButton className="text-xs" />
       </div>
       <div className="w-full grow overflow-x-hidden overflow-y-auto">
         <Menu
-          style={{ borderInlineEnd: "none" }}
+          style={{ background: "transparent", borderInlineEnd: "none" }}
           items={menuItems}
           mode="vertical"
           selectedKeys={menuSelectedKey ? [menuSelectedKey] : []}

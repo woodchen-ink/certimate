@@ -60,6 +60,22 @@ const RootApp = () => {
           /* @see global.css */
           colorPrimary: browserTheme === "dark" ? "hsl(20.5 90.2% 48.2%)" : "hsl(24.6 95% 53.1%)",
           colorLink: browserTheme === "dark" ? "hsl(20.5 90.2% 48.2%)" : "hsl(24.6 95% 53.1%)",
+          colorBgContainer: "var(--color-container)",
+          colorSuccess: "hsl(161, 93%, 34%)",
+          colorWarning: "hsl(42, 71%, 52%)",
+          colorError: "hsl(11, 87%, 57%)",
+        },
+        components: {
+          Table: {
+            ...antdTheme?.components?.Table,
+            headerBg: "var(--color-container)",
+          },
+          Layout: {
+            ...antdTheme?.components?.Layout,
+            bodyBg: "transparent",
+            siderBg: "transparent",
+            headerBg: "var(--color-container)",
+          },
         },
       }}
     >

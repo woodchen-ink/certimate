@@ -2,19 +2,25 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
-  ApiOutlined as ApiOutlinedIcon,
   CheckCircleOutlined as CheckCircleOutlinedIcon,
   ClockCircleOutlined as ClockCircleOutlinedIcon,
   CloseCircleOutlined as CloseCircleOutlinedIcon,
-  LockOutlined as LockOutlinedIcon,
-  PlusOutlined as PlusOutlinedIcon,
   SelectOutlined as SelectOutlinedIcon,
-  SendOutlined as SendOutlinedIcon,
   StopOutlined as StopOutlinedIcon,
   SyncOutlined as SyncOutlinedIcon,
 } from "@ant-design/icons";
 import { PageHeader } from "@ant-design/pro-components";
-import { IconActivity, IconCircuitChangeover, IconShieldCheckered, IconShieldExclamation, IconShieldX } from "@tabler/icons-react";
+import {
+  IconActivity,
+  IconCircuitChangeover,
+  IconPlugConnected,
+  IconPlus,
+  IconSend,
+  IconShieldCheckered,
+  IconShieldExclamation,
+  IconShieldX,
+  IconUserShield,
+} from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { Button, Card, Col, Divider, Empty, Flex, Grid, Row, Space, Statistic, Table, type TableProps, Tag, Typography, notification, theme } from "antd";
 import dayjs from "dayjs";
@@ -255,16 +261,16 @@ const Dashboard = () => {
       <Flex justify="stretch" vertical={!breakpoints.lg} gap={16}>
         <Card className="max-lg:flex-1 lg:w-[360px]" title={t("dashboard.quick_actions")}>
           <Space className="w-full" direction="vertical" size="large">
-            <Button block type="primary" size="large" icon={<PlusOutlinedIcon />} onClick={() => navigate("/workflows/new")}>
+            <Button block type="primary" size="large" icon={<IconPlus size="1em" />} onClick={() => navigate("/workflows/new")}>
               {t("dashboard.quick_actions.create_workflow")}
             </Button>
-            <Button block size="large" icon={<LockOutlinedIcon />} onClick={() => navigate("/settings/password")}>
+            <Button block size="large" icon={<IconUserShield size="1em" />} onClick={() => navigate("/settings/password")}>
               {t("dashboard.quick_actions.change_login_password")}
             </Button>
-            <Button block size="large" icon={<SendOutlinedIcon />} onClick={() => navigate("/settings/notification")}>
+            <Button block size="large" icon={<IconSend size="1em" />} onClick={() => navigate("/settings/notification")}>
               {t("dashboard.quick_actions.cofigure_notification")}
             </Button>
-            <Button block size="large" icon={<ApiOutlinedIcon />} onClick={() => navigate("/settings/ssl-provider")}>
+            <Button block size="large" icon={<IconPlugConnected size="1em" />} onClick={() => navigate("/settings/ssl-provider")}>
               {t("dashboard.quick_actions.configure_ca")}
             </Button>
           </Space>

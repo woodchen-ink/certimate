@@ -14,9 +14,6 @@ import { getErrMsg } from "@/utils/error";
 const SettingsPersistence = () => {
   const { t } = useTranslation();
 
-  const [messageApi, MessageContextHolder] = message.useMessage();
-  const [notificationApi, NotificationContextHolder] = notification.useNotification();
-
   const [settings, setSettings] = useState<SettingsModel<PersistenceSettingsContent>>();
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -60,9 +57,9 @@ const SettingsPersistence = () => {
           })
         );
 
-        messageApi.success(t("common.text.operation_succeeded"));
+        message.success(t("common.text.operation_succeeded"));
       } catch (err) {
-        notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       }
@@ -79,9 +76,7 @@ const SettingsPersistence = () => {
 
   return (
     <>
-      {MessageContextHolder}
-      {NotificationContextHolder}
-
+      <h2>{t("settings.persistence.title")}</h2>
       <Show when={!loading} fallback={<Skeleton active />}>
         <div className="md:max-w-160">
           <Form {...formProps} form={formInst} disabled={formPending} layout="vertical">

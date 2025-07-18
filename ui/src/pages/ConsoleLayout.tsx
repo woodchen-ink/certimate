@@ -146,7 +146,7 @@ const ConsoleLayout = () => {
             </div>
           </Layout.Header>
 
-          <Layout.Content className="flex-1 overflow-x-hidden overflow-y-auto">
+          <Layout.Content className="relative flex-1 overflow-x-hidden overflow-y-auto">
             <Outlet />
           </Layout.Content>
         </Layout>

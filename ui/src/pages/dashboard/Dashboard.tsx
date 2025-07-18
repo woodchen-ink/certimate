@@ -264,7 +264,7 @@ const Dashboard = () => {
             <Button block type="primary" size="large" icon={<IconPlus size="1em" />} onClick={() => navigate("/workflows/new")}>
               {t("dashboard.quick_actions.create_workflow")}
             </Button>
-            <Button block size="large" icon={<IconUserShield size="1em" />} onClick={() => navigate("/settings/password")}>
+            <Button block size="large" icon={<IconUserShield size="1em" />} onClick={() => navigate("/settings/account")}>
               {t("dashboard.quick_actions.change_login_password")}
             </Button>
             <Button block size="large" icon={<IconSend size="1em" />} onClick={() => navigate("/settings/notification")}>

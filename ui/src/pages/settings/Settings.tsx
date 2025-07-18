@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { IconDatabaseCog, IconPlugConnected, IconSend, IconUserCircle, IconUserShield } from "@tabler/icons-react";
-import { Divider, Menu } from "antd";
+import { IconDatabaseCog, IconPlugConnected, IconSend, IconUserShield } from "@tabler/icons-react";
+import { Menu } from "antd";
 
 const Settings = () => {
   const location = useLocation();
@@ -11,8 +11,7 @@ const Settings = () => {
   const { t } = useTranslation();
 
   const menus = [
-    ["account", "settings.account.tab", <IconUserCircle size="1em" />],
-    ["password", "settings.password.tab", <IconUserShield size="1em" />],
+    ["account", "settings.account.tab", <IconUserShield size="1em" />],
     ["notification", "settings.notification.tab", <IconSend size="1em" />],
     ["ssl-provider", "settings.sslprovider.tab", <IconPlugConnected size="1em" />],
     ["persistence", "settings.persistence.tab", <IconDatabaseCog size="1em" />],
@@ -32,7 +31,7 @@ const Settings = () => {
     <div className="px-6 py-4">
       <h1>{t("settings.page.title")}</h1>
 
-      <div className="hidden max-lg:block">
+      <div className="hidden select-none max-lg:block">
         <Menu
           style={{ background: "transparent", borderInlineEnd: "none" }}
           mode="horizontal"
@@ -49,8 +48,8 @@ const Settings = () => {
         />
       </div>
 
-      <div className="flex h-full justify-stretch overflow-hidden">
-        <div className="mt-[6px] w-[256px] max-lg:hidden">
+      <div className="flex h-full justify-stretch gap-x-4 overflow-hidden">
+        <div className="my-[6px] w-[256px] select-none max-lg:hidden">
           <Menu
             style={{ background: "transparent", borderInlineEnd: "none" }}
             mode="vertical"
@@ -65,10 +64,6 @@ const Settings = () => {
               navigate(`/settings/${key}`);
             }}
           />
-        </div>
-
-        <div className="min-h-full pl-2 max-lg:hidden">
-          <Divider className="h-full" type="vertical" />
         </div>
 
         <div className="flex-1">

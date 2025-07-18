@@ -61,14 +61,16 @@ const RootApp = () => {
           colorPrimary: browserTheme === "dark" ? "hsl(20.5 90.2% 48.2%)" : "hsl(24.6 95% 53.1%)",
           colorLink: browserTheme === "dark" ? "hsl(20.5 90.2% 48.2%)" : "hsl(24.6 95% 53.1%)",
           colorBgContainer: "var(--color-container)",
-          colorSuccess: "hsl(161, 93%, 34%)",
-          colorWarning: "hsl(42, 71%, 52%)",
-          colorError: "hsl(11, 87%, 57%)",
+          colorInfo: browserTheme === "dark" ? "#478be6" : "#0969da",
+          colorSuccess: browserTheme === "dark" ? "#57ab5a" : "#1a7f37",
+          colorWarning: browserTheme === "dark" ? "#daaa3f" : "#eac54f",
+          colorError: browserTheme === "dark" ? "#e5534b" : "#d1242f",
         },
         components: {
           Table: {
             ...antdTheme?.components?.Table,
             headerBg: "var(--color-container)",
+            rowHoverBg: "var(--color-container-hover)",
           },
           Layout: {
             ...antdTheme?.components?.Layout,

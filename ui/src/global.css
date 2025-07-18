@@ -7,25 +7,28 @@
 @import "antd/dist/reset.css";
 
 @theme {
-  --color-background: hsl(var(---background));
-  --color-foreground: hsl(var(---foreground));
-  --color-container: hsl(var(---container));
-  --color-primary: hsl(var(---primary));
+  --color-background: hsl(var(---twColorBackground));
+  --color-foreground: hsl(var(---twColorForeground));
+  --color-container: hsl(var(---twColorContainer));
+  --color-container-hover: hsl(var(---twColorContainerHover));
+  --color-primary: hsl(var(---twColorPrimary));
 }
 
 @layer base {
   :root {
-    ---background: 0 0% 100%;
-    ---foreground: 0, 0%, 8%;
-    ---container: 210, 20%, 98%;
-    ---primary: 24.6 95% 53.1%;
+    ---twColorBackground: 0 0% 100%;
+    ---twColorForeground: 0, 0%, 8%;
+    ---twColorContainer: 210, 20%, 98%;
+    ---twColorContainerHover: 220, 13%, 91%;
+    ---twColorPrimary: 24.6 95% 53.1%;
   }
 
   .dark {
-    ---background: 216, 9%, 10%;
-    ---foreground: 60 9.1% 97.8%;
-    ---container: 210, 9%, 13%;
-    ---primary: 20.5 90.2% 48.2%;
+    ---twColorBackground: 216, 9%, 10%;
+    ---twColorForeground: 60 9.1% 97.8%;
+    ---twColorContainer: 210, 9%, 13%;
+    ---twColorContainerHover: 218, 10%, 22%;
+    ---twColorPrimary: 20.5 90.2% 48.2%;
   }
 }
 

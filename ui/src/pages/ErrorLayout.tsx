@@ -3,7 +3,7 @@ import { Layout } from "antd";
 
 const ErrorLayout = ({ children }: { children?: React.ReactNode }) => {
   return (
-    <Layout className="h-screen">
+    <Layout className="h-screen bg-background text-foreground">
       <div className="relative">{children || <Outlet />}</div>
     </Layout>
   );

@@ -107,7 +107,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	if err != nil {
 		var sdkError *tea.SDKError
 		if errors.As(err, &sdkError) {
-			if *sdkError.Code == "Certificate.Duplicated" {
+			if tea.StringValue(sdkError.Code) == "Certificate.Duplicated" {
 				return &core.SSLDeployResult{}, nil
 			}
 		}

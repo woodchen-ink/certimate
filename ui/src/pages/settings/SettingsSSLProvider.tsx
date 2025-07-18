@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CheckCard } from "@ant-design/pro-components";
-import { Alert, Button, Form, Input, Skeleton, message, notification } from "antd";
+import { Alert, Button, Form, Input, Skeleton, Typography, message, notification } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { produce } from "immer";
 import { z } from "zod/v4";
@@ -361,9 +361,6 @@ const SSLProviderEditFormZeroSSLConfig = () => {
 const SettingsSSLProvider = () => {
   const { t } = useTranslation();
 
-  const [messageApi, MessageContextHolder] = message.useMessage();
-  const [notificationApi, NotificationContextHolder] = notification.useNotification();
-
   const [formInst] = Form.useForm<{ provider?: string }>();
   const [formPending, setFormPending] = useState(false);
 
@@ -409,9 +406,9 @@ const SettingsSSLProvider = () => {
       setSettings(resp);
       setProviderType(resp.content?.provider);
 
-      messageApi.success(t("common.text.operation_succeeded"));
+      message.success(t("common.text.operation_succeeded"));
     } catch (err) {
-      notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
     } finally {
       setFormPending(false);
     }
@@ -425,14 +422,12 @@ const SettingsSSLProvider = () => {
         updateSettings: updateContextSettings,
       }}
     >
-      {MessageContextHolder}
-      {NotificationContextHolder}
-
+      <h2>{t("settings.sslprovider.ca.title")}</h2>
       <Show when={!loading} fallback={<Skeleton active />}>
         <Form form={formInst} disabled={formPending} layout="vertical" initialValues={{ provider: providerType }}>
-          <Form.Item>
-            <Alert type="warning" message={<span dangerouslySetInnerHTML={{ __html: t("settings.sslprovider.form.provider.alert") }}></span>} />
-          </Form.Item>
+          <div className="mb-2">
+            <Typography.Text type="secondary">{t("settings.sslprovider.ca.tips")}</Typography.Text>
+          </div>
 
           <Form.Item name="provider" label={t("settings.sslprovider.form.provider.label")}>
             <CheckCard.Group className="w-full" onChange={(value) => setProviderType(value as CAProviderType)}>

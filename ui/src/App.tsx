@@ -58,8 +58,8 @@ const RootApp = () => {
         ...antdTheme,
         token: {
           /* @see global.css */
-          colorPrimary: browserTheme === "dark" ? "hsl(20.5 90.2% 48.2%)" : "hsl(24.6 95% 53.1%)",
-          colorLink: browserTheme === "dark" ? "hsl(20.5 90.2% 48.2%)" : "hsl(24.6 95% 53.1%)",
+          colorPrimary: browserTheme === "dark" ? "hsl(20.5, 90.2%, 48.2%)" : "hsl(24.6, 95%, 53.1%)",
+          colorLink: browserTheme === "dark" ? "hsl(20.5, 90.2%, 48.2%)" : "hsl(24.6, 95%, 53.1%)",
           colorBgContainer: "var(--color-container)",
           colorInfo: browserTheme === "dark" ? "#478be6" : "#0969da",
           colorSuccess: browserTheme === "dark" ? "#57ab5a" : "#1a7f37",

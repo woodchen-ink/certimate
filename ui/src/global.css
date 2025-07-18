@@ -16,19 +16,19 @@
 
 @layer base {
   :root {
-    ---twColorBackground: 0 0% 100%;
+    ---twColorBackground: 0, 0%, 100%;
     ---twColorForeground: 0, 0%, 8%;
     ---twColorContainer: 210, 20%, 98%;
     ---twColorContainerHover: 220, 13%, 91%;
-    ---twColorPrimary: 24.6 95% 53.1%;
+    ---twColorPrimary: 24.6, 95%, 53.1%;
   }
 
   .dark {
     ---twColorBackground: 216, 9%, 10%;
-    ---twColorForeground: 60 9.1% 97.8%;
+    ---twColorForeground: 60, 9.1%, 97.8%;
     ---twColorContainer: 210, 9%, 13%;
     ---twColorContainerHover: 218, 10%, 22%;
-    ---twColorPrimary: 20.5 90.2% 48.2%;
+    ---twColorPrimary: 20.5, 90.2%, 48.2%;
   }
 }
 

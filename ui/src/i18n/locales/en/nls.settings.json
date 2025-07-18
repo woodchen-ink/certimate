@@ -2,12 +2,12 @@
   "settings.page.title": "Settings",
 
   "settings.account.tab": "Account",
-  "settings.account.username.title": "Change username",
+  "settings.account.username.title": "Username",
   "settings.account.username.tips": "Email you can use to sign in to your account.",
   "settings.account.username.button.label": "Change email",
   "settings.account.username.form.email.label": "Email",
   "settings.account.username.form.email.placeholder": "Please enter email",
-  "settings.account.password.title": "Change password",
+  "settings.account.password.title": "Password",
   "settings.account.password.tips": "It's recommended to change your password regularly, or sooner if you suspect any issues.",
   "settings.account.password.button.label": "Change password",
   "settings.account.password.form.email.old_password.label": "Current password",
@@ -19,6 +19,12 @@
   "settings.account.password.form.email.password.errmsg.invalid": "Password should be at least 10 characters",
   "settings.account.password.form.email.password.errmsg.not_matched": "Passwords do not match",
   "settings.account.2fa.title": "Two-factor authentication",
+
+  "settings.appearance.tab": "Appearance",
+  "settings.appearance.theme.title": "Theme",
+  "settings.appearance.theme.form.value.extra": "Reload the page for the change to take effect.",
+  "settings.appearance.language.title": "Language",
+  "settings.appearance.language.form.value.extra": "Reload the page for the change to take effect.",
 
   "settings.sslprovider.tab": "Certificate authority",
   "settings.sslprovider.form.provider.label": "ACME provider (system-wide)",

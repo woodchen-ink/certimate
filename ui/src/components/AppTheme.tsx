@@ -2,7 +2,7 @@
 import { useTranslation } from "react-i18next";
 import { IconMoon, type IconProps, IconSun, IconSunMoon } from "@tabler/icons-react";
 
-import { Dropdown, type DropdownProps, type MenuProps, Typography } from "antd";
+import { Dropdown, type DropdownProps, Typography } from "antd";
 
 import { useBrowserTheme } from "@/hooks";
 import { mergeCls } from "@/utils/css";
@@ -12,7 +12,7 @@ export const useAppThemeMenuItems = () => {
 
   const { themeMode, setThemeMode } = useBrowserTheme();
 
-  const items: Required<MenuProps>["items"] = [
+  const items = [
     ["light", "common.theme.light", <IconSun size="1em" />],
     ["dark", "common.theme.dark", <IconMoon size="1em" />],
     ["system", "common.theme.system", <IconSunMoon size="1em" />],

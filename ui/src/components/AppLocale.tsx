@@ -1,7 +1,7 @@
 ﻿import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { IconLanguage, type IconProps } from "@tabler/icons-react";
-import { Dropdown, type DropdownProps, type MenuProps, Typography } from "antd";
+import { Dropdown, type DropdownProps, Typography } from "antd";
 
 import { IconLanguageEnZh, IconLanguageZhEn } from "@/components/icons";
 import { localeNames, localeResources } from "@/i18n";
@@ -10,7 +10,7 @@ import { mergeCls } from "@/utils/css";
 export const useAppLocaleMenuItems = () => {
   const { i18n } = useTranslation();
 
-  const items: Required<MenuProps>["items"] = Object.keys(i18n.store.data).map((key) => {
+  const items = Object.keys(i18n.store.data).map((key) => {
     return {
       key: key as string,
       label: i18n.store.data[key].name as string,

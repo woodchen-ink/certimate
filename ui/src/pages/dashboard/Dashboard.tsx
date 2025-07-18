@@ -15,7 +15,6 @@ import {
   IconCircuitChangeover,
   IconPlugConnected,
   IconPlus,
-  IconSend,
   IconShieldCheckered,
   IconShieldExclamation,
   IconShieldX,
@@ -266,9 +265,6 @@ const Dashboard = () => {
             </Button>
             <Button block size="large" icon={<IconUserShield size="1em" />} onClick={() => navigate("/settings/account")}>
               {t("dashboard.quick_actions.change_login_password")}
-            </Button>
-            <Button block size="large" icon={<IconSend size="1em" />} onClick={() => navigate("/settings/notification")}>
-              {t("dashboard.quick_actions.cofigure_notification")}
             </Button>
             <Button block size="large" icon={<IconPlugConnected size="1em" />} onClick={() => navigate("/settings/ssl-provider")}>
               {t("dashboard.quick_actions.configure_ca")}

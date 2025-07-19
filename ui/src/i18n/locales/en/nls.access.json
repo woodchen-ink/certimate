@@ -10,7 +10,7 @@
   "access.action.edit": "Edit credential",
   "access.action.duplicate": "Duplicate credential",
   "access.action.delete": "Delete credential",
-  "access.action.delete.confirm": "Are you sure to delete this credential?",
+  "access.action.delete.confirm": "Are you sure want to delete \"{{name}}\" credential?<br>Please be aware that this action is irreversible.",
 
   "access.props.name": "Name",
   "access.props.provider": "Provider",

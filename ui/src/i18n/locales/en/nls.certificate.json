@@ -8,7 +8,7 @@
 
   "certificate.action.view": "View certificate",
   "certificate.action.delete": "Delete certificate",
-  "certificate.action.delete.confirm": "Are you sure to delete this certificate?",
+  "certificate.action.delete.confirm": "Are you sure want to delete \"{{name}}\" certificate?<br>Please be aware that this action is irreversible.",
   "certificate.action.download": "Download certificate",
 
   "certificate.props.subject_alt_names": "Name",

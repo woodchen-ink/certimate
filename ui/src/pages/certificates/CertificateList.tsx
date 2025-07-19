@@ -249,8 +249,14 @@ const CertificateList = () => {
 
   const handleDeleteClick = (certificate: CertificateModel) => {
     modal.confirm({
-      title: t("certificate.action.delete"),
-      content: t("certificate.action.delete.confirm"),
+      title: <span className="text-error">{t("certificate.action.delete")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("certificate.action.delete.confirm", { name: certificate.subjectAltNames }) }} />,
+      icon: (
+        <span className="anticon">
+          <IconTrash className="text-error" size="1em" />
+        </span>
+      ),
+      okText: t("common.button.confirm"),
       okButtonProps: { danger: true },
       onOk: async () => {
         try {

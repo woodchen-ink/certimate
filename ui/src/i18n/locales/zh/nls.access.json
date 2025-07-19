@@ -10,7 +10,7 @@
   "access.action.edit": "编辑授权",
   "access.action.duplicate": "复制授权",
   "access.action.delete": "删除授权",
-  "access.action.delete.confirm": "确定要删除此授权吗？",
+  "access.action.delete.confirm": "确定要删除授权「{{name}}」吗？<br>注意此操作不可撤销，请谨慎操作。",
 
   "access.props.name": "名称",
   "access.props.provider": "提供商",

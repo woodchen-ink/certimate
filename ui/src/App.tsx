@@ -57,14 +57,14 @@ const RootApp = () => {
       theme={{
         ...antdTheme,
         token: {
-          /* @see global.css */
-          colorPrimary: browserTheme === "dark" ? "hsl(20.5, 90.2%, 48.2%)" : "hsl(24.6, 95%, 53.1%)",
-          colorLink: browserTheme === "dark" ? "hsl(20.5, 90.2%, 48.2%)" : "hsl(24.6, 95%, 53.1%)",
-          colorBgContainer: "var(--color-container)",
+          /* @see global.css, YOU MUST MODIFY BOTH DEFINITIONS AT THE SAME TIME! */
+          colorPrimary: browserTheme === "dark" ? "#f97316" : "#ea580c",
           colorInfo: browserTheme === "dark" ? "#478be6" : "#0969da",
           colorSuccess: browserTheme === "dark" ? "#57ab5a" : "#1a7f37",
           colorWarning: browserTheme === "dark" ? "#daaa3f" : "#eac54f",
           colorError: browserTheme === "dark" ? "#e5534b" : "#d1242f",
+          colorBgContainer: "var(--color-container)",
+          colorLink: "var(--color-primary)",
         },
         components: {
           Layout: {

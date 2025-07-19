@@ -93,8 +93,14 @@ const WorkflowDetail = () => {
 
   const handleDeleteClick = () => {
     modalApi.confirm({
-      title: t("workflow.action.delete"),
-      content: t("workflow.action.delete.confirm"),
+      title: <span className="text-error">{t("workflow.action.delete")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.confirm", { name: workflow.name }) }} />,
+      icon: (
+        <span className="anticon">
+          <IconTrash className="text-error" size="1em" />
+        </span>
+      ),
+      okText: t("common.button.confirm"),
       okButtonProps: { danger: true },
       onOk: async () => {
         try {

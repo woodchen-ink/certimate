@@ -11,7 +11,7 @@
   "workflow.action.duplicate": "Duplicate workflow",
   "workflow.action.duplicate.confirm": "Are you sure to duplicate this workflow?",
   "workflow.action.delete": "Delete workflow",
-  "workflow.action.delete.confirm": "Are you sure to delete this workflow?",
+  "workflow.action.delete.confirm": "Are you sure want to delete \"{{name}}\" workflow?<br>Please be aware that this action is irreversible.",
   "workflow.action.enable": "Enable",
   "workflow.action.enable.failed.uncompleted": "Please complete the orchestration and publish the changes first",
   "workflow.action.disable": "Disable",

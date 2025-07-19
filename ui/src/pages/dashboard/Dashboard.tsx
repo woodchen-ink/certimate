@@ -305,7 +305,7 @@ const StatisticCard = ({
 }) => {
   return (
     <Card className="size-full overflow-hidden" hoverable loading={loading} variant="borderless" onClick={onClick}>
-      <Space size="middle">
+      <div className="flex gap-2">
         {icon}
         <Statistic
           title={label}
@@ -314,7 +314,7 @@ const StatisticCard = ({
           }}
           suffix={<Typography.Text className="text-sm">{suffix}</Typography.Text>}
         />
-      </Space>
+      </div>
     </Card>
   );
 };

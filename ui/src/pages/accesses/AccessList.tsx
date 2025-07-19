@@ -191,15 +191,21 @@ const AccessList = () => {
     fetchAccesses();
   };
 
-  const handleDeleteClick = async (data: AccessModel) => {
+  const handleDeleteClick = async (access: AccessModel) => {
     modal.confirm({
-      title: t("access.action.delete"),
-      content: t("access.action.delete.confirm"),
+      title: <span className="text-error">{t("access.action.delete")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("access.action.delete.confirm", { name: access.name }) }} />,
+      icon: (
+        <span className="anticon">
+          <IconTrash className="text-error" size="1em" />
+        </span>
+      ),
+      okText: t("common.button.confirm"),
       okButtonProps: { danger: true },
       onOk: async () => {
         // TODO: 有关联数据的不允许被删除
         try {
-          await deleteAccess(data);
+          await deleteAccess(access);
           refreshData();
         } catch (err) {
           console.error(err);
@@ -245,7 +251,7 @@ const AccessList = () => {
         </div>
 
         <Tabs
-          className="mt-4 -mb-2"
+          className="mt-2 -mb-2"
           activeKey={filters["usage"] as string}
           items={[
             {

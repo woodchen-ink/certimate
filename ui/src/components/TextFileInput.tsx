@@ -38,7 +38,7 @@ const TextFileInput = ({ className, style, accept, disabled, readOnly, uploadTex
       <Input.TextArea {...props} disabled={disabled} readOnly={readOnly} onChange={(e) => onChange?.(e.target.value)} />
       {!readOnly && (
         <>
-          <Button {...uploadButtonProps} block disabled={disabled} icon={<IconFileImport size="1em" />} onClick={handleButtonClick}>
+          <Button {...uploadButtonProps} block disabled={disabled} icon={<IconFileImport size="1.25em" />} onClick={handleButtonClick}>
             {uploadText ?? t("common.text.import_from_file")}
           </Button>
           <input ref={fileInputRef} type="file" style={{ display: "none" }} accept={accept} onChange={handleFileChange} />

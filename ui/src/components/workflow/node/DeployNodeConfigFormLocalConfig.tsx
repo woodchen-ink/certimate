@@ -425,7 +425,7 @@ const DeployNodeConfigFormLocalConfig = ({ form: formInst, formName, disabled, i
               >
                 <Button size="small" type="link">
                   {t("workflow_node.deploy.form.local_preset_scripts.button")}
-                  <IconChevronDown size="1em" />
+                  <IconChevronDown size="1.25em" />
                 </Button>
               </Dropdown>
             </div>
@@ -461,7 +461,7 @@ const DeployNodeConfigFormLocalConfig = ({ form: formInst, formName, disabled, i
               >
                 <Button size="small" type="link">
                   {t("workflow_node.deploy.form.local_preset_scripts.button")}
-                  <IconChevronDown size="1em" />
+                  <IconChevronDown size="1.25em" />
                 </Button>
               </Dropdown>
             </div>

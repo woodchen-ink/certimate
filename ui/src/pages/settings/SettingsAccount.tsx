@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Button, Divider, Flex, Form, Input, Typography, message, notification } from "antd";
+import { App, Button, Divider, Flex, Form, Input, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod/v4";
 
@@ -39,6 +39,8 @@ const SettingsAccountUsername = ({ className, style }: { className?: string; sty
 
   const { t } = useTranslation();
 
+  const { message, notification } = App.useApp();
+
   const formSchema = z.object({
     username: z.email(t("common.errmsg.email_invalid")),
   });
@@ -68,7 +70,7 @@ const SettingsAccountUsername = ({ className, style }: { className?: string; sty
       }
     },
   });
-  const [formEditting, setFormEditting] = useState(false);
+  const [formVisible, setFormVisible] = useState(false);
   const [formChanged, setFormChanged] = useState(false);
 
   const handleInputChange = () => {
@@ -76,19 +78,19 @@ const SettingsAccountUsername = ({ className, style }: { className?: string; sty
   };
 
   const handleEditClick = () => {
-    setFormEditting(true);
+    setFormVisible(true);
     formInst.resetFields();
   };
 
   const handleCancelClick = () => {
-    setFormEditting(false);
+    setFormVisible(false);
     setFormChanged(false);
   };
 
   return (
     <div className={className} style={style}>
       <Form {...formProps} form={formInst} disabled={formPending} layout="vertical">
-        {formEditting ? (
+        {formVisible ? (
           <>
             <Form.Item name="username" label={t("settings.account.username.form.email.label")} rules={[formRule]}>
               <Input autoFocus placeholder={t("settings.account.username.form.email.placeholder")} onChange={handleInputChange} />
@@ -126,6 +128,8 @@ const SettingsAccountPassword = ({ className, style }: { className?: string; sty
 
   const { t } = useTranslation();
 
+  const { message, notification } = App.useApp();
+
   const formSchema = z.object({
     oldPassword: z.string().min(10, t("settings.account.password.form.email.password.errmsg.invalid")),
     newPassword: z.string().min(10, t("settings.account.password.form.email.password.errmsg.invalid")),
@@ -162,7 +166,7 @@ const SettingsAccountPassword = ({ className, style }: { className?: string; sty
       }
     },
   });
-  const [formEditting, setFormEditting] = useState(false);
+  const [formVisible, setFormVisible] = useState(false);
   const [formChanged, setFormChanged] = useState(false);
 
   const handleInputChange = () => {
@@ -171,19 +175,19 @@ const SettingsAccountPassword = ({ className, style }: { className?: string; sty
   };
 
   const handleEditClick = () => {
-    setFormEditting(true);
+    setFormVisible(true);
     formInst.resetFields();
   };
 
   const handleCancelClick = () => {
-    setFormEditting(false);
+    setFormVisible(false);
     setFormChanged(false);
   };
 
   return (
     <div className={className} style={style}>
       <Form {...formProps} form={formInst} disabled={formPending} layout="vertical">
-        {formEditting ? (
+        {formVisible ? (
           <>
             <Form.Item name="oldPassword" label={t("settings.account.password.form.email.old_password.label")} rules={[formRule]}>
               <Input.Password autoFocus placeholder={t("settings.account.password.form.email.old_password.placeholder")} onChange={handleInputChange} />

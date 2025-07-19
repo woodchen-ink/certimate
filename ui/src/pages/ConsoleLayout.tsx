@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   IconBrandGithub,
-  IconCircuitChangeover,
   IconFingerprint,
   IconHelpCircle,
   IconHome,
   IconLogout,
   IconMenu2,
+  IconSchema,
   IconSettings,
   IconShieldCheckered,
 } from "@tabler/icons-react";
@@ -129,19 +129,19 @@ const ConsoleLayout = () => {
           <Layout.Header className="shadow-xs md:hidden" style={{ padding: 0 }}>
             <div className="flex size-full items-center justify-between overflow-hidden px-4">
               <div className="flex items-center gap-4">
-                <SiderMenuDrawer trigger={<Button icon={<IconMenu2 size={18} stroke="1.25" />} />} />
+                <SiderMenuDrawer trigger={<Button icon={<IconMenu2 size="1.25em" stroke="1.25" />} />} />
               </div>
               <div className="flex size-full grow items-center justify-end gap-4 overflow-hidden">
                 <AppTheme.Dropdown>
-                  <Button icon={<AppTheme.Icon size={18} stroke="1.25" />} />
+                  <Button icon={<AppTheme.Icon size="1.25em" stroke="1.25" />} />
                 </AppTheme.Dropdown>
                 <AppLocale.Dropdown>
-                  <Button icon={<AppLocale.Icon size={18} stroke="1.25" />} />
+                  <Button icon={<AppLocale.Icon size="1.25em" stroke="1.25" />} />
                 </AppLocale.Dropdown>
                 <AppVersion.Badge>
-                  <Button icon={<IconBrandGithub size={18} stroke="1.25" />} onClick={handleGitHubClick} />
+                  <Button icon={<IconBrandGithub size="1.25em" stroke="1.25" />} onClick={handleGitHubClick} />
                 </AppVersion.Badge>
-                <Button danger icon={<IconLogout size={18} stroke="1.25" />} onClick={handleLogoutClick} />
+                <Button danger icon={<IconLogout size="1.25em" stroke="1.25" />} onClick={handleLogoutClick} />
               </div>
             </div>
           </Layout.Header>
@@ -168,7 +168,7 @@ const SiderMenu = memo(({ onSelect }: { onSelect?: (key: string) => void }) => {
   const MENU_KEY_SETTINGS = "/settings";
   const menuItems: Required<MenuProps>["items"] = [
     [MENU_KEY_HOME, <IconHome size="1em" />, t("dashboard.page.title")],
-    [MENU_KEY_WORKFLOWS, <IconCircuitChangeover size="1em" />, t("workflow.page.title")],
+    [MENU_KEY_WORKFLOWS, <IconSchema size="1em" />, t("workflow.page.title")],
     [MENU_KEY_CERTIFICATES, <IconShieldCheckered size="1em" />, t("certificate.page.title")],
     [MENU_KEY_ACCESSES, <IconFingerprint size="1em" />, t("access.page.title")],
     [MENU_KEY_SETTINGS, <IconSettings size="1em" />, t("settings.page.title")],

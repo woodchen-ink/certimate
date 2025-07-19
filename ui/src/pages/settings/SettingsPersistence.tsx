@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Form, InputNumber, Skeleton, message, notification } from "antd";
+import { App, Button, Form, InputNumber, Skeleton } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { produce } from "immer";
 import { z } from "zod/v4";
@@ -13,6 +13,8 @@ import { getErrMsg } from "@/utils/error";
 
 const SettingsPersistence = () => {
   const { t } = useTranslation();
+
+  const { message, notification } = App.useApp();
 
   const [settings, setSettings] = useState<SettingsModel<PersistenceSettingsContent>>();
   const [loading, setLoading] = useState(true);

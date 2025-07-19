@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CheckCard } from "@ant-design/pro-components";
-import { Alert, Button, Form, Input, Skeleton, Typography, message, notification } from "antd";
+import { Alert, App, Button, Form, Input, Skeleton, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { produce } from "immer";
 import { z } from "zod/v4";
@@ -360,6 +360,8 @@ const SSLProviderEditFormZeroSSLConfig = () => {
 
 const SettingsSSLProvider = () => {
   const { t } = useTranslation();
+
+  const { message, notification } = App.useApp();
 
   const [formInst] = Form.useForm<{ provider?: string }>();
   const [formPending, setFormPending] = useState(false);

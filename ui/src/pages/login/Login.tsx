@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { IconArrowRight, IconLock, IconMail } from "@tabler/icons-react";
-import { Button, Card, Divider, Form, Input, Space, notification } from "antd";
+import { App, Button, Card, Divider, Form, Input, Space } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod/v4";
 
@@ -20,6 +20,7 @@ const Login = () => {
 
   const { t } = useTranslation();
 
+  const { notification } = App.useApp();
   const { theme: browserTheme } = useBrowserTheme();
 
   const bgStyle = useMemo<React.CSSProperties>(() => {
@@ -78,15 +79,26 @@ const Login = () => {
 
             <Form {...formProps} form={formInst} disabled={formPending} layout="vertical" validateTrigger="onBlur">
               <Form.Item name="username" label={t("login.username.label")} rules={[formRule]}>
-                <Input addonBefore={<IconMail size="1em" />} autoComplete="new-password" autoFocus placeholder={t("login.username.placeholder")} size="large" />
+                <Input
+                  addonBefore={<IconMail size="1.25em" />}
+                  autoComplete="new-password"
+                  autoFocus
+                  placeholder={t("login.username.placeholder")}
+                  size="large"
+                />
               </Form.Item>
 
               <Form.Item name="password" label={t("login.password.label")} rules={[formRule]}>
-                <Input.Password addonBefore={<IconLock size="1em" />} autoComplete="new-password" placeholder={t("login.password.placeholder")} size="large" />
+                <Input.Password
+                  addonBefore={<IconLock size="1.25em" />}
+                  autoComplete="new-password"
+                  placeholder={t("login.password.placeholder")}
+                  size="large"
+                />
               </Form.Item>
 
               <Form.Item className="mt-8 mb-0">
-                <Button block type="primary" htmlType="submit" icon={<IconArrowRight size="1em" />} iconPosition="end" loading={formPending} size="large">
+                <Button block type="primary" htmlType="submit" icon={<IconArrowRight size="1.25em" />} iconPosition="end" loading={formPending} size="large">
                   {t("login.submit")}
                 </Button>
               </Form.Item>

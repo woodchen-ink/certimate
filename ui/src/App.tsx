@@ -67,16 +67,16 @@ const RootApp = () => {
           colorError: browserTheme === "dark" ? "#e5534b" : "#d1242f",
         },
         components: {
-          Table: {
-            ...antdTheme?.components?.Table,
-            headerBg: "var(--color-container)",
-            rowHoverBg: "var(--color-container-hover)",
-          },
           Layout: {
             ...antdTheme?.components?.Layout,
             bodyBg: "transparent",
             siderBg: "transparent",
             headerBg: "var(--color-container)",
+          },
+          Table: {
+            ...antdTheme?.components?.Table,
+            headerBg: "var(--color-container)",
+            rowHoverBg: "var(--color-container-hover)",
           },
         },
       }}

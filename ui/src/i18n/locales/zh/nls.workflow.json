@@ -1,5 +1,6 @@
 {
   "workflow.page.title": "工作流",
+  "workflow.page.subtitle": "工作流是自动化流程的节点集合。当满足触发条件时，工作流开始顺序执行各节点以完成复杂的任务（如证书申请、部署等）。",
 
   "workflow.nodata": "暂无工作流，请先新建工作流",
 
@@ -18,7 +19,7 @@
   "workflow.props.name": "名称",
   "workflow.props.description": "描述",
   "workflow.props.trigger": "触发方式",
-  "workflow.props.trigger.auto": "自动",
+  "workflow.props.trigger.auto": "定时",
   "workflow.props.trigger.manual": "手动",
   "workflow.props.last_run_at": "最近执行时间",
   "workflow.props.state": "启用状态",

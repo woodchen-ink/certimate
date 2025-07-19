@@ -4,12 +4,11 @@ import {
   CheckCircleOutlined as CheckCircleOutlinedIcon,
   ClockCircleOutlined as ClockCircleOutlinedIcon,
   CloseCircleOutlined as CloseCircleOutlinedIcon,
-  DeleteOutlined as DeleteOutlinedIcon,
   PauseOutlined as PauseOutlinedIcon,
-  SelectOutlined as SelectOutlinedIcon,
   StopOutlined as StopOutlinedIcon,
   SyncOutlined as SyncOutlinedIcon,
 } from "@ant-design/icons";
+import { IconBrowserShare, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { Alert, Button, Empty, Modal, Space, Table, type TableProps, Tag, Tooltip, notification } from "antd";
 import dayjs from "dayjs";
@@ -145,7 +144,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
               data={record}
               trigger={
                 <Tooltip title={t("workflow_run.action.view")}>
-                  <Button color="primary" icon={<SelectOutlinedIcon />} variant="text" />
+                  <Button color="primary" icon={<IconBrowserShare size="1.25em" />} variant="text" />
                 </Tooltip>
               }
             />
@@ -167,7 +166,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
                 color="danger"
                 danger
                 disabled={!aloowDelete}
-                icon={<DeleteOutlinedIcon />}
+                icon={<IconTrash size="1.25em" />}
                 variant="text"
                 onClick={() => {
                   handleDeleteClick(record);
@@ -263,6 +262,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
     modalApi.confirm({
       title: t("workflow_run.action.delete"),
       content: t("workflow_run.action.delete.confirm"),
+      okButtonProps: { danger: true },
       onOk: async () => {
         try {
           const resp = await removeWorkflowRun(workflowRun);

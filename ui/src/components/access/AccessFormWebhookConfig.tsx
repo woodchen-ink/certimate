@@ -354,7 +354,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
                 >
                   <Button size="small" type="link">
                     {t("access.form.webhook_preset_data.button")}
-                    <IconChevronDown size="1em" />
+                    <IconChevronDown size="1.25em" />
                   </Button>
                 </Dropdown>
               </div>

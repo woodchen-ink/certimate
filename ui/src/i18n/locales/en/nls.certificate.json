@@ -1,5 +1,6 @@
 {
   "certificate.page.title": "Certificates",
+  "certificate.page.subtitle": "SSL certificates contain the website's public key and the website's identity, along with related information. They are generated from the execution output of workflows.",
 
   "certificate.nodata": "No certificates. Please create a workflow to generate certificates! 😀",
 

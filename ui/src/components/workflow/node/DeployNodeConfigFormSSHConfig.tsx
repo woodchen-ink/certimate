@@ -452,7 +452,7 @@ const DeployNodeConfigFormSSHConfig = ({ form: formInst, formName, disabled, ini
               >
                 <Button size="small" type="link">
                   {t("workflow_node.deploy.form.ssh_preset_scripts.button")}
-                  <IconChevronDown size="1em" />
+                  <IconChevronDown size="1.25em" />
                 </Button>
               </Dropdown>
             </div>
@@ -496,7 +496,7 @@ const DeployNodeConfigFormSSHConfig = ({ form: formInst, formName, disabled, ini
               >
                 <Button size="small" type="link">
                   {t("workflow_node.deploy.form.ssh_preset_scripts.button")}
-                  <IconChevronDown size="1em" />
+                  <IconChevronDown size="1.25em" />
                 </Button>
               </Dropdown>
             </div>

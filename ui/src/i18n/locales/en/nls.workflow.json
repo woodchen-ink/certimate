@@ -1,5 +1,6 @@
 {
   "workflow.page.title": "Workflows",
+  "workflow.page.subtitle": "Workflows are collections of nodes that automate a process. Workflows begin execution when a trigger condition occurs and execute sequentially to achieve complex tasks.",
 
   "workflow.nodata": "No workflows. Please create a workflow to generate certificates! 😀",
 
@@ -18,7 +19,7 @@
   "workflow.props.name": "Name",
   "workflow.props.description": "Description",
   "workflow.props.trigger": "Trigger",
-  "workflow.props.trigger.auto": "Auto",
+  "workflow.props.trigger.auto": "Scheduled",
   "workflow.props.trigger.manual": "Manual",
   "workflow.props.last_run_at": "Last run at",
   "workflow.props.state": "State",

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { IconCopy, IconEdit, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { App, Avatar, Button, Empty, Input, Space, Table, type TableProps, Tabs, Tooltip, Typography } from "antd";
+import { App, Avatar, Button, Empty, Input, Table, type TableProps, Tabs, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
@@ -26,6 +26,15 @@ const AccessList = () => {
   const { accesses, loadedAtOnce, fetchAccesses, deleteAccess } = useAccessesStore(
     useZustandShallowSelector(["accesses", "loadedAtOnce", "fetchAccesses", "deleteAccess"])
   );
+
+  const [filters, setFilters] = useState<Record<string, unknown>>(() => {
+    return {
+      usage: "both-dns-hosting" satisfies AccessUsageProp,
+      keyword: searchParams.get("keyword"),
+    };
+  });
+  const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
+  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 15);
 
   const tableColumns: TableProps<AccessModel>["columns"] = [
     {
@@ -76,7 +85,7 @@ const AccessList = () => {
       fixed: "right",
       width: 120,
       render: (_, record) => (
-        <Space.Compact>
+        <div className="flex items-center justify-end">
           <AccessEditDrawer
             data={record}
             usage={filters["usage"] as AccessUsageProp}
@@ -109,22 +118,12 @@ const AccessList = () => {
               }}
             />
           </Tooltip>
-        </Space.Compact>
+        </div>
       ),
     },
   ];
   const [tableData, setTableData] = useState<AccessModel[]>([]);
   const [tableTotal, setTableTotal] = useState<number>(0);
-
-  const [filters, setFilters] = useState<Record<string, unknown>>(() => {
-    return {
-      usage: "both-dns-hosting" satisfies AccessUsageProp,
-      keyword: searchParams.get("keyword"),
-    };
-  });
-
-  const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
-  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 15);
 
   useEffect(() => {
     fetchAccesses().catch((err) => {

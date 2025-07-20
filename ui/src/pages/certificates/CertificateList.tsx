@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconBrowserShare, IconReload, IconTrash } from "@tabler/icons-react";
+import { IconBrowserShare, IconCirclePlus, IconReload, IconShieldCheckeredFilled, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { App, Button, Divider, Empty, Input, Menu, type MenuProps, Radio, Space, Table, type TableProps, Tooltip, Typography, theme } from "antd";
+import { App, Button, Input, Segmented, Skeleton, Table, type TableProps, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
 import CertificateDetailDrawer from "@/components/certificate/CertificateDetailDrawer";
-import { CERTIFICATE_SOURCES, type CertificateModel } from "@/domain/certificate";
+import Empty from "@/components/Empty";
+import { type CertificateModel } from "@/domain/certificate";
 import { list as listCertificates, type ListRequest as listCertificatesRequest, remove as removeCertificate } from "@/repository/certificate";
 import { getErrMsg } from "@/utils/error";
 
@@ -19,16 +20,20 @@ const CertificateList = () => {
   const { t } = useTranslation();
 
   const { modal, notification } = App.useApp();
-  const { token: themeToken } = theme.useToken();
+
+  const [filters, setFilters] = useState<Record<string, unknown>>(() => {
+    return {
+      keyword: searchParams.get("keyword"),
+      state: searchParams.get("state"),
+    };
+  });
+  const [sorter, setSorter] = useState<ArrayElement<Parameters<NonNullable<TableProps<CertificateModel>["onChange"]>>[2]>>(() => {
+    return {};
+  });
+  const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
+  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 15);
 
   const tableColumns: TableProps<CertificateModel>["columns"] = [
-    {
-      key: "$index",
-      align: "center",
-      fixed: "left",
-      width: 50,
-      render: (_, __, index) => (page - 1) * pageSize + index + 1,
-    },
     {
       key: "name",
       title: t("certificate.props.subject_alt_names"),
@@ -38,77 +43,38 @@ const CertificateList = () => {
       key: "expiry",
       title: t("certificate.props.validity"),
       ellipsis: true,
-      defaultFilteredValue: searchParams.has("state") ? [searchParams.get("state") as string] : undefined,
-      filterDropdown: ({ setSelectedKeys, confirm, clearFilters }) => {
-        const items: Required<MenuProps>["items"] = [
-          ["expireSoon", "certificate.props.validity.filter.expire_soon"],
-          ["expired", "certificate.props.validity.filter.expired"],
-        ].map(([key, label]) => {
-          return {
-            key,
-            label: <Radio checked={filters["state"] === key}>{t(label)}</Radio>,
-            onClick: () => {
-              if (filters["state"] !== key) {
-                setPage(1);
-                setFilters((prev) => ({ ...prev, state: key }));
-                setSelectedKeys([key]);
-              }
-
-              confirm({ closeDropdown: true });
-            },
-          };
-        });
-
-        const handleResetClick = () => {
-          setPage(1);
-          setFilters((prev) => ({ ...prev, state: undefined }));
-          setSelectedKeys([]);
-          clearFilters?.();
-          confirm();
-        };
-
-        const handleConfirmClick = () => {
-          confirm();
-        };
-
-        return (
-          <div style={{ padding: 0 }}>
-            <Menu items={items} selectable={false} />
-            <Divider className="my-0" />
-            <Space className="w-full justify-end" style={{ padding: themeToken.paddingSM }}>
-              <Button size="small" disabled={!filters.state} onClick={handleResetClick}>
-                {t("common.button.reset")}
-              </Button>
-              <Button type="primary" size="small" onClick={handleConfirmClick}>
-                {t("common.button.ok")}
-              </Button>
-            </Space>
-          </div>
-        );
-      },
+      sorter: true,
+      sortOrder: sorter.columnKey === "expiry" ? sorter.order : undefined,
       render: (_, record) => {
         const total = dayjs(record.expireAt).diff(dayjs(record.created), "d") + 1;
-        // 使用 isAfter 更精确地判断是否过期
-        const isExpired = dayjs().isAfter(dayjs(record.expireAt));
+        const expired = dayjs().isAfter(dayjs(record.expireAt));
         const leftDays = dayjs(record.expireAt).diff(dayjs(), "d");
-        const leftHours = dayjs(record.expireAt).diff(dayjs(), "h");
 
         return (
-          <Space className="max-w-full" direction="vertical" size={4}>
-            {!isExpired ? (
-              leftDays > 0 ? (
-                <Typography.Text type="success">{t("certificate.props.validity.left_days", { left: leftDays, total })}</Typography.Text>
+          <div className="flex max-w-full flex-col gap-1">
+            {!expired ? (
+              leftDays >= 1 ? (
+                <Typography.Text type="success">
+                  <span className="mr-1 inline-block size-2 rounded-full bg-success leading-2">&nbsp;</span>
+                  {t("certificate.props.validity.left_days", { left: leftDays, total })}
+                </Typography.Text>
               ) : (
-                <Typography.Text type="warning">{t("certificate.props.validity.less_than_day", { hours: leftHours > 0 ? leftHours : 1 })}</Typography.Text>
+                <Typography.Text type="warning">
+                  <span className="mr-1 inline-block size-2 rounded-full bg-warning leading-2">&nbsp;</span>
+                  {t("certificate.props.validity.less_than_a_day")}
+                </Typography.Text>
               )
             ) : (
-              <Typography.Text type="danger">{t("certificate.props.validity.expired")}</Typography.Text>
+              <Typography.Text type="danger">
+                <span className="mr-1 inline-block size-2 rounded-full bg-error leading-2">&nbsp;</span>
+                {t("certificate.props.validity.expired")}
+              </Typography.Text>
             )}
 
             <Typography.Text type="secondary">
               {t("certificate.props.validity.expiration", { date: dayjs(record.expireAt).format("YYYY-MM-DD") })}
             </Typography.Text>
-          </Space>
+          </div>
         );
       },
     },
@@ -116,10 +82,10 @@ const CertificateList = () => {
       key: "brand",
       title: t("certificate.props.brand"),
       render: (_, record) => (
-        <Space className="max-w-full" direction="vertical" size={4}>
+        <div className="flex max-w-full flex-col gap-1">
           <Typography.Text>{record.issuerOrg}</Typography.Text>
           <Typography.Text>{record.keyAlgorithm}</Typography.Text>
-        </Space>
+        </div>
       ),
     },
     {
@@ -127,29 +93,24 @@ const CertificateList = () => {
       title: t("certificate.props.source"),
       ellipsis: true,
       render: (_, record) => {
-        if (record.source === CERTIFICATE_SOURCES.WORKFLOW) {
-          const workflowId = record.workflowId;
-          return (
-            <Space className="max-w-full" direction="vertical" size={4}>
-              <Typography.Text>{t("certificate.props.source.workflow")}</Typography.Text>
-              <Typography.Link
-                type="secondary"
-                ellipsis
-                onClick={() => {
-                  if (workflowId) {
-                    navigate(`/workflows/${workflowId}`);
-                  }
-                }}
-              >
-                {record.expand?.workflowId?.name ?? <span className="font-mono">{t(`#${workflowId}`)}</span>}
-              </Typography.Link>
-            </Space>
-          );
-        } else if (record.source === CERTIFICATE_SOURCES.UPLOAD) {
-          return <Typography.Text>{t("certificate.props.source.upload")}</Typography.Text>;
-        }
-
-        return <></>;
+        const workflowId = record.workflowId;
+        return (
+          <div className="flex max-w-full flex-col gap-1">
+            <Typography.Text>{t(`certificate.props.source.${record.source}`)}</Typography.Text>
+            <Typography.Link
+              type="secondary"
+              ellipsis
+              onClick={(e) => {
+                e.stopPropagation();
+                if (workflowId) {
+                  navigate(`/workflows/${workflowId}`);
+                }
+              }}
+            >
+              {record.expand?.workflowId?.name ?? <span className="font-mono">{t(`#${workflowId}`)}</span>}
+            </Typography.Link>
+          </div>
+        );
       },
     },
     {
@@ -161,48 +122,40 @@ const CertificateList = () => {
       },
     },
     {
-      key: "updatedAt",
-      title: t("certificate.props.updated_at"),
-      ellipsis: true,
-      render: (_, record) => {
-        return dayjs(record.updated!).format("YYYY-MM-DD HH:mm:ss");
-      },
-    },
-    {
       key: "$action",
       align: "end",
       fixed: "right",
       width: 120,
       render: (_, record) => (
-        <Space.Compact>
-          <CertificateDetailDrawer
-            data={record}
-            trigger={
-              <Tooltip title={t("certificate.action.view")}>
-                <Button color="primary" icon={<IconBrowserShare size="1.25em" />} variant="text" />
-              </Tooltip>
-            }
-          />
-
-          <Tooltip title={t("certificate.action.delete")}>
-            <Button color="danger" icon={<IconTrash size="1.25em" />} variant="text" onClick={() => handleDeleteClick(record)} />
+        <div className="flex items-center justify-end">
+          <Tooltip title={t("certificate.action.view")}>
+            <Button
+              color="primary"
+              icon={<IconBrowserShare size="1.25em" />}
+              variant="text"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDetailClick(record);
+              }}
+            />
           </Tooltip>
-        </Space.Compact>
+          <Tooltip title={t("certificate.action.delete")}>
+            <Button
+              color="danger"
+              icon={<IconTrash size="1.25em" />}
+              variant="text"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDeleteClick(record);
+              }}
+            />
+          </Tooltip>
+        </div>
       ),
     },
   ];
   const [tableData, setTableData] = useState<CertificateModel[]>([]);
   const [tableTotal, setTableTotal] = useState<number>(0);
-
-  const [filters, setFilters] = useState<Record<string, unknown>>(() => {
-    return {
-      keyword: searchParams.get("keyword"),
-      state: searchParams.get("state"),
-    };
-  });
-
-  const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
-  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 15);
 
   const {
     loading,
@@ -210,15 +163,21 @@ const CertificateList = () => {
     run: refreshData,
   } = useRequest(
     () => {
+      let sort: string | undefined;
+      if (sorter.columnKey === "expiry") {
+        sort = sorter.order === "ascend" ? "expireAt" : sorter.order === "descend" ? "-expireAt" : "";
+      }
+
       return listCertificates({
         keyword: filters["keyword"] as string,
         state: filters["state"] as listCertificatesRequest["state"],
+        sort: sort,
         page: page,
         perPage: pageSize,
       });
     },
     {
-      refreshDeps: [filters, page, pageSize],
+      refreshDeps: [filters, sorter, page, pageSize],
       onSuccess: (res) => {
         setTableData(res.items);
         setTableTotal(res.totalItems);
@@ -247,7 +206,15 @@ const CertificateList = () => {
     refreshData();
   };
 
-  const handleDeleteClick = (certificate: CertificateModel) => {
+  const [detailRecord, setDetailRecord] = useState<CertificateModel>();
+  const [detailOpen, setDetailOpen] = useState<boolean>(false);
+
+  const handleRecordDetailClick = (record: CertificateModel) => {
+    setDetailRecord(record);
+    setDetailOpen(true);
+  };
+
+  const handleRecordDeleteClick = (certificate: CertificateModel) => {
     modal.confirm({
       title: <span className="text-error">{t("certificate.action.delete")}</span>,
       content: <span dangerouslySetInnerHTML={{ __html: t("certificate.action.delete.confirm", { name: certificate.subjectAltNames }) }} />,
@@ -281,6 +248,22 @@ const CertificateList = () => {
 
         <div className="flex items-center justify-between gap-x-2 gap-y-3 not-md:flex-col-reverse not-md:items-start not-md:justify-normal">
           <div className="flex w-full flex-1 items-center gap-x-2 md:max-w-200">
+            <div>
+              <Segmented
+                className="shadow-xs"
+                options={[
+                  { label: <span className="text-sm">{t("certificate.props.validity.filters.all")}</span>, value: "" },
+                  { label: <span className="text-sm">{t("certificate.props.validity.filters.expire_soon")}</span>, value: "expireSoon" },
+                  { label: <span className="text-sm">{t("certificate.props.validity.filters.expired")}</span>, value: "expired" },
+                ]}
+                size="large"
+                value={(filters["state"] as string) || ""}
+                onChange={(value) => {
+                  setPage(1);
+                  setFilters((prev) => ({ ...prev, state: value }));
+                }}
+              />
+            </div>
             <div className="flex-1">
               <Input.Search
                 className="text-sm placeholder:text-sm"
@@ -304,7 +287,26 @@ const CertificateList = () => {
           dataSource={tableData}
           loading={loading}
           locale={{
-            emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={getErrMsg(loadedError ?? t("certificate.nodata"))} />,
+            emptyText: loading ? (
+              <Skeleton />
+            ) : (
+              <Empty
+                title={t("certificate.nodata.title")}
+                description={getErrMsg(loadedError ?? t("certificate.nodata.description"))}
+                icon={<IconShieldCheckeredFilled size={24} />}
+                extra={
+                  loadedError ? (
+                    <Button icon={<IconReload size="1.25em" />} type="primary" onClick={handleReloadClick}>
+                      {t("common.button.reload")}
+                    </Button>
+                  ) : (
+                    <Button icon={<IconCirclePlus size="1.25em" />} type="primary" onClick={() => navigate("/workflows/new")}>
+                      {t("workflow.action.create")}
+                    </Button>
+                  )
+                }
+              />
+            ),
           }}
           pagination={{
             current: page,
@@ -320,9 +322,20 @@ const CertificateList = () => {
               setPageSize(pageSize);
             },
           }}
+          rowClassName="cursor-pointer"
           rowKey={(record) => record.id}
           scroll={{ x: "max(100%, 960px)" }}
+          onChange={(_, __, sorter) => {
+            setSorter(Array.isArray(sorter) ? sorter[0] : sorter);
+          }}
+          onRow={(record) => ({
+            onClick: () => {
+              handleRecordDetailClick(record);
+            },
+          })}
         />
+
+        <CertificateDetailDrawer data={detailRecord} open={detailOpen} onOpenChange={setDetailOpen} />
       </div>
     </div>
   );

@@ -5,7 +5,7 @@
   "dashboard.statistics.expire_soon_certificates": "Expire soon certificates",
   "dashboard.statistics.expired_certificates": "Expired certificates",
   "dashboard.statistics.all_workflows": "All workflows",
-  "dashboard.statistics.enabled_workflows": "Enabled workflows",
+  "dashboard.statistics.enabled_workflows": "Active workflows",
   "dashboard.statistics.unit": "",
 
   "dashboard.latest_workflow_runs": "Latest workflow runs",

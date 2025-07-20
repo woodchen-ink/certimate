@@ -70,12 +70,15 @@ const RootApp = () => {
           Layout: {
             ...antdTheme?.components?.Layout,
             bodyBg: "transparent",
-            siderBg: "transparent",
             headerBg: "var(--color-container)",
+            siderBg: "transparent",
           },
           Table: {
             ...antdTheme?.components?.Table,
+            bodySortBg: "var(--color-container)",
             headerBg: "var(--color-container)",
+            headerSortActiveBg: "var(--color-container)",
+            headerSortHoverBg: "var(--color-container-hover)",
             rowHoverBg: "var(--color-container-hover)",
           },
         },

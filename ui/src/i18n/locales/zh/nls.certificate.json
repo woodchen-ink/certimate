@@ -2,7 +2,9 @@
   "certificate.page.title": "证书管理",
   "certificate.page.subtitle": "SSL 证书含有网站的公钥和网站标识以及其他相关信息。它们来自于工作流的执行输出。",
 
-  "certificate.nodata": "暂无证书，新建一个工作流去生成证书吧～ 😀",
+  "certificate.nodata.title": "暂无证书",
+  "certificate.nodata.description": "新建一个工作流去生成证书吧～",
+  "certificate.nodata.button": "新建工作流",
 
   "certificate.search.placeholder": "按证书名称或序列号搜索……",
 
@@ -14,11 +16,12 @@
   "certificate.props.subject_alt_names": "名称",
   "certificate.props.validity": "有效期限",
   "certificate.props.validity.left_days": "{{left}} / {{total}} 天",
-  "certificate.props.validity.less_than_day": "即将过期（剩余 {{hours}} 小时）",
-  "certificate.props.validity.expired": "已到期",
-  "certificate.props.validity.expiration": "{{date}} 到期",
-  "certificate.props.validity.filter.expire_soon": "即将到期",
-  "certificate.props.validity.filter.expired": "已到期",
+  "certificate.props.validity.less_than_a_day": "不足 1 天",
+  "certificate.props.validity.expired": "已过期",
+  "certificate.props.validity.expiration": "{{date}} 过期",
+  "certificate.props.validity.filters.all": "全部",
+  "certificate.props.validity.filters.expire_soon": "即将过期",
+  "certificate.props.validity.filters.expired": "已过期",
   "certificate.props.brand": "证书品牌",
   "certificate.props.source": "来源",
   "certificate.props.source.workflow": "工作流",

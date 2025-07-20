@@ -6,6 +6,7 @@ import { COLLECTION_NAME_CERTIFICATE, getPocketBase } from "./_pocketbase";
 export type ListRequest = {
   keyword?: string;
   state?: "expireSoon" | "expired";
+  sort?: string;
   page?: number;
   perPage?: number;
 };
@@ -23,12 +24,14 @@ export const list = async (request: ListRequest) => {
     filters.push(pb.filter("expireAt<={:expiredAt}", { expiredAt: new Date() }));
   }
 
+  const sort = request.sort || "-created";
+
   const page = request.page || 1;
   const perPage = request.perPage || 10;
   return pb.collection(COLLECTION_NAME_CERTIFICATE).getList<CertificateModel>(page, perPage, {
     expand: "workflowId",
     filter: filters.join(" && "),
-    sort: "-created",
+    sort: sort,
     requestKey: null,
   });
 };

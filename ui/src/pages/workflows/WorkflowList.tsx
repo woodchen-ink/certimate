@@ -9,7 +9,6 @@ import { ClientResponseError } from "pocketbase";
 
 import WorkflowStatusIcon from "@/components/workflow/WorkflowStatusIcon";
 import { WORKFLOW_TRIGGERS, type WorkflowModel, cloneNode, initWorkflow, isAllNodesValidated } from "@/domain/workflow";
-import { WORKFLOW_RUN_STATUSES } from "@/domain/workflowRun";
 import { list as listWorkflows, remove as removeWorkflow, save as saveWorkflow } from "@/repository/workflow";
 import { getErrMsg } from "@/utils/error";
 
@@ -21,6 +20,15 @@ const WorkflowList = () => {
 
   const { message, modal, notification } = App.useApp();
   const { token: themeToken } = theme.useToken();
+
+  const [filters, setFilters] = useState<Record<string, unknown>>(() => {
+    return {
+      keyword: searchParams.get("keyword"),
+      state: searchParams.get("state"),
+    };
+  });
+  const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
+  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 15);
 
   const tableColumns: TableProps<WorkflowModel>["columns"] = [
     {
@@ -69,8 +77,8 @@ const WorkflowList = () => {
       defaultFilteredValue: searchParams.has("state") ? [searchParams.get("state") as string] : undefined,
       filterDropdown: ({ setSelectedKeys, confirm, clearFilters }) => {
         const items: Required<MenuProps>["items"] = [
-          ["enabled", "workflow.props.state.filter.enabled"],
-          ["disabled", "workflow.props.state.filter.disabled"],
+          ["enabled", "workflow.props.state.filters.enabled"],
+          ["disabled", "workflow.props.state.filters.disabled"],
         ].map(([key, label]) => {
           return {
             key,
@@ -120,7 +128,7 @@ const WorkflowList = () => {
           <Switch
             checked={enabled}
             onChange={() => {
-              handleEnabledChange(record);
+              handleRecordActiveChange(record);
             }}
           />
         );
@@ -178,7 +186,7 @@ const WorkflowList = () => {
               icon={<IconCopy size="1.25em" />}
               variant="text"
               onClick={() => {
-                handleDuplicateClick(record);
+                handleRecordDuplicateClick(record);
               }}
             />
           </Tooltip>
@@ -190,7 +198,7 @@ const WorkflowList = () => {
               icon={<IconTrash size="1.25em" />}
               variant="text"
               onClick={() => {
-                handleDeleteClick(record);
+                handleRecordDeleteClick(record);
               }}
             />
           </Tooltip>
@@ -200,16 +208,6 @@ const WorkflowList = () => {
   ];
   const [tableData, setTableData] = useState<WorkflowModel[]>([]);
   const [tableTotal, setTableTotal] = useState<number>(0);
-
-  const [filters, setFilters] = useState<Record<string, unknown>>(() => {
-    return {
-      keyword: searchParams.get("keyword"),
-      state: searchParams.get("state"),
-    };
-  });
-
-  const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
-  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 15);
 
   const {
     loading,
@@ -258,7 +256,7 @@ const WorkflowList = () => {
     refreshData();
   };
 
-  const handleEnabledChange = async (workflow: WorkflowModel) => {
+  const handleRecordActiveChange = async (workflow: WorkflowModel) => {
     try {
       if (!workflow.enabled && (!workflow.content || !isAllNodesValidated(workflow.content))) {
         message.warning(t("workflow.action.enable.failed.uncompleted"));
@@ -285,7 +283,7 @@ const WorkflowList = () => {
     }
   };
 
-  const handleDuplicateClick = (workflow: WorkflowModel) => {
+  const handleRecordDuplicateClick = (workflow: WorkflowModel) => {
     modal.confirm({
       title: t("workflow.action.duplicate"),
       content: t("workflow.action.duplicate.confirm"),
@@ -315,7 +313,7 @@ const WorkflowList = () => {
     });
   };
 
-  const handleDeleteClick = (workflow: WorkflowModel) => {
+  const handleRecordDeleteClick = (workflow: WorkflowModel) => {
     modal.confirm({
       title: <span className="text-error">{t("workflow.action.delete")}</span>,
       content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.confirm", { name: workflow.name }) }} />,

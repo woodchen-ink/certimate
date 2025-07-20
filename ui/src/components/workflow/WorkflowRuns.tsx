@@ -31,6 +31,9 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
   const [modalApi, ModelContextHolder] = Modal.useModal();
   const [notificationApi, NotificationContextHolder] = notification.useNotification();
 
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+
   const tableColumns: TableProps<WorkflowRunModel>["columns"] = [
     {
       key: "$index",
@@ -145,9 +148,6 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
   ];
   const [tableData, setTableData] = useState<WorkflowRunModel[]>([]);
   const [tableTotal, setTableTotal] = useState<number>(0);
-
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
 
   const {
     loading,

@@ -2,7 +2,7 @@ import { memo, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { IconCopy, IconDotsVertical, IconLabel, IconTrashX } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
-import { Button, Card, Drawer, Dropdown, Input, type InputRef, type MenuProps, Modal, Popover, Space } from "antd";
+import { App, Button, Card, Drawer, Dropdown, Input, type InputRef, type MenuProps, Popover, Space } from "antd";
 import { produce } from "immer";
 import { isEqual } from "radash";
 
@@ -95,11 +95,11 @@ const isNodeUnremovable = (node: WorkflowNode) => {
 const SharedNodeMenu = ({ menus, trigger, node, disabled, branchId, branchIndex, afterUpdate, afterDelete }: SharedNodeMenuProps) => {
   const { t } = useTranslation();
 
+  const { modal } = App.useApp();
+
   const { duplicateNode, updateNode, removeNode, duplicateBranch, removeBranch } = useWorkflowStore(
     useZustandShallowSelector(["duplicateNode", "updateNode", "removeNode", "duplicateBranch", "removeBranch"])
   );
-
-  const [modalApi, ModelContextHolder] = Modal.useModal();
 
   const nameInputRef = useRef<InputRef>(null);
   const nameRef = useRef<string>();
@@ -152,7 +152,7 @@ const SharedNodeMenu = ({ menus, trigger, node, disabled, branchId, branchIndex,
         onClick: () => {
           nameRef.current = node.name;
 
-          const dialog = modalApi.confirm({
+          const dialog = modal.confirm({
             title: isNodeBranchLike(node) ? t("workflow_node.action.rename_branch") : t("workflow_node.action.rename_node"),
             content: (
               <div className="pt-4 pb-2">
@@ -221,18 +221,14 @@ const SharedNodeMenu = ({ menus, trigger, node, disabled, branchId, branchIndex,
   }, [disabled, node]);
 
   return (
-    <>
-      {ModelContextHolder}
-
-      <Dropdown
-        menu={{
-          items: menuItems,
-        }}
-        trigger={["click"]}
-      >
-        {trigger}
-      </Dropdown>
-    </>
+    <Dropdown
+      menu={{
+        items: menuItems,
+      }}
+      trigger={["click"]}
+    >
+      {trigger}
+    </Dropdown>
   );
 };
 // #endregion
@@ -305,7 +301,7 @@ const SharedNodeConfigDrawer = ({
 }: SharedNodeEditDrawerProps) => {
   const { t } = useTranslation();
 
-  const [modalApi, ModelContextHolder] = Modal.useModal();
+  const { modal } = App.useApp();
 
   const [open, setOpen] = useControllableValue<boolean>(props, {
     valuePropName: "open",
@@ -333,7 +329,7 @@ const SharedNodeConfigDrawer = ({
 
     const { promise, resolve, reject } = Promise.withResolvers();
     if (changed) {
-      modalApi.confirm({
+      modal.confirm({
         title: t("common.text.operation_confirm"),
         content: t("workflow_node.unsaved_changes.confirm"),
         onOk: () => resolve(void 0),
@@ -347,44 +343,40 @@ const SharedNodeConfigDrawer = ({
   };
 
   return (
-    <>
-      {ModelContextHolder}
-
-      <Drawer
-        afterOpenChange={setOpen}
-        closable={!pending}
-        destroyOnHidden
-        extra={
-          <SharedNodeMenu
-            menus={["rename", "remove"]}
-            node={node}
-            disabled={disabled}
-            trigger={<Button icon={<IconDotsVertical size="1.25em" />} type="text" />}
-            afterDelete={() => {
-              setOpen(false);
-            }}
-          />
-        }
-        footer={
-          !!footer && (
-            <Space className="w-full justify-end">
-              <Button onClick={handleCancelClick}>{t("common.button.cancel")}</Button>
-              <Button disabled={disabled} loading={pending} type="primary" onClick={handleConfirmClick}>
-                {t("common.button.save")}
-              </Button>
-            </Space>
-          )
-        }
-        loading={loading}
-        maskClosable={!pending}
-        open={open}
-        title={<div className="max-w-[480px] truncate">{node.name}</div>}
-        width={720}
-        onClose={handleClose}
-      >
-        {children}
-      </Drawer>
-    </>
+    <Drawer
+      afterOpenChange={setOpen}
+      closable={!pending}
+      destroyOnHidden
+      extra={
+        <SharedNodeMenu
+          menus={["rename", "remove"]}
+          node={node}
+          disabled={disabled}
+          trigger={<Button icon={<IconDotsVertical size="1.25em" />} type="text" />}
+          afterDelete={() => {
+            setOpen(false);
+          }}
+        />
+      }
+      footer={
+        !!footer && (
+          <Space className="w-full justify-end">
+            <Button onClick={handleCancelClick}>{t("common.button.cancel")}</Button>
+            <Button disabled={disabled} loading={pending} type="primary" onClick={handleConfirmClick}>
+              {t("common.button.save")}
+            </Button>
+          </Space>
+        )
+      }
+      loading={loading}
+      maskClosable={!pending}
+      open={open}
+      title={<div className="max-w-[480px] truncate">{node.name}</div>}
+      width={720}
+      onClose={handleClose}
+    >
+      {children}
+    </Drawer>
   );
 };
 // #endregion

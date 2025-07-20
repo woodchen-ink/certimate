@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControllableValue } from "ahooks";
-import { Modal, notification } from "antd";
+import { App, Modal } from "antd";
 
 import { type AccessModel } from "@/domain/access";
 import { useTriggerElement, useZustandShallowSelector } from "@/hooks";
@@ -24,7 +24,7 @@ export type AccessEditModalProps = {
 const AccessEditModal = ({ data, loading, trigger, scene, usage, afterSubmit, ...props }: AccessEditModalProps) => {
   const { t } = useTranslation();
 
-  const [notificationApi, NotificationContextHolder] = notification.useNotification();
+  const { notification } = App.useApp();
 
   const { createAccess, updateAccess } = useAccessesStore(useZustandShallowSelector(["createAccess", "updateAccess"]));
 
@@ -70,7 +70,7 @@ const AccessEditModal = ({ data, loading, trigger, scene, usage, afterSubmit, ..
       afterSubmit?.(values);
       setOpen(false);
     } catch (err) {
-      notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
 
       throw err;
     } finally {
@@ -86,8 +86,6 @@ const AccessEditModal = ({ data, loading, trigger, scene, usage, afterSubmit, ..
 
   return (
     <>
-      {NotificationContextHolder}
-
       {triggerEl}
 
       <Modal
@@ -112,7 +110,7 @@ const AccessEditModal = ({ data, loading, trigger, scene, usage, afterSubmit, ..
         onOk={handleOkClick}
         onCancel={handleCancelClick}
       >
-        <div className="pb-2 pt-4">
+        <div className="pt-4 pb-2">
           <AccessForm ref={formRef} initialValues={data} scene={scene === "create" ? "create" : "edit"} usage={usage} />
         </div>
       </Modal>

@@ -428,7 +428,9 @@ const SettingsSSLProvider = () => {
       <Show when={!loading} fallback={<Skeleton active />}>
         <Form form={formInst} disabled={formPending} layout="vertical" initialValues={{ provider: providerType }}>
           <div className="mb-2">
-            <Typography.Text type="secondary">{t("settings.sslprovider.ca.tips")}</Typography.Text>
+            <Typography.Text type="secondary">
+              <span dangerouslySetInnerHTML={{ __html: t("settings.sslprovider.ca.tips") }}></span>
+            </Typography.Text>
           </div>
 
           <Form.Item name="provider" label={t("settings.sslprovider.form.provider.label")}>

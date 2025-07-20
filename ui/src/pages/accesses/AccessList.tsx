@@ -52,7 +52,7 @@ const AccessList = () => {
       render: (_, record) => {
         return (
           <div className="flex max-w-full items-center gap-4 truncate overflow-hidden">
-            <Avatar shape="square" src={accessProvidersMap.get(record.provider)?.icon} size="large" />
+            <Avatar shape="square" src={accessProvidersMap.get(record.provider)?.icon} size={28} />
             <div className="flex max-w-full flex-col gap-1">
               <Typography.Text ellipsis>{record.name}</Typography.Text>
               <Typography.Text ellipsis type="secondary">

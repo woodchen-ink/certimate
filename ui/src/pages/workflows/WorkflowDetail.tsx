@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { PageHeader } from "@ant-design/pro-components";
 import { IconArrowBackUp, IconChevronDown, IconDots, IconHistory, IconPlayerPlay, IconRobot, IconTrash } from "@tabler/icons-react";
-import { Alert, Button, Card, Dropdown, Form, Input, Modal, Space, Tabs, Typography, message, notification } from "antd";
+import { Alert, App, Button, Card, Dropdown, Flex, Form, Input, Space, Tabs } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { isEqual } from "radash";
 import { z } from "zod/v4";
@@ -25,9 +24,7 @@ const WorkflowDetail = () => {
 
   const { t } = useTranslation();
 
-  const [messageApi, MessageContextHolder] = message.useMessage();
-  const [modalApi, ModalContextHolder] = Modal.useModal();
-  const [notificationApi, NotificationContextHolder] = notification.useNotification();
+  const { message, modal, notification } = App.useApp();
 
   const { id: workflowId } = useParams();
   const { workflow, initialized, ...workflowState } = useWorkflowStore(
@@ -79,7 +76,7 @@ const WorkflowDetail = () => {
 
   const handleEnableChange = async () => {
     if (!workflow.enabled && (!workflow.content || !isAllNodesValidated(workflow.content))) {
-      messageApi.warning(t("workflow.action.enable.failed.uncompleted"));
+      message.warning(t("workflow.action.enable.failed.uncompleted"));
       return;
     }
 
@@ -87,12 +84,12 @@ const WorkflowDetail = () => {
       await workflowState.setEnabled(!workflow.enabled);
     } catch (err) {
       console.error(err);
-      notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
     }
   };
 
   const handleDeleteClick = () => {
-    modalApi.confirm({
+    modal.confirm({
       title: <span className="text-error">{t("workflow.action.delete")}</span>,
       content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.confirm", { name: workflow.name }) }} />,
       icon: (
@@ -110,24 +107,24 @@ const WorkflowDetail = () => {
           }
         } catch (err) {
           console.error(err);
-          notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
   };
 
   const handleDiscardClick = () => {
-    modalApi.confirm({
+    modal.confirm({
       title: t("workflow.detail.orchestration.action.discard"),
       content: t("workflow.detail.orchestration.action.discard.confirm"),
       onOk: async () => {
         try {
           await workflowState.discard();
 
-          messageApi.success(t("common.text.operation_succeeded"));
+          message.success(t("common.text.operation_succeeded"));
         } catch (err) {
           console.error(err);
-          notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
@@ -135,21 +132,21 @@ const WorkflowDetail = () => {
 
   const handleReleaseClick = () => {
     if (!isAllNodesValidated(workflow.draft!)) {
-      messageApi.warning(t("workflow.detail.orchestration.action.release.failed.uncompleted"));
+      message.warning(t("workflow.detail.orchestration.action.release.failed.uncompleted"));
       return;
     }
 
-    modalApi.confirm({
+    modal.confirm({
       title: t("workflow.detail.orchestration.action.release"),
       content: t("workflow.detail.orchestration.action.release.confirm"),
       onOk: async () => {
         try {
           await workflowState.release();
 
-          messageApi.success(t("common.text.operation_succeeded"));
+          message.success(t("common.text.operation_succeeded"));
         } catch (err) {
           console.error(err);
-          notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
@@ -158,7 +155,7 @@ const WorkflowDetail = () => {
   const handleRunClick = () => {
     const { promise, resolve, reject } = Promise.withResolvers();
     if (workflow.hasDraft) {
-      modalApi.confirm({
+      modal.confirm({
         title: t("workflow.detail.orchestration.action.run"),
         content: t("workflow.detail.orchestration.action.run.confirm"),
         onOk: () => resolve(void 0),
@@ -184,63 +181,62 @@ const WorkflowDetail = () => {
 
         await startWorkflowRun(workflowId!);
 
-        messageApi.info(t("workflow.detail.orchestration.action.run.prompt"));
+        message.info(t("workflow.detail.orchestration.action.run.prompt"));
       } catch (err) {
         setIsPendingOrRunning(false);
         unsubscribeFn?.();
 
         console.error(err);
-        messageApi.warning(t("common.text.operation_failed"));
+        message.warning(t("common.text.operation_failed"));
       }
     });
   };
 
   return (
     <div className="flex size-full flex-col">
-      {MessageContextHolder}
-      {ModalContextHolder}
-      {NotificationContextHolder}
+      <Card styles={{ body: { padding: 0 } }}>
+        <div className="px-6 py-4">
+          <div className="mx-auto max-w-320">
+            <div className="flex justify-between gap-2">
+              <div>
+                <h1>{workflow.name || "　"}</h1>
+                <p className="mb-0 text-base text-gray-500">{workflow.description || "　"}</p>
+              </div>
+              <Flex gap="small">
+                {initialized
+                  ? [
+                      <WorkflowBaseInfoModal key="edit" trigger={<Button>{t("common.button.edit")}</Button>} />,
 
-      <div>
-        <Card styles={{ body: { padding: "0.5rem", paddingBottom: 0 } }} style={{ borderRadius: 0 }}>
-          <PageHeader
-            style={{ paddingBottom: 0 }}
-            title={workflow.name}
-            extra={
-              initialized
-                ? [
-                    <WorkflowBaseInfoModal key="edit" trigger={<Button>{t("common.button.edit")}</Button>} />,
+                      <Button key="enable" onClick={handleEnableChange}>
+                        {workflow.enabled ? t("workflow.action.disable") : t("workflow.action.enable")}
+                      </Button>,
 
-                    <Button key="enable" onClick={handleEnableChange}>
-                      {workflow.enabled ? t("workflow.action.disable") : t("workflow.action.enable")}
-                    </Button>,
-
-                    <Dropdown
-                      key="more"
-                      menu={{
-                        items: [
-                          {
-                            key: "delete",
-                            label: t("workflow.action.delete"),
-                            danger: true,
-                            icon: <IconTrash size="1.25em" />,
-                            onClick: () => {
-                              handleDeleteClick();
+                      <Dropdown
+                        key="more"
+                        menu={{
+                          items: [
+                            {
+                              key: "delete",
+                              label: t("workflow.action.delete"),
+                              danger: true,
+                              icon: <IconTrash size="1.25em" />,
+                              onClick: () => {
+                                handleDeleteClick();
+                              },
                             },
-                          },
-                        ],
-                      }}
-                      trigger={["click"]}
-                    >
-                      <Button icon={<IconChevronDown size="1.25em" />} iconPosition="end">
-                        {t("common.button.more")}
-                      </Button>
-                    </Dropdown>,
-                  ]
-                : []
-            }
-          >
-            <Typography.Paragraph type="secondary">{workflow.description}</Typography.Paragraph>
+                          ],
+                        }}
+                        trigger={["click"]}
+                      >
+                        <Button icon={<IconChevronDown size="1.25em" />} iconPosition="end">
+                          {t("common.button.more")}
+                        </Button>
+                      </Dropdown>,
+                    ]
+                  : []}
+              </Flex>
+            </div>
+
             <Tabs
               activeKey={tabValue}
               defaultActiveKey="orchestration"
@@ -268,9 +264,9 @@ const WorkflowDetail = () => {
               tabBarStyle={{ border: "none" }}
               onChange={(key) => setTabValue(key as typeof tabValue)}
             />
-          </PageHeader>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </Card>
 
       <Show when={tabValue === "orchestration"}>
         <div className="min-h-[360px] flex-1 overflow-hidden p-4">
@@ -285,7 +281,7 @@ const WorkflowDetail = () => {
             }}
             loading={!initialized}
           >
-            <div className="absolute inset-x-6 top-4 z-2 flex items-center justify-between gap-4">
+            <div className="absolute inset-x-6 top-4 z-2 mx-auto flex max-w-320 items-center justify-between gap-4">
               <div className="flex-1 overflow-hidden">
                 <Show when={workflow.hasDraft!}>
                   <Alert banner message={<div className="truncate">{t("workflow.detail.orchestration.draft.alert")}</div>} type="warning" />
@@ -330,9 +326,9 @@ const WorkflowDetail = () => {
 
       <Show when={tabValue === "runs"}>
         <div className="p-4">
-          <Card loading={!initialized}>
+          <div className="mx-auto max-w-320">
             <WorkflowRuns workflowId={workflowId!} />
-          </Card>
+          </div>
         </div>
       </Show>
     </div>
@@ -342,7 +338,7 @@ const WorkflowDetail = () => {
 const WorkflowBaseInfoModal = ({ trigger }: { trigger?: React.ReactNode }) => {
   const { t } = useTranslation();
 
-  const [notificationApi, NotificationContextHolder] = notification.useNotification();
+  const { notification } = App.useApp();
 
   const { workflow, ...workflowState } = useWorkflowStore(useZustandShallowSelector(["workflow", "setBaseInfo"]));
 
@@ -368,7 +364,7 @@ const WorkflowBaseInfoModal = ({ trigger }: { trigger?: React.ReactNode }) => {
       try {
         await workflowState.setBaseInfo(values.name!, values.description!);
       } catch (err) {
-        notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       }
@@ -381,8 +377,6 @@ const WorkflowBaseInfoModal = ({ trigger }: { trigger?: React.ReactNode }) => {
 
   return (
     <>
-      {NotificationContextHolder}
-
       <ModalForm
         disabled={formPending}
         layout="vertical"

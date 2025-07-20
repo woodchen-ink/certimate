@@ -38,11 +38,9 @@ const Empty = (props: EmptyProps) => {
               </Show>
               <div className="my-2">
                 <Show when={!!title}>
-                  {isPrimitive(title) ? (
-                    <Typography.Title level={4}>{title}</Typography.Title>
-                  ) : (
-                    <h4 style={{ color: themeToken.colorTextHeading }}>{title}</h4>
-                  )}
+                  <div className="pb-2 text-xl" style={{ color: themeToken.colorTextLabel }}>
+                    {title}
+                  </div>
                 </Show>
                 <Show when={!!description}>
                   {isPrimitive(description) ? (

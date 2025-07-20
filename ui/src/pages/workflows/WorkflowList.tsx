@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconCopy, IconEdit, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
+import { IconCirclePlus, IconCopy, IconEdit, IconPlus, IconReload, IconSchema, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { App, Button, Divider, Empty, Input, Menu, type MenuProps, Radio, Space, Switch, Table, type TableProps, Tooltip, Typography, theme } from "antd";
+import { App, Button, Flex, Input, Segmented, Skeleton, Switch, Table, type TableProps, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
+import Empty from "@/components/Empty";
 import WorkflowStatusIcon from "@/components/workflow/WorkflowStatusIcon";
 import { WORKFLOW_TRIGGERS, type WorkflowModel, cloneNode, initWorkflow, isAllNodesValidated } from "@/domain/workflow";
 import { list as listWorkflows, remove as removeWorkflow, save as saveWorkflow } from "@/repository/workflow";
@@ -19,7 +20,6 @@ const WorkflowList = () => {
   const { t } = useTranslation();
 
   const { message, modal, notification } = App.useApp();
-  const { token: themeToken } = theme.useToken();
 
   const [filters, setFilters] = useState<Record<string, unknown>>(() => {
     return {
@@ -43,12 +43,12 @@ const WorkflowList = () => {
       title: t("workflow.props.name"),
       ellipsis: true,
       render: (_, record) => (
-        <Space className="max-w-full" direction="vertical" size={4}>
+        <div className="flex max-w-full flex-col gap-1">
           <Typography.Text ellipsis>{record.name}</Typography.Text>
-          <Typography.Text type="secondary" ellipsis>
-            {record.description}
+          <Typography.Text ellipsis type="secondary">
+            {record.description || "　"}
           </Typography.Text>
-        </Space>
+        </div>
       ),
     },
     {
@@ -63,10 +63,10 @@ const WorkflowList = () => {
           return <Typography.Text>{t("workflow.props.trigger.manual")}</Typography.Text>;
         } else if (trigger === WORKFLOW_TRIGGERS.AUTO) {
           return (
-            <Space className="max-w-full" direction="vertical" size={4}>
+            <div className="flex max-w-full flex-col gap-1">
               <Typography.Text>{t("workflow.props.trigger.auto")}</Typography.Text>
               <Typography.Text type="secondary">{record.triggerCron ?? ""}</Typography.Text>
-            </Space>
+            </div>
           );
         }
       },
@@ -75,62 +75,21 @@ const WorkflowList = () => {
       key: "state",
       title: t("workflow.props.state"),
       defaultFilteredValue: searchParams.has("state") ? [searchParams.get("state") as string] : undefined,
-      filterDropdown: ({ setSelectedKeys, confirm, clearFilters }) => {
-        const items: Required<MenuProps>["items"] = [
-          ["enabled", "workflow.props.state.filter.enabled"],
-          ["disabled", "workflow.props.state.filter.disabled"],
-        ].map(([key, label]) => {
-          return {
-            key,
-            label: <Radio checked={filters["state"] === key}>{t(label)}</Radio>,
-            onClick: () => {
-              if (filters["state"] !== key) {
-                setPage(1);
-                setFilters((prev) => ({ ...prev, state: key }));
-                setSelectedKeys([key]);
-              }
-
-              confirm({ closeDropdown: true });
-            },
-          };
-        });
-
-        const handleResetClick = () => {
-          setPage(1);
-          setFilters((prev) => ({ ...prev, state: undefined }));
-          setSelectedKeys([]);
-          clearFilters?.();
-          confirm();
-        };
-
-        const handleConfirmClick = () => {
-          confirm();
-        };
-
-        return (
-          <div style={{ padding: 0 }}>
-            <Menu items={items} selectable={false} />
-            <Divider className="my-0" />
-            <Space className="w-full justify-end" style={{ padding: themeToken.paddingSM }}>
-              <Button size="small" disabled={!filters.state} onClick={handleResetClick}>
-                {t("common.button.reset")}
-              </Button>
-              <Button type="primary" size="small" onClick={handleConfirmClick}>
-                {t("common.button.ok")}
-              </Button>
-            </Space>
-          </div>
-        );
-      },
       render: (_, record) => {
         const enabled = record.enabled;
         return (
-          <Switch
-            checked={enabled}
-            onChange={() => {
-              handleRecordActiveChange(record);
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
             }}
-          />
+          >
+            <Switch
+              checked={enabled}
+              onChange={() => {
+                handleRecordActiveChange(record);
+              }}
+            />
+          </div>
         );
       },
     },
@@ -139,10 +98,10 @@ const WorkflowList = () => {
       title: t("workflow.props.last_run_at"),
       render: (_, record) => {
         return (
-          <Space>
+          <Flex gap="small">
             <WorkflowStatusIcon color={true} status={record.lastRunStatus!} />
             <Typography.Text>{record.lastRunTime ? dayjs(record.lastRunTime!).format("YYYY-MM-DD HH:mm:ss") : ""}</Typography.Text>
-          </Space>
+          </Flex>
         );
       },
     },
@@ -152,14 +111,6 @@ const WorkflowList = () => {
       ellipsis: true,
       render: (_, record) => {
         return dayjs(record.created!).format("YYYY-MM-DD HH:mm:ss");
-      },
-    },
-    {
-      key: "updatedAt",
-      title: t("workflow.props.updated_at"),
-      ellipsis: true,
-      render: (_, record) => {
-        return dayjs(record.updated!).format("YYYY-MM-DD HH:mm:ss");
       },
     },
     {
@@ -174,8 +125,9 @@ const WorkflowList = () => {
               color="primary"
               icon={<IconEdit size="1.25em" />}
               variant="text"
-              onClick={() => {
-                navigate(`/workflows/${record.id}`);
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDetailClick(record);
               }}
             />
           </Tooltip>
@@ -186,6 +138,7 @@ const WorkflowList = () => {
               icon={<IconCopy size="1.25em" />}
               variant="text"
               onClick={() => {
+                e.stopPropagation();
                 handleRecordDuplicateClick(record);
               }}
             />
@@ -197,7 +150,8 @@ const WorkflowList = () => {
               danger
               icon={<IconTrash size="1.25em" />}
               variant="text"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 handleRecordDeleteClick(record);
               }}
             />
@@ -254,6 +208,10 @@ const WorkflowList = () => {
     if (loading) return;
 
     refreshData();
+  };
+
+  const handleRecordDetailClick = (workflow: WorkflowModel) => {
+    navigate(`/workflows/${workflow.id}`);
   };
 
   const handleRecordActiveChange = async (workflow: WorkflowModel) => {
@@ -347,6 +305,22 @@ const WorkflowList = () => {
 
         <div className="flex items-center justify-between gap-x-2 gap-y-3 not-md:flex-col-reverse not-md:items-start not-md:justify-normal">
           <div className="flex w-full flex-1 items-center gap-x-2 md:max-w-200">
+            <div>
+              <Segmented
+                className="shadow-xs"
+                options={[
+                  { label: <span className="text-sm">{t("workflow.props.state.filter.all")}</span>, value: "" },
+                  { label: <span className="text-sm">{t("workflow.props.state.filter.enabled")}</span>, value: "enabled" },
+                  { label: <span className="text-sm">{t("workflow.props.state.filter.disabled")}</span>, value: "disabled" },
+                ]}
+                size="large"
+                value={(filters["state"] as string) || ""}
+                onChange={(value) => {
+                  setPage(1);
+                  setFilters((prev) => ({ ...prev, state: value }));
+                }}
+              />
+            </div>
             <div className="flex-1">
               <Input.Search
                 className="text-sm placeholder:text-sm"
@@ -374,7 +348,26 @@ const WorkflowList = () => {
           dataSource={tableData}
           loading={loading}
           locale={{
-            emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={getErrMsg(loadedError ?? t("workflow.nodata"))} />,
+            emptyText: loading ? (
+              <Skeleton />
+            ) : (
+              <Empty
+                title={t("workflow.nodata.title")}
+                description={getErrMsg(loadedError ?? t("workflow.nodata.description"))}
+                icon={<IconSchema size={24} />}
+                extra={
+                  loadedError ? (
+                    <Button icon={<IconReload size="1.25em" />} type="primary" onClick={handleReloadClick}>
+                      {t("common.button.reload")}
+                    </Button>
+                  ) : (
+                    <Button icon={<IconCirclePlus size="1.25em" />} type="primary" onClick={handleCreateClick}>
+                      {t("workflow.nodata.button")}
+                    </Button>
+                  )
+                }
+              />
+            ),
           }}
           pagination={{
             current: page,
@@ -390,8 +383,14 @@ const WorkflowList = () => {
               setPageSize(pageSize);
             },
           }}
+          rowClassName="cursor-pointer"
           rowKey={(record) => record.id}
           scroll={{ x: "max(100%, 960px)" }}
+          onRow={(record) => ({
+            onClick: () => {
+              handleRecordDetailClick(record);
+            },
+          })}
         />
       </div>
     </div>

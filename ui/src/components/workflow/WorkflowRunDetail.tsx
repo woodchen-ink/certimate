@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconBrowserShare, IconCheck, IconChevronRight, IconDownload, IconSettings2 } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { Button, Collapse, Divider, Dropdown, Empty, Flex, Skeleton, Spin, Table, type TableProps, Tooltip, Typography, notification, theme } from "antd";
+import { App, Button, Collapse, Divider, Dropdown, Empty, Flex, Skeleton, Spin, Table, type TableProps, Tooltip, Typography, theme } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
@@ -276,7 +276,7 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
 const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
   const { t } = useTranslation();
 
-  const [notificationApi, NotificationContextHolder] = notification.useNotification();
+  const { notification } = App.useApp();
 
   const tableColumns: TableProps<CertificateModel>["columns"] = [
     {
@@ -337,7 +337,7 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
         }
 
         console.error(err);
-        notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       },
@@ -346,8 +346,6 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
 
   return (
     <>
-      {NotificationContextHolder}
-
       <Typography.Title level={5}>{t("workflow_run.artifacts")}</Typography.Title>
       <Table<CertificateModel>
         columns={tableColumns}

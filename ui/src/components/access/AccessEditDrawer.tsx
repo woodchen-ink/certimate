@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControllableValue } from "ahooks";
-import { Button, Drawer, Space, notification } from "antd";
+import { App, Button, Drawer, Space } from "antd";
 
 import { type AccessModel } from "@/domain/access";
 import { useTriggerElement, useZustandShallowSelector } from "@/hooks";
@@ -24,7 +24,7 @@ export type AccessEditDrawerProps = {
 const AccessEditDrawer = ({ data, loading, trigger, scene, usage, afterSubmit, ...props }: AccessEditDrawerProps) => {
   const { t } = useTranslation();
 
-  const [notificationApi, NotificationContextHolder] = notification.useNotification();
+  const { notification } = App.useApp();
 
   const { createAccess, updateAccess } = useAccessesStore(useZustandShallowSelector(["createAccess", "updateAccess"]));
 
@@ -70,7 +70,7 @@ const AccessEditDrawer = ({ data, loading, trigger, scene, usage, afterSubmit, .
       afterSubmit?.(values);
       setOpen(false);
     } catch (err) {
-      notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
 
       throw err;
     } finally {
@@ -86,8 +86,6 @@ const AccessEditDrawer = ({ data, loading, trigger, scene, usage, afterSubmit, .
 
   return (
     <>
-      {NotificationContextHolder}
-
       {triggerEl}
 
       <Drawer

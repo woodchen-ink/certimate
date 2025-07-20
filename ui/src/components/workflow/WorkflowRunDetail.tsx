@@ -1,31 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  CheckCircleOutlined as CheckCircleOutlinedIcon,
-  ClockCircleOutlined as ClockCircleOutlinedIcon,
-  CloseCircleOutlined as CloseCircleOutlinedIcon,
-  StopOutlined as StopOutlinedIcon,
-  SyncOutlined as SyncOutlinedIcon,
-} from "@ant-design/icons";
 import { IconBrowserShare, IconCheck, IconChevronRight, IconDownload, IconSettings2 } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import {
-  Button,
-  Collapse,
-  Divider,
-  Dropdown,
-  Empty,
-  Flex,
-  Skeleton,
-  Space,
-  Spin,
-  Table,
-  type TableProps,
-  Tooltip,
-  Typography,
-  notification,
-  theme,
-} from "antd";
+import { Button, Collapse, Divider, Dropdown, Empty, Flex, Skeleton, Spin, Table, type TableProps, Tooltip, Typography, notification, theme } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
@@ -39,6 +16,8 @@ import { listByWorkflowRunId as listCertificatesByWorkflowRunId } from "@/reposi
 import { listByWorkflowRunId as listLogsByWorkflowRunId } from "@/repository/workflowLog";
 import { mergeCls } from "@/utils/css";
 import { getErrMsg } from "@/utils/error";
+
+import WorkflowStatusIcon from "./WorkflowStatusIcon";
 
 export type WorkflowRunDetailProps = {
   className?: string;
@@ -114,35 +93,35 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
       case WORKFLOW_RUN_STATUSES.PENDING:
         return (
           <Flex gap="small">
-            <ClockCircleOutlinedIcon />
+            <WorkflowStatusIcon status={runStatus} />
             {t("workflow_run.props.status.pending")}
           </Flex>
         );
       case WORKFLOW_RUN_STATUSES.RUNNING:
         return (
           <Flex gap="small" style={{ color: themeToken.colorInfo }}>
-            <SyncOutlinedIcon spin />
+            <WorkflowStatusIcon status={runStatus} />
             {t("workflow_run.props.status.running")}
           </Flex>
         );
       case WORKFLOW_RUN_STATUSES.SUCCEEDED:
         return (
           <Flex gap="small" style={{ color: themeToken.colorSuccess }}>
-            <CheckCircleOutlinedIcon />
+            <WorkflowStatusIcon status={runStatus} />
             {t("workflow_run.props.status.succeeded")}
           </Flex>
         );
       case WORKFLOW_RUN_STATUSES.FAILED:
         return (
           <Flex gap="small" style={{ color: themeToken.colorError }}>
-            <CloseCircleOutlinedIcon />
+            <WorkflowStatusIcon status={runStatus} />
             {t("workflow_run.props.status.failed")}
           </Flex>
         );
       case WORKFLOW_RUN_STATUSES.CANCELED:
         return (
           <Flex gap="small" style={{ color: themeToken.colorWarning }}>
-            <StopOutlinedIcon />
+            <WorkflowStatusIcon status={runStatus} />
             {t("workflow_run.props.status.canceled")}
           </Flex>
         );
@@ -329,7 +308,7 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
       align: "end",
       width: 120,
       render: (_, record) => (
-        <Space.Compact>
+        <div className="flex items-center justify-end">
           <CertificateDetailDrawer
             data={record}
             trigger={
@@ -338,7 +317,7 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
               </Tooltip>
             }
           />
-        </Space.Compact>
+        </div>
       ),
     },
   ];

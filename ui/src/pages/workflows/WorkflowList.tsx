@@ -1,19 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  CheckCircleOutlined as CheckCircleOutlinedIcon,
-  ClockCircleOutlined as ClockCircleOutlinedIcon,
-  CloseCircleOutlined as CloseCircleOutlinedIcon,
-  StopOutlined as StopOutlinedIcon,
-  SyncOutlined as SyncOutlinedIcon,
-} from "@ant-design/icons";
 import { IconCopy, IconEdit, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { App, Button, Divider, Empty, Input, Menu, type MenuProps, Radio, Space, Switch, Table, type TableProps, Tooltip, Typography, theme } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
+import WorkflowStatusIcon from "@/components/workflow/WorkflowStatusIcon";
 import { WORKFLOW_TRIGGERS, type WorkflowModel, cloneNode, initWorkflow, isAllNodesValidated } from "@/domain/workflow";
 import { WORKFLOW_RUN_STATUSES } from "@/domain/workflowRun";
 import { list as listWorkflows, remove as removeWorkflow, save as saveWorkflow } from "@/repository/workflow";
@@ -136,22 +130,9 @@ const WorkflowList = () => {
       key: "lastRun",
       title: t("workflow.props.last_run_at"),
       render: (_, record) => {
-        let icon = <></>;
-        if (record.lastRunStatus === WORKFLOW_RUN_STATUSES.PENDING) {
-          icon = <ClockCircleOutlinedIcon style={{ color: themeToken.colorTextSecondary }} />;
-        } else if (record.lastRunStatus === WORKFLOW_RUN_STATUSES.RUNNING) {
-          icon = <SyncOutlinedIcon style={{ color: themeToken.colorInfo }} spin />;
-        } else if (record.lastRunStatus === WORKFLOW_RUN_STATUSES.SUCCEEDED) {
-          icon = <CheckCircleOutlinedIcon style={{ color: themeToken.colorSuccess }} />;
-        } else if (record.lastRunStatus === WORKFLOW_RUN_STATUSES.FAILED) {
-          icon = <CloseCircleOutlinedIcon style={{ color: themeToken.colorError }} />;
-        } else if (record.lastRunStatus === WORKFLOW_RUN_STATUSES.CANCELED) {
-          icon = <StopOutlinedIcon style={{ color: themeToken.colorWarning }} />;
-        }
-
         return (
           <Space>
-            {icon}
+            <WorkflowStatusIcon color={true} status={record.lastRunStatus!} />
             <Typography.Text>{record.lastRunTime ? dayjs(record.lastRunTime!).format("YYYY-MM-DD HH:mm:ss") : ""}</Typography.Text>
           </Space>
         );
@@ -179,7 +160,7 @@ const WorkflowList = () => {
       fixed: "right",
       width: 120,
       render: (_, record) => (
-        <Space.Compact>
+        <div className="flex items-center justify-end">
           <Tooltip title={t("workflow.action.edit")}>
             <Button
               color="primary"
@@ -213,7 +194,7 @@ const WorkflowList = () => {
               }}
             />
           </Tooltip>
-        </Space.Compact>
+        </div>
       ),
     },
   ];

@@ -117,7 +117,7 @@ const WorkflowNew = () => {
         <div className="px-6 py-4">
           <div className="mx-auto max-w-320">
             <h1>{t("workflow.new.title")}</h1>
-            <p className="text-base text-gray-500">{t("workflow.new.subtitle")}</p>
+            <p className="mb-0 text-base text-gray-500">{t("workflow.new.subtitle")}</p>
           </div>
         </div>
       </Card>

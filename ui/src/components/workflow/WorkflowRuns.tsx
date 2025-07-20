@@ -1,20 +1,13 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  CheckCircleOutlined as CheckCircleOutlinedIcon,
-  ClockCircleOutlined as ClockCircleOutlinedIcon,
-  CloseCircleOutlined as CloseCircleOutlinedIcon,
-  PauseOutlined as PauseOutlinedIcon,
-  StopOutlined as StopOutlinedIcon,
-  SyncOutlined as SyncOutlinedIcon,
-} from "@ant-design/icons";
-import { IconBrowserShare, IconTrash } from "@tabler/icons-react";
+import { IconBrowserShare, IconPlayerPause, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { Alert, Button, Empty, Modal, Space, Table, type TableProps, Tag, Tooltip, notification } from "antd";
+import { Alert, Button, Empty, Modal, Table, type TableProps, Tooltip, notification } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
 import { cancelRun as cancelWorkflowRun } from "@/api/workflows";
+import WorkflowStatusTag from "@/components/workflow/WorkflowStatusTag";
 import { WORKFLOW_TRIGGERS } from "@/domain/workflow";
 import { WORKFLOW_RUN_STATUSES, type WorkflowRunModel } from "@/domain/workflowRun";
 import {
@@ -57,35 +50,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
       title: t("workflow_run.props.status"),
       ellipsis: true,
       render: (_, record) => {
-        if (record.status === WORKFLOW_RUN_STATUSES.PENDING) {
-          return <Tag icon={<ClockCircleOutlinedIcon />}>{t("workflow_run.props.status.pending")}</Tag>;
-        } else if (record.status === WORKFLOW_RUN_STATUSES.RUNNING) {
-          return (
-            <Tag icon={<SyncOutlinedIcon spin />} color="processing">
-              {t("workflow_run.props.status.running")}
-            </Tag>
-          );
-        } else if (record.status === WORKFLOW_RUN_STATUSES.SUCCEEDED) {
-          return (
-            <Tag icon={<CheckCircleOutlinedIcon />} color="success">
-              {t("workflow_run.props.status.succeeded")}
-            </Tag>
-          );
-        } else if (record.status === WORKFLOW_RUN_STATUSES.FAILED) {
-          return (
-            <Tag icon={<CloseCircleOutlinedIcon />} color="error">
-              {t("workflow_run.props.status.failed")}
-            </Tag>
-          );
-        } else if (record.status === WORKFLOW_RUN_STATUSES.CANCELED) {
-          return (
-            <Tag icon={<StopOutlinedIcon />} color="warning">
-              {t("workflow_run.props.status.canceled")}
-            </Tag>
-          );
-        }
-
-        return <></>;
+        return <WorkflowStatusTag status={record.status} />;
       },
     },
     {
@@ -139,7 +104,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
           record.status === WORKFLOW_RUN_STATUSES.CANCELED;
 
         return (
-          <Space.Compact>
+          <div className="flex items-center justify-end">
             <WorkflowRunDetailDrawer
               data={record}
               trigger={
@@ -153,7 +118,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
               <Button
                 color="default"
                 disabled={!allowCancel}
-                icon={<PauseOutlinedIcon />}
+                icon={<IconPlayerPause size="1.25em" />}
                 variant="text"
                 onClick={() => {
                   handleCancelClick(record);
@@ -173,7 +138,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
                 }}
               />
             </Tooltip>
-          </Space.Compact>
+          </div>
         );
       },
     },

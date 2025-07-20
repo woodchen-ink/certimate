@@ -59,12 +59,12 @@ const RootApp = () => {
         token: {
           /* @see global.css, YOU MUST MODIFY BOTH DEFINITIONS AT THE SAME TIME! */
           colorPrimary: browserTheme === "dark" ? "#f97316" : "#ea580c",
+          colorLink: browserTheme === "dark" ? "#f97316" : "#ea580c",
           colorInfo: browserTheme === "dark" ? "#478be6" : "#0969da",
           colorSuccess: browserTheme === "dark" ? "#57ab5a" : "#1a7f37",
           colorWarning: browserTheme === "dark" ? "#daaa3f" : "#eac54f",
           colorError: browserTheme === "dark" ? "#e5534b" : "#d1242f",
           colorBgContainer: "var(--color-container)",
-          colorLink: "var(--color-primary)",
         },
         components: {
           Layout: {

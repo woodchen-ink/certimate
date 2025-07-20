@@ -1,5 +1,5 @@
 ﻿import { useState } from "react";
-import { ExpandOutlined as ExpandOutlinedIcon, MinusOutlined as MinusOutlinedIcon, PlusOutlined as PlusOutlinedIcon } from "@ant-design/icons";
+import { IconMaximize, IconMinus, IconPlus } from "@tabler/icons-react";
 import { Button, Card, Typography } from "antd";
 
 import WorkflowElements from "@/components/workflow/WorkflowElements";
@@ -30,13 +30,13 @@ const WorkflowElementsContainer = ({ className, style, disabled }: WorkflowEleme
         </div>
       </div>
 
-      <div className="absolute bottom-4 right-6 z-2">
+      <div className="absolute right-6 bottom-4 z-2">
         <Card className="rounded-lg p-2 shadow-lg" styles={{ body: { padding: 0 } }}>
           <div className="flex items-center gap-2">
-            <Button icon={<MinusOutlinedIcon />} disabled={scale <= MIN_SCALE} onClick={() => setScale((s) => Math.max(MIN_SCALE, s - STEP_SCALE))} />
+            <Button icon={<IconMinus size="1.25em" />} disabled={scale <= MIN_SCALE} onClick={() => setScale((s) => Math.max(MIN_SCALE, s - STEP_SCALE))} />
             <Typography.Text className="min-w-12 text-center">{Math.round(scale * 100)}%</Typography.Text>
-            <Button icon={<PlusOutlinedIcon />} disabled={scale >= MAX_SCALE} onClick={() => setScale((s) => Math.min(MAX_SCALE, s + STEP_SCALE))} />
-            <Button icon={<ExpandOutlinedIcon />} onClick={() => setScale(1)} />
+            <Button icon={<IconPlus size="1.25em" />} disabled={scale >= MAX_SCALE} onClick={() => setScale((s) => Math.min(MAX_SCALE, s + STEP_SCALE))} />
+            <Button icon={<IconMaximize size="1.25em" />} onClick={() => setScale(1)} />
           </div>
         </Card>
       </div>

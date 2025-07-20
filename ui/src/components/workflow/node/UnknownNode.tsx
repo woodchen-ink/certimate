@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { CloseCircleOutlined as CloseCircleOutlinedIcon } from "@ant-design/icons";
+import { IconTrashX } from "@tabler/icons-react";
 import { Alert, Button, Card } from "antd";
 
 import { useZustandShallowSelector } from "@/hooks";
@@ -21,7 +21,7 @@ const UnknownNode = ({ node, disabled }: MonitorNodeProps) => {
     <>
       <div className="relative w-[256px] overflow-hidden">
         <Card className="shadow-md" styles={{ body: { padding: 0 } }} hoverable variant="borderless">
-          <div className="cursor-pointer ">
+          <div className="cursor-pointer">
             <Alert
               type="error"
               message={
@@ -31,7 +31,7 @@ const UnknownNode = ({ node, disabled }: MonitorNodeProps) => {
                     <br />
                     PLEASE REMOVE
                   </div>
-                  <Button color="primary" icon={<CloseCircleOutlinedIcon />} variant="text" onClick={handleClickRemove} />
+                  <Button color="primary" icon={<IconTrashX size="1.25em" />} variant="text" onClick={handleClickRemove} />
                 </div>
               }
             />

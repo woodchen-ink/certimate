@@ -4,11 +4,11 @@ import {
   CloudUploadOutlined as CloudUploadOutlinedIcon,
   DeploymentUnitOutlined as DeploymentUnitOutlinedIcon,
   MonitorOutlined as MonitorOutlinedIcon,
-  PlusOutlined as PlusOutlinedIcon,
   SendOutlined as SendOutlinedIcon,
   SisternodeOutlined as SisternodeOutlinedIcon,
   SolutionOutlined as SolutionOutlinedIcon,
 } from "@ant-design/icons";
+import { IconPlus } from "@tabler/icons-react";
 import { Dropdown } from "antd";
 
 import { WorkflowNodeType, newNode } from "@/domain/workflow";
@@ -63,10 +63,10 @@ const AddNode = ({ node, disabled }: AddNodeProps) => {
   }, [node.id, disabled, node.type]);
 
   return (
-    <div className="relative py-6 before:absolute before:left-1/2 before:top-0 before:h-full before:w-[2px] before:-translate-x-1/2 before:bg-stone-200 before:content-['']">
+    <div className="relative py-6 before:absolute before:top-0 before:left-1/2 before:h-full before:w-[2px] before:-translate-x-1/2 before:bg-stone-200 before:content-['']">
       <Dropdown menu={{ items: dropdownMenus }} trigger={["click"]}>
-        <div className="relative z-1 flex size-5 cursor-pointer items-center justify-center rounded-full text-white bg-stone-400 hover:bg-stone-500">
-          <PlusOutlinedIcon />
+        <div className="relative z-1 flex size-5 cursor-pointer items-center justify-center rounded-full bg-stone-400 text-white hover:bg-stone-500">
+          <IconPlus size="1em" />
         </div>
       </Dropdown>
     </div>

@@ -1,6 +1,6 @@
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PlusOutlined as PlusOutlinedIcon } from "@ant-design/icons";
+import { IconPlus } from "@tabler/icons-react";
 import { Button, Divider, Flex, Form, type FormInstance, Input, Switch, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod/v4";
@@ -203,7 +203,7 @@ const NotifyNodeConfigForm = forwardRef<NotifyNodeConfigFormInstance, NotifyNode
                   trigger={
                     <Button size="small" type="link">
                       {t("workflow_node.notify.form.provider_access.button")}
-                      <PlusOutlinedIcon className="text-xs" />
+                      <IconPlus size="1.25em" />
                     </Button>
                   }
                   usage="notification-only"

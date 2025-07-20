@@ -1,12 +1,7 @@
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import {
-  CloseOutlined as CloseOutlinedIcon,
-  PlusOutlined as PlusOutlinedIcon,
-  QuestionCircleOutlined as QuestionCircleOutlinedIcon,
-  RightOutlined as RightOutlinedIcon,
-} from "@ant-design/icons";
+import { IconChevronRight, IconHelp, IconPlus, IconX } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
 import { AutoComplete, Button, Divider, Flex, Form, type FormInstance, Input, InputNumber, Select, Switch, Tooltip, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
@@ -325,7 +320,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                   <span>{t("workflow_node.apply.form.provider_access.label")}</span>
                   <Tooltip title={t("workflow_node.apply.form.provider_access.tooltip")}>
                     <Typography.Text className="ms-1" type="secondary">
-                      <QuestionCircleOutlinedIcon />
+                      <IconHelp size="1.25em" />
                     </Typography.Text>
                   </Tooltip>
                 </div>
@@ -335,7 +330,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                     trigger={
                       <Button size="small" type="link">
                         {t("workflow_node.apply.form.provider_access.button")}
-                        <PlusOutlinedIcon className="text-xs" />
+                        <IconPlus size="1.25em" />
                       </Button>
                     }
                     usage="both-dns-hosting"
@@ -386,7 +381,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                     <Link className="ant-typography" to="/settings/ssl-provider" target="_blank">
                       <Button size="small" type="link">
                         {t("workflow_node.apply.form.ca_provider.button")}
-                        <RightOutlinedIcon className="text-xs" />
+                        <IconChevronRight size="1.25em" />
                       </Button>
                     </Link>
                   </Show>
@@ -417,7 +412,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                     trigger={
                       <Button size="small" type="link">
                         {t("workflow_node.apply.form.ca_provider_access.button")}
-                        <PlusOutlinedIcon className="text-xs" />
+                        <IconChevronRight size="1.25em" />
                       </Button>
                     }
                     usage="ca-only"
@@ -607,12 +602,12 @@ const EmailInput = memo(
 
     const renderOptionLabel = (email: string, removable: boolean = false) => (
       <div className="flex items-center gap-2 overflow-hidden">
-        <span className="flex-1 overflow-hidden truncate">{email}</span>
+        <span className="flex-1 truncate overflow-hidden">{email}</span>
         {removable && (
           <Button
             color="default"
             disabled={disabled}
-            icon={<CloseOutlinedIcon />}
+            icon={<IconX size="1.25em" />}
             size="small"
             type="text"
             onClick={(e) => {

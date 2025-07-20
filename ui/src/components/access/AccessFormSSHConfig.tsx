@@ -244,7 +244,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
                       key: field.key,
                       label: <Label />,
                       extra: (
-                        <Space.Compact>
+                        <div className="flex items-center justify-end">
                           <Button
                             icon={<IconChevronUp size="1.25em" />}
                             color="default"
@@ -278,7 +278,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
                               e.stopPropagation();
                             }}
                           />
-                        </Space.Compact>
+                        </div>
                       ),
                       children: <Fields />,
                     };

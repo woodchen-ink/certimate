@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CloseOutlined as CloseOutlinedIcon, PlusOutlined } from "@ant-design/icons";
+import { IconPlus, IconX } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
 import { Button, Form, Input, Radio, Select, theme } from "antd";
 
@@ -372,7 +372,7 @@ const ConditionNodeConfigFormExpressionEditor = forwardRef<ConditionNodeConfigFo
                     className="my-1"
                     color="default"
                     disabled={disabled}
-                    icon={<CloseOutlinedIcon />}
+                    icon={<IconX size="1.25em" />}
                     size="small"
                     type="text"
                     onClick={() => remove(index)}
@@ -381,7 +381,7 @@ const ConditionNodeConfigFormExpressionEditor = forwardRef<ConditionNodeConfigFo
               ))}
 
               <Form.Item>
-                <Button type="dashed" block icon={<PlusOutlined />} onClick={() => add({})}>
+                <Button type="dashed" block icon={<IconPlus size="1.25em" />} onClick={() => add({})}>
                   {t("workflow_node.condition.form.expression.add_condition.button")}
                 </Button>
               </Form.Item>

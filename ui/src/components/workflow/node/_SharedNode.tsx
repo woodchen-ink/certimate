@@ -1,12 +1,6 @@
 import { memo, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  CloseCircleOutlined as CloseCircleOutlinedIcon,
-  EllipsisOutlined as EllipsisOutlinedIcon,
-  FormOutlined as FormOutlinedIcon,
-  MoreOutlined as MoreOutlinedIcon,
-  SnippetsOutlined as SnippetsOutlinedIcon,
-} from "@ant-design/icons";
+import { IconCopy, IconDotsVertical, IconLabel, IconTrashX } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
 import { Button, Card, Drawer, Dropdown, Input, type InputRef, type MenuProps, Modal, Popover, Space } from "antd";
 import { produce } from "immer";
@@ -150,14 +144,18 @@ const SharedNodeMenu = ({ menus, trigger, node, disabled, branchId, branchIndex,
         key: "rename",
         disabled: disabled,
         label: isNodeBranchLike(node) ? t("workflow_node.action.rename_branch") : t("workflow_node.action.rename_node"),
-        icon: <FormOutlinedIcon />,
+        icon: (
+          <span className="anticon scale-125">
+            <IconLabel size="1em" />
+          </span>
+        ),
         onClick: () => {
           nameRef.current = node.name;
 
           const dialog = modalApi.confirm({
             title: isNodeBranchLike(node) ? t("workflow_node.action.rename_branch") : t("workflow_node.action.rename_node"),
             content: (
-              <div className="pb-2 pt-4">
+              <div className="pt-4 pb-2">
                 <Input
                   ref={nameInputRef}
                   autoFocus
@@ -181,7 +179,11 @@ const SharedNodeMenu = ({ menus, trigger, node, disabled, branchId, branchIndex,
         key: "duplicate",
         disabled: disabled || isNodeUnduplicatable(node),
         label: isNodeBranchLike(node) ? t("workflow_node.action.duplicate_branch") : t("workflow_node.action.duplicate_node"),
-        icon: <SnippetsOutlinedIcon />,
+        icon: (
+          <span className="anticon scale-125">
+            <IconCopy size="1em" />
+          </span>
+        ),
         onClick: handleDuplicateClick,
       },
       {
@@ -191,7 +193,11 @@ const SharedNodeMenu = ({ menus, trigger, node, disabled, branchId, branchIndex,
         key: "remove",
         disabled: disabled || isNodeUnremovable(node),
         label: isNodeBranchLike(node) ? t("workflow_node.action.remove_branch") : t("workflow_node.action.remove_node"),
-        icon: <CloseCircleOutlinedIcon />,
+        icon: (
+          <span className="anticon scale-125">
+            <IconTrashX size="1em" />
+          </span>
+        ),
         danger: true,
         onClick: handleRemoveClick,
       },
@@ -248,14 +254,14 @@ const SharedNodeBlock = ({ children, node, disabled, onClick }: SharedNodeBlockP
         classNames={{ root: "shadow-md" }}
         styles={{ body: { padding: 0 } }}
         arrow={false}
-        content={<SharedNodeMenu node={node} disabled={disabled} trigger={<Button color="primary" icon={<MoreOutlinedIcon />} variant="text" />} />}
+        content={<SharedNodeMenu node={node} disabled={disabled} trigger={<Button color="primary" icon={<IconDotsVertical size="1em" />} variant="text" />} />}
         placement="rightTop"
       >
         <div className="relative w-[256px] overflow-hidden">
           <Card className="shadow-md" styles={{ body: { padding: 0 } }} hoverable>
-            <div className="bg-primary flex h-[48px] flex-col items-center justify-center truncate px-4 py-2 text-white">
+            <div className="flex h-[48px] flex-col items-center justify-center truncate bg-primary px-4 py-2 text-white">
               <SharedNodeTitle
-                className="focus:bg-background focus:text-foreground overflow-hidden outline-hidden focus:rounded-xs"
+                className="overflow-hidden outline-hidden focus:rounded-xs focus:bg-background focus:text-foreground"
                 node={node}
                 disabled={disabled}
               />
@@ -353,7 +359,7 @@ const SharedNodeConfigDrawer = ({
             menus={["rename", "remove"]}
             node={node}
             disabled={disabled}
-            trigger={<Button icon={<EllipsisOutlinedIcon />} type="text" />}
+            trigger={<Button icon={<IconDotsVertical size="1.25em" />} type="text" />}
             afterDelete={() => {
               setOpen(false);
             }}

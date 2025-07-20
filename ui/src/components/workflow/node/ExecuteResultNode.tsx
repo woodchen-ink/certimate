@@ -1,9 +1,5 @@
 import { memo } from "react";
-import {
-  CheckCircleOutlined as CheckCircleOutlinedIcon,
-  CloseCircleOutlined as CloseCircleOutlinedIcon,
-  MoreOutlined as MoreOutlinedIcon,
-} from "@ant-design/icons";
+import { IconCircleCheck, IconCircleX, IconDotsVertical } from "@tabler/icons-react";
 import { Button, Card, Popover, theme } from "antd";
 
 import { WorkflowNodeType } from "@/domain/workflow";
@@ -30,7 +26,7 @@ const ExecuteResultNode = ({ node, disabled, branchId, branchIndex }: ConditionN
             branchId={branchId}
             branchIndex={branchIndex}
             disabled={disabled}
-            trigger={<Button color="primary" icon={<MoreOutlinedIcon />} variant="text" />}
+            trigger={<Button color="primary" icon={<IconDotsVertical size="1em" />} variant="text" />}
           />
         }
         placement="rightTop"
@@ -40,12 +36,12 @@ const ExecuteResultNode = ({ node, disabled, branchId, branchIndex }: ConditionN
             <div className="flex h-[48px] flex-col items-center justify-center truncate px-4 py-2">
               <div className="flex items-center space-x-2">
                 {node.type === WorkflowNodeType.ExecuteSuccess ? (
-                  <CheckCircleOutlinedIcon style={{ color: themeToken.colorSuccess }} />
+                  <IconCircleCheck style={{ color: themeToken.colorSuccess }} size="1.5em" />
                 ) : (
-                  <CloseCircleOutlinedIcon style={{ color: themeToken.colorError }} />
+                  <IconCircleX style={{ color: themeToken.colorError }} size="1.5em" />
                 )}
                 <SharedNode.Title
-                  className="focus:bg-background focus:text-foreground overflow-hidden outline-slate-200 focus:rounded-xs"
+                  className="overflow-hidden outline-slate-200 focus:rounded-xs focus:bg-background focus:text-foreground"
                   node={node}
                   disabled={disabled}
                 />

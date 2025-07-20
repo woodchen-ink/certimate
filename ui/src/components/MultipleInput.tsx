@@ -191,7 +191,6 @@ const MultipleInputItem = forwardRef<MultipleInputItemInstance, MultipleInputIte
       allowUp,
       disabled,
       showSortButton,
-      size,
       onEntryAdd,
       onEntryDown,
       onEntryUp,
@@ -254,12 +253,12 @@ const MultipleInputItem = forwardRef<MultipleInputItemInstance, MultipleInputIte
             onChange={handleInputChange}
           />
         </div>
-        <Space.Compact size={size}>
+        <div className="flex items-center justify-end">
           {removeBtn}
           {upBtn}
           {downBtn}
           {addBtn}
-        </Space.Compact>
+        </div>
       </div>
     );
   }

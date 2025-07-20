@@ -2,7 +2,10 @@
   "access.page.title": "Credentials",
   "access.page.subtitle": "Credentials store authentication information (username and password, API key, OAuth tokens, etc.) to connect with specific third-party apps and services.",
 
-  "access.nodata": "No credentials. Please create an credential first.",
+  "access.nodata": "No credentials",
+  "access.nodata.title": "No credentials",
+  "access.nodata.description": "Add a credential to store authentication information.",
+  "access.nodata.button": "Create credential",
 
   "access.search.placeholder": "Search by credential name ...",
 
@@ -13,7 +16,6 @@
   "access.action.delete.confirm": "Are you sure want to delete this \"{{name}}\" credential?<br>This action cannot be undone.",
 
   "access.props.name": "Name",
-  "access.props.provider": "Provider",
   "access.props.provider.usage.dns": "DNS provider",
   "access.props.provider.usage.hosting": "Hosting provider",
   "access.props.provider.usage.ca": "Certificate authority",

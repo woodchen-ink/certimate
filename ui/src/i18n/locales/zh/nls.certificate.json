@@ -4,7 +4,7 @@
 
   "certificate.nodata.title": "暂无证书",
   "certificate.nodata.description": "新建一个工作流去生成证书吧～",
-  "certificate.nodata.button": "新建工作流",
+  "certificate.nodata.button": "前往工作流",
 
   "certificate.search.placeholder": "按证书名称或序列号搜索……",
 
@@ -19,9 +19,9 @@
   "certificate.props.validity.less_than_a_day": "不足 1 天",
   "certificate.props.validity.expired": "已过期",
   "certificate.props.validity.expiration": "{{date}} 过期",
-  "certificate.props.validity.filters.all": "全部",
-  "certificate.props.validity.filters.expire_soon": "即将过期",
-  "certificate.props.validity.filters.expired": "已过期",
+  "certificate.props.validity.filter.all": "全部",
+  "certificate.props.validity.filter.expire_soon": "即将过期",
+  "certificate.props.validity.filter.expired": "已过期",
   "certificate.props.brand": "证书品牌",
   "certificate.props.source": "来源",
   "certificate.props.source.workflow": "工作流",

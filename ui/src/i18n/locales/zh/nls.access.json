@@ -2,7 +2,9 @@
   "access.page.title": "授权管理",
   "access.page.subtitle": "授权中存储有用于访问特定第三方应用程序和服务的身份验证信息（如账号密码、API 密钥、OAuth 令牌等）。",
 
-  "access.nodata": "暂无授权信息，请先新建授权",
+  "access.nodata.title": "暂无授权",
+  "access.nodata.description": "新建一个授权并存储身份验证信息吧～",
+  "access.nodata.button": "新建授权",
 
   "access.search.placeholder": "按授权名称搜索……",
 
@@ -13,7 +15,6 @@
   "access.action.delete.confirm": "确定要删除授权「{{name}}」吗？<br>注意此操作不可撤销，请谨慎操作。",
 
   "access.props.name": "名称",
-  "access.props.provider": "提供商",
   "access.props.provider.usage.dns": "DNS 提供商",
   "access.props.provider.usage.hosting": "主机提供商",
   "access.props.provider.usage.ca": "证书颁发机构",

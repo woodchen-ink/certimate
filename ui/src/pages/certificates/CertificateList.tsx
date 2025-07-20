@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconBrowserShare, IconCirclePlus, IconReload, IconShieldCheckeredFilled, IconTrash } from "@tabler/icons-react";
+import { IconBrowserShare, IconExternalLink, IconReload, IconShieldCheckeredFilled, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { App, Button, Input, Segmented, Skeleton, Table, type TableProps, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
@@ -34,6 +34,13 @@ const CertificateList = () => {
   const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 15);
 
   const tableColumns: TableProps<CertificateModel>["columns"] = [
+    {
+      key: "$index",
+      align: "center",
+      fixed: "left",
+      width: 50,
+      render: (_, __, index) => (page - 1) * pageSize + index + 1,
+    },
     {
       key: "name",
       title: t("certificate.props.subject_alt_names"),
@@ -209,8 +216,8 @@ const CertificateList = () => {
   const [detailRecord, setDetailRecord] = useState<CertificateModel>();
   const [detailOpen, setDetailOpen] = useState<boolean>(false);
 
-  const handleRecordDetailClick = (record: CertificateModel) => {
-    setDetailRecord(record);
+  const handleRecordDetailClick = (certificate: CertificateModel) => {
+    setDetailRecord(certificate);
     setDetailOpen(true);
   };
 
@@ -252,9 +259,9 @@ const CertificateList = () => {
               <Segmented
                 className="shadow-xs"
                 options={[
-                  { label: <span className="text-sm">{t("certificate.props.validity.filters.all")}</span>, value: "" },
-                  { label: <span className="text-sm">{t("certificate.props.validity.filters.expire_soon")}</span>, value: "expireSoon" },
-                  { label: <span className="text-sm">{t("certificate.props.validity.filters.expired")}</span>, value: "expired" },
+                  { label: <span className="text-sm">{t("certificate.props.validity.filter.all")}</span>, value: "" },
+                  { label: <span className="text-sm">{t("certificate.props.validity.filter.expire_soon")}</span>, value: "expireSoon" },
+                  { label: <span className="text-sm">{t("certificate.props.validity.filter.expired")}</span>, value: "expired" },
                 ]}
                 size="large"
                 value={(filters["state"] as string) || ""}
@@ -300,8 +307,8 @@ const CertificateList = () => {
                       {t("common.button.reload")}
                     </Button>
                   ) : (
-                    <Button icon={<IconCirclePlus size="1.25em" />} type="primary" onClick={() => navigate("/workflows/new")}>
-                      {t("workflow.action.create")}
+                    <Button icon={<IconExternalLink size="1.25em" />} type="primary" onClick={() => navigate("/workflows")}>
+                      {t("certificate.nodata.button")}
                     </Button>
                   )
                 }

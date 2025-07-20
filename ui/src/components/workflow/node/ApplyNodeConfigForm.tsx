@@ -326,7 +326,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                 </div>
                 <div className="text-right">
                   <AccessEditModal
-                    scene="add"
+                    scene="create"
                     trigger={
                       <Button size="small" type="link">
                         {t("workflow_node.apply.form.provider_access.button")}
@@ -408,7 +408,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                 <div className="text-right">
                   <AccessEditModal
                     data={{ provider: caProvidersMap.get(fieldCAProvider!)?.provider }}
-                    scene="add"
+                    scene="create"
                     trigger={
                       <Button size="small" type="link">
                         {t("workflow_node.apply.form.ca_provider_access.button")}

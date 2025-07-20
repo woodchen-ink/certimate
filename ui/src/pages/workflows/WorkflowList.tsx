@@ -77,8 +77,8 @@ const WorkflowList = () => {
       defaultFilteredValue: searchParams.has("state") ? [searchParams.get("state") as string] : undefined,
       filterDropdown: ({ setSelectedKeys, confirm, clearFilters }) => {
         const items: Required<MenuProps>["items"] = [
-          ["enabled", "workflow.props.state.filters.enabled"],
-          ["disabled", "workflow.props.state.filters.disabled"],
+          ["enabled", "workflow.props.state.filter.enabled"],
+          ["disabled", "workflow.props.state.filter.disabled"],
         ].map(([key, label]) => {
           return {
             key,

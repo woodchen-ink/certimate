@@ -86,7 +86,7 @@ import AccessFormWestcnConfig from "./AccessFormWestcnConfig";
 import AccessFormZeroSSLConfig from "./AccessFormZeroSSLConfig";
 
 type AccessFormFieldValues = Partial<MaybeModelRecord<AccessModel>>;
-type AccessFormScenes = "add" | "edit";
+type AccessFormScenes = "create" | "edit";
 type AccessFormUsages = "both-dns-hosting" | "ca-only" | "notification-only";
 
 export type AccessFormProps = {
@@ -406,7 +406,7 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
             <Form.Item name="provider" label={providerLabel} rules={[formRule]} tooltip={providerTooltip}>
               <AccessProviderSelect
                 filter={providerFilter}
-                disabled={scene !== "add"}
+                disabled={scene !== "create"}
                 placeholder={providerPlaceholder}
                 showOptionTags={usage == null || (usage === "both-dns-hosting" ? { [ACCESS_USAGES.DNS]: true, [ACCESS_USAGES.HOSTING]: true } : false)}
                 showSearch={!disabled}

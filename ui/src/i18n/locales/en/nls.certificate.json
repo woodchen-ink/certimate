@@ -3,8 +3,8 @@
   "certificate.page.subtitle": "SSL certificates contain the website's public key and the website's identity, along with related information. They are generated from the execution output of workflows.",
 
   "certificate.nodata.title": "No Certificates",
-  "certificate.nodata.description": "Create a workflow to generate certificates!",
-  "certificate.nodata.button": "Create workflow",
+  "certificate.nodata.description": "Add a workflow to generate certificates!",
+  "certificate.nodata.button": "Go to workflows",
 
   "certificate.search.placeholder": "Search by certificate name or serial number ...",
 
@@ -19,9 +19,9 @@
   "certificate.props.validity.less_than_a_day": "Less than 1 day",
   "certificate.props.validity.expired": "Expired",
   "certificate.props.validity.expiration": "Expire on {{date}}",
-  "certificate.props.validity.filters.all": "All",
-  "certificate.props.validity.filters.expire_soon": "Expire soon",
-  "certificate.props.validity.filters.expired": "Expired",
+  "certificate.props.validity.filter.all": "All",
+  "certificate.props.validity.filter.expire_soon": "Expire soon",
+  "certificate.props.validity.filter.expired": "Expired",
   "certificate.props.brand": "Brand",
   "certificate.props.source": "Source",
   "certificate.props.source.workflow": "Workflow",

@@ -51,7 +51,7 @@ const AccessEditDrawer = ({ data, loading, trigger, scene, usage, afterSubmit, .
     try {
       let values: AccessModel = formRef.current!.getFieldsValue();
 
-      if (scene === "add") {
+      if (scene === "create") {
         if (data?.id) {
           throw "Invalid props: `data`";
         }
@@ -109,7 +109,7 @@ const AccessEditDrawer = ({ data, loading, trigger, scene, usage, afterSubmit, .
         width={720}
         onClose={() => setOpen(false)}
       >
-        <AccessForm ref={formRef} initialValues={data} scene={scene === "add" ? "add" : "edit"} usage={usage} />
+        <AccessForm ref={formRef} initialValues={data} scene={scene === "create" ? "create" : "edit"} usage={usage} />
       </Drawer>
     </>
   );

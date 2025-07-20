@@ -51,7 +51,7 @@ const AccessEditModal = ({ data, loading, trigger, scene, usage, afterSubmit, ..
     try {
       let values: AccessModel = formRef.current!.getFieldsValue();
 
-      if (scene === "add") {
+      if (scene === "create") {
         if (data?.id) {
           throw "Invalid props: `data`";
         }
@@ -113,7 +113,7 @@ const AccessEditModal = ({ data, loading, trigger, scene, usage, afterSubmit, ..
         onCancel={handleCancelClick}
       >
         <div className="pb-2 pt-4">
-          <AccessForm ref={formRef} initialValues={data} scene={scene === "add" ? "add" : "edit"} usage={usage} />
+          <AccessForm ref={formRef} initialValues={data} scene={scene === "create" ? "create" : "edit"} usage={usage} />
         </div>
       </Modal>
     </>

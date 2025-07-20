@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
-import { IconCopy, IconEdit, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
+import { IconCirclePlus, IconCopy, IconEdit, IconFingerprint, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { App, Avatar, Button, Empty, Input, Table, type TableProps, Tabs, Tooltip, Typography } from "antd";
+import { App, Avatar, Button, Input, Skeleton, Table, type TableProps, Tabs, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
 import AccessEditDrawer, { type AccessEditDrawerProps } from "@/components/access/AccessEditDrawer";
+import Empty from "@/components/Empty";
 import { type AccessModel } from "@/domain/access";
 import { ACCESS_USAGES, accessProvidersMap } from "@/domain/provider";
 import { useZustandShallowSelector } from "@/hooks";
@@ -48,17 +49,16 @@ const AccessList = () => {
       key: "name",
       title: t("access.props.name"),
       ellipsis: true,
-      render: (_, record) => <>{record.name}</>,
-    },
-    {
-      key: "provider",
-      title: t("access.props.provider"),
-      ellipsis: true,
       render: (_, record) => {
         return (
-          <div className="flex max-w-full items-center gap-2 truncate overflow-hidden">
-            <Avatar shape="square" src={accessProvidersMap.get(record.provider)?.icon} size="small" />
-            <Typography.Text ellipsis>{t(accessProvidersMap.get(record.provider)?.name ?? "")}</Typography.Text>
+          <div className="flex max-w-full items-center gap-4 truncate overflow-hidden">
+            <Avatar shape="square" src={accessProvidersMap.get(record.provider)?.icon} size="large" />
+            <div className="flex max-w-full flex-col gap-1">
+              <Typography.Text ellipsis>{record.name}</Typography.Text>
+              <Typography.Text ellipsis type="secondary">
+                {t(accessProvidersMap.get(record.provider)?.name ?? "")}
+              </Typography.Text>
+            </div>
           </div>
         );
       },
@@ -72,49 +72,42 @@ const AccessList = () => {
       },
     },
     {
-      key: "updatedAt",
-      title: t("access.props.updated_at"),
-      ellipsis: true,
-      render: (_, record) => {
-        return dayjs(record.updated!).format("YYYY-MM-DD HH:mm:ss");
-      },
-    },
-    {
       key: "$action",
       align: "end",
       fixed: "right",
       width: 120,
       render: (_, record) => (
         <div className="flex items-center justify-end">
-          <AccessEditDrawer
-            data={record}
-            usage={filters["usage"] as AccessUsageProp}
-            scene="edit"
-            trigger={
-              <Tooltip title={t("access.action.edit")}>
-                <Button color="primary" icon={<IconEdit size="1.25em" />} variant="text" />
-              </Tooltip>
-            }
-          />
-
-          <AccessEditDrawer
-            data={{ ...record, id: undefined, name: `${record.name}-copy` }}
-            usage={filters["usage"] as AccessUsageProp}
-            scene="add"
-            trigger={
-              <Tooltip title={t("access.action.duplicate")}>
-                <Button color="primary" icon={<IconCopy size="1.25em" />} variant="text" />
-              </Tooltip>
-            }
-          />
-
+          <Tooltip title={t("access.action.edit")}>
+            <Button
+              color="primary"
+              icon={<IconEdit size="1.25em" />}
+              variant="text"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDetailClick(record);
+              }}
+            />
+          </Tooltip>
+          <Tooltip title={t("access.action.duplicate")}>
+            <Button
+              color="primary"
+              icon={<IconCopy size="1.25em" />}
+              variant="text"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDuplicateClick(record);
+              }}
+            />
+          </Tooltip>
           <Tooltip title={t("access.action.delete")}>
             <Button
               color="danger"
               icon={<IconTrash size="1.25em" />}
               variant="text"
-              onClick={() => {
-                handleDeleteClick(record);
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDeleteClick(record);
               }}
             />
           </Tooltip>
@@ -190,7 +183,23 @@ const AccessList = () => {
     fetchAccesses();
   };
 
-  const handleDeleteClick = async (access: AccessModel) => {
+  const [detailRecord, setDetailRecord] = useState<MaybeModelRecord<AccessModel>>();
+  const [detailScene, setDetailScene] = useState<AccessEditDrawerProps["scene"]>("create");
+  const [detailOpen, setDetailOpen] = useState<boolean>(false);
+
+  const handleRecordDetailClick = (access: AccessModel) => {
+    setDetailRecord(access);
+    setDetailScene("edit");
+    setDetailOpen(true);
+  };
+
+  const handleRecordDuplicateClick = (access: AccessModel) => {
+    setDetailRecord({ ...access, id: undefined, name: `${access.name}-copy` });
+    setDetailScene("create");
+    setDetailOpen(true);
+  };
+
+  const handleRecordDeleteClick = async (access: AccessModel) => {
     modal.confirm({
       title: <span className="text-error">{t("access.action.delete")}</span>,
       content: <span dangerouslySetInnerHTML={{ __html: t("access.action.delete.confirm", { name: access.name }) }} />,
@@ -238,8 +247,8 @@ const AccessList = () => {
           </div>
           <div>
             <AccessEditDrawer
+              scene="create"
               usage={filters["usage"] as AccessUsageProp}
-              scene="add"
               trigger={
                 <Button className="text-sm" icon={<IconPlus size="1.25em" />} size="large" type="primary">
                   {t("access.action.create")}
@@ -269,12 +278,32 @@ const AccessList = () => {
           size="large"
           onChange={(key) => handleTabChange(key)}
         />
+
         <Table<AccessModel>
           columns={tableColumns}
           dataSource={tableData}
           loading={!loadedAtOnce || loading}
           locale={{
-            emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("access.nodata")} />,
+            emptyText: loading ? (
+              <Skeleton />
+            ) : (
+              <Empty
+                title={t("access.nodata.title")}
+                description={t("access.nodata.description")}
+                icon={<IconFingerprint size={24} />}
+                extra={
+                  <AccessEditDrawer
+                    scene="create"
+                    usage={filters["usage"] as AccessUsageProp}
+                    trigger={
+                      <Button icon={<IconCirclePlus size="1.25em" />} type="primary">
+                        {t("access.action.create")}
+                      </Button>
+                    }
+                  />
+                }
+              />
+            ),
           }}
           pagination={{
             current: page,
@@ -290,9 +319,17 @@ const AccessList = () => {
               setPageSize(pageSize);
             },
           }}
+          rowClassName="cursor-pointer"
           rowKey={(record) => record.id}
           scroll={{ x: "max(100%, 960px)" }}
+          onRow={(record) => ({
+            onClick: () => {
+              handleRecordDetailClick(record);
+            },
+          })}
         />
+
+        <AccessEditDrawer data={detailRecord} open={detailOpen} scene={detailScene} usage={filters["usage"] as AccessUsageProp} onOpenChange={setDetailOpen} />
       </div>
     </div>
   );

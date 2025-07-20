@@ -23,8 +23,8 @@
   "workflow.props.trigger.manual": "Manual",
   "workflow.props.last_run_at": "Last run at",
   "workflow.props.state": "State",
-  "workflow.props.state.filters.enabled": "Active",
-  "workflow.props.state.filters.disabled": "Inactive",
+  "workflow.props.state.filter.enabled": "Active",
+  "workflow.props.state.filter.disabled": "Inactive",
   "workflow.props.created_at": "Created at",
   "workflow.props.updated_at": "Updated at",
 

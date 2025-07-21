@@ -489,7 +489,7 @@ const DeployNodeConfigForm = forwardRef<DeployNodeConfigFormInstance, DeployNode
                   <div className="text-right">
                     <AccessEditModal
                       data={{ provider: deploymentProvidersMap.get(fieldProvider!)?.provider }}
-                      scene="create"
+                      action="create"
                       trigger={
                         <Button size="small" type="link">
                           {t("workflow_node.deploy.form.provider_access.button")}

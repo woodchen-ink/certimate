@@ -118,7 +118,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
           }}
         >
           <Button icon={<IconChevronDown size="1.25em" />} iconPosition="end" type="primary">
-            {t("certificate.action.download")}
+            {t("common.button.download")}
           </Button>
         </Dropdown>
       </div>

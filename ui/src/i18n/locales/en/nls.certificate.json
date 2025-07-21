@@ -8,10 +8,8 @@
 
   "certificate.search.placeholder": "Search by certificate name or serial number ...",
 
-  "certificate.action.view": "View certificate",
-  "certificate.action.delete": "Delete certificate",
-  "certificate.action.delete.confirm": "Are you sure want to delete this \"{{name}}\" certificate?<br>This action cannot be undone.",
-  "certificate.action.download": "Download certificate",
+  "certificate.action.delete.modal.title": "Delete certificate",
+  "certificate.action.delete.modal.content": "Are you sure want to delete this \"{{name}}\" certificate?<br>This action cannot be undone.",
 
   "certificate.props.subject_alt_names": "Name",
   "certificate.props.validity": "Expiry",

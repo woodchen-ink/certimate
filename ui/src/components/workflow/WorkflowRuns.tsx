@@ -106,7 +106,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
 
         return (
           <div className="flex items-center justify-end">
-            <Tooltip title={t("workflow_run.action.view")}>
+            <Tooltip title={t("common.button.view")}>
               <Button
                 color="primary"
                 icon={<IconBrowserShare size="1.25em" />}
@@ -117,7 +117,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
                 }}
               />
             </Tooltip>
-            <Tooltip title={t("workflow_run.action.cancel")}>
+            <Tooltip title={t("workflow_run.action.cancel.button")}>
               <Button
                 color="default"
                 disabled={!allowCancel}
@@ -129,7 +129,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
                 }}
               />
             </Tooltip>
-            <Tooltip title={t("workflow_run.action.delete")}>
+            <Tooltip title={t("common.button.delete")}>
               <Button
                 color="danger"
                 danger
@@ -216,8 +216,8 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
 
   const handleRecordCancelClick = (workflowRun: WorkflowRunModel) => {
     modal.confirm({
-      title: t("workflow_run.action.cancel"),
-      content: t("workflow_run.action.cancel.confirm"),
+      title: t("workflow_run.action.cancel.modal.title"),
+      content: t("workflow_run.action.cancel.modal.content"),
       onOk: async () => {
         try {
           const resp = await cancelWorkflowRun(workflowId, workflowRun.id);
@@ -234,10 +234,12 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
 
   const handleRecordDeleteClick = (workflowRun: WorkflowRunModel) => {
     modal.confirm({
-      title: <span className="text-error">{t("workflow_run.action.delete")}</span>,
+      title: <span className="text-error">{t("workflow_run.action.modal.title")}</span>,
       content: (
         <span
-          dangerouslySetInnerHTML={{ __html: t("workflow_run.action.delete.confirm", { name: dayjs(workflowRun.startedAt).format("YYYY-MM-DD HH:mm:ss") }) }}
+          dangerouslySetInnerHTML={{
+            __html: t("workflow_run.action.delete.modal.content", { name: dayjs(workflowRun.startedAt).format("YYYY-MM-DD HH:mm:ss") }),
+          }}
         />
       ),
       icon: (

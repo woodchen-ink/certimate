@@ -118,7 +118,7 @@ const WorkflowList = () => {
       width: 120,
       render: (_, record) => (
         <div className="flex items-center justify-end">
-          <Tooltip title={t("workflow.action.edit")}>
+          <Tooltip title={t("common.button.edit")}>
             <Button
               color="primary"
               icon={<IconEdit size="1.25em" />}
@@ -129,8 +129,7 @@ const WorkflowList = () => {
               }}
             />
           </Tooltip>
-
-          <Tooltip title={t("workflow.action.duplicate")}>
+          <Tooltip title={t("common.button.duplicate")}>
             <Button
               color="primary"
               icon={<IconCopy size="1.25em" />}
@@ -141,8 +140,7 @@ const WorkflowList = () => {
               }}
             />
           </Tooltip>
-
-          <Tooltip title={t("workflow.action.delete")}>
+          <Tooltip title={t("common.button.delete")}>
             <Button
               color="danger"
               danger
@@ -215,7 +213,7 @@ const WorkflowList = () => {
   const handleRecordActiveChange = async (workflow: WorkflowModel) => {
     try {
       if (!workflow.enabled && (!workflow.content || !isAllNodesValidated(workflow.content))) {
-        message.warning(t("workflow.action.enable.failed.uncompleted"));
+        message.warning(t("workflow.action.enable.errmsg.uncompleted"));
         return;
       }
 
@@ -241,8 +239,8 @@ const WorkflowList = () => {
 
   const handleRecordDuplicateClick = (workflow: WorkflowModel) => {
     modal.confirm({
-      title: t("workflow.action.duplicate"),
-      content: t("workflow.action.duplicate.confirm"),
+      title: t("workflow.action.duplicate.modal.title"),
+      content: t("workflow.action.duplicate.modal.content", { name: workflow.name }),
       onOk: async () => {
         try {
           const workflowCopy = {
@@ -271,8 +269,8 @@ const WorkflowList = () => {
 
   const handleRecordDeleteClick = (workflow: WorkflowModel) => {
     modal.confirm({
-      title: <span className="text-error">{t("workflow.action.delete")}</span>,
-      content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.confirm", { name: workflow.name }) }} />,
+      title: <span className="text-error">{t("workflow.action.delete.modal.title")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.modal.content", { name: workflow.name }) }} />,
       icon: (
         <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
@@ -335,7 +333,7 @@ const WorkflowList = () => {
           </div>
           <div>
             <Button className="text-sm" icon={<IconPlus size="1.25em" />} size="large" type="primary" onClick={handleCreateClick}>
-              {t("workflow.action.create")}
+              {t("workflow.action.create.button")}
             </Button>
           </div>
         </div>

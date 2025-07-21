@@ -8,11 +8,12 @@
 
   "access.search.placeholder": "按授权名称搜索……",
 
-  "access.action.create": "新建授权",
-  "access.action.edit": "编辑授权",
-  "access.action.duplicate": "复制授权",
-  "access.action.delete": "删除授权",
-  "access.action.delete.confirm": "确定要删除授权「{{name}}」吗？<br>注意此操作不可撤销，请谨慎操作。",
+  "access.action.create.button": "新建授权",
+  "access.action.create.modal.title": "新建授权",
+  "access.action.edit.modal.title": "编辑授权",
+  "access.action.duplicate.modal.title": "复制授权",
+  "access.action.delete.modal.title": "删除授权",
+  "access.action.delete.modal.content": "确定要删除授权「{{name}}」吗？<br>注意此操作不可撤销，请谨慎操作。",
 
   "access.props.name": "名称",
   "access.props.provider.usage.dns": "DNS 提供商",

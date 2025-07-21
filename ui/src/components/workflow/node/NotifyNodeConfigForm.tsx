@@ -199,7 +199,7 @@ const NotifyNodeConfigForm = forwardRef<NotifyNodeConfigFormInstance, NotifyNode
               </div>
               <div className="text-right">
                 <AccessEditModal
-                  scene="create"
+                  action="create"
                   trigger={
                     <Button size="small" type="link">
                       {t("workflow_node.notify.form.provider_access.button")}

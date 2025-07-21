@@ -11,17 +11,17 @@ import { getErrMsg } from "@/utils/error";
 import AccessForm, { type AccessFormInstance, type AccessFormProps } from "./AccessForm";
 
 export type AccessEditDrawerProps = {
+  action: AccessFormProps["action"];
   data?: AccessFormProps["initialValues"];
   loading?: boolean;
   open?: boolean;
-  scene: AccessFormProps["scene"];
   trigger?: React.ReactNode;
   usage?: AccessFormProps["usage"];
   onOpenChange?: (open: boolean) => void;
   afterSubmit?: (record: AccessModel) => void;
 };
 
-const AccessEditDrawer = ({ data, loading, trigger, scene, usage, afterSubmit, ...props }: AccessEditDrawerProps) => {
+const AccessEditDrawer = ({ action, data, loading, trigger, usage, afterSubmit, ...props }: AccessEditDrawerProps) => {
   const { t } = useTranslation();
 
   const { notification } = App.useApp();
@@ -51,20 +51,20 @@ const AccessEditDrawer = ({ data, loading, trigger, scene, usage, afterSubmit, .
     try {
       let values: AccessModel = formRef.current!.getFieldsValue();
 
-      if (scene === "create") {
+      if (action === "create") {
         if (data?.id) {
           throw "Invalid props: `data`";
         }
 
         values = await createAccess(values);
-      } else if (scene === "edit") {
+      } else if (action === "edit") {
         if (!data?.id) {
           throw "Invalid props: `data`";
         }
 
         values = await updateAccess({ ...data, ...values });
       } else {
-        throw "Invalid props: `scene`";
+        throw "Invalid props: `action`";
       }
 
       afterSubmit?.(values);
@@ -96,18 +96,18 @@ const AccessEditDrawer = ({ data, loading, trigger, scene, usage, afterSubmit, .
           <Space className="w-full justify-end">
             <Button onClick={handleCancelClick}>{t("common.button.cancel")}</Button>
             <Button loading={formPending} type="primary" onClick={handleOkClick}>
-              {scene === "edit" ? t("common.button.save") : t("common.button.submit")}
+              {action === "edit" ? t("common.button.save") : t("common.button.submit")}
             </Button>
           </Space>
         }
         loading={loading}
         maskClosable={!formPending}
         open={open}
-        title={t(`access.action.${scene}`)}
+        title={t(`access.action.${action}.modal.title`)}
         width={720}
         onClose={() => setOpen(false)}
       >
-        <AccessForm ref={formRef} initialValues={data} scene={scene === "create" ? "create" : "edit"} usage={usage} />
+        <AccessForm ref={formRef} initialValues={data} action={action === "create" ? "create" : "edit"} usage={usage} />
       </Drawer>
     </>
   );

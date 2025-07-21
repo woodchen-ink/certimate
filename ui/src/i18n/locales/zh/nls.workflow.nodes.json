@@ -1,6 +1,6 @@
 {
   "workflow_node.action.configure_node": "配置节点",
-  "workflow_node.branch.add_node": "添加节点",
+  "workflow_node.action.add_node": "添加节点",
   "workflow_node.action.rename_node": "重命名",
   "workflow_node.action.duplicate_node": "复制节点",
   "workflow_node.action.remove_node": "删除节点",

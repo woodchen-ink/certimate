@@ -11,17 +11,17 @@ import { getErrMsg } from "@/utils/error";
 import AccessForm, { type AccessFormInstance, type AccessFormProps } from "./AccessForm";
 
 export type AccessEditModalProps = {
+  action: AccessFormProps["action"];
   data?: AccessFormProps["initialValues"];
   loading?: boolean;
   open?: boolean;
   usage?: AccessFormProps["usage"];
-  scene: AccessFormProps["scene"];
   trigger?: React.ReactNode;
   onOpenChange?: (open: boolean) => void;
   afterSubmit?: (record: AccessModel) => void;
 };
 
-const AccessEditModal = ({ data, loading, trigger, scene, usage, afterSubmit, ...props }: AccessEditModalProps) => {
+const AccessEditModal = ({ action, data, loading, trigger, usage, afterSubmit, ...props }: AccessEditModalProps) => {
   const { t } = useTranslation();
 
   const { notification } = App.useApp();
@@ -51,20 +51,20 @@ const AccessEditModal = ({ data, loading, trigger, scene, usage, afterSubmit, ..
     try {
       let values: AccessModel = formRef.current!.getFieldsValue();
 
-      if (scene === "create") {
+      if (action === "create") {
         if (data?.id) {
           throw "Invalid props: `data`";
         }
 
         values = await createAccess(values);
-      } else if (scene === "edit") {
+      } else if (action === "edit") {
         if (!data?.id) {
           throw "Invalid props: `data`";
         }
 
         values = await updateAccess({ ...data, ...values });
       } else {
-        throw "Invalid props: `preset`";
+        throw "Invalid props: `action`";
       }
 
       afterSubmit?.(values);
@@ -103,15 +103,15 @@ const AccessEditModal = ({ data, loading, trigger, scene, usage, afterSubmit, ..
         confirmLoading={formPending}
         destroyOnHidden
         loading={loading}
-        okText={scene === "edit" ? t("common.button.save") : t("common.button.submit")}
+        okText={action === "edit" ? t("common.button.save") : t("common.button.submit")}
         open={open}
-        title={t(`access.action.${scene}`)}
+        title={t(`access.action.${action}`)}
         width={480}
         onOk={handleOkClick}
         onCancel={handleCancelClick}
       >
         <div className="pt-4 pb-2">
-          <AccessForm ref={formRef} initialValues={data} scene={scene === "create" ? "create" : "edit"} usage={usage} />
+          <AccessForm ref={formRef} initialValues={data} action={action === "create" ? "create" : "edit"} usage={usage} />
         </div>
       </Modal>
     </>

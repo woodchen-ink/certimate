@@ -139,7 +139,7 @@ const CertificateList = () => {
       width: 120,
       render: (_, record) => (
         <div className="flex items-center justify-end">
-          <Tooltip title={t("certificate.action.view")}>
+          <Tooltip title={t("common.button.view")}>
             <Button
               color="primary"
               icon={<IconBrowserShare size="1.25em" />}
@@ -150,7 +150,7 @@ const CertificateList = () => {
               }}
             />
           </Tooltip>
-          <Tooltip title={t("certificate.action.delete")}>
+          <Tooltip title={t("common.button.delete")}>
             <Button
               color="danger"
               icon={<IconTrash size="1.25em" />}
@@ -227,8 +227,8 @@ const CertificateList = () => {
 
   const handleRecordDeleteClick = (certificate: CertificateModel) => {
     modal.confirm({
-      title: <span className="text-error">{t("certificate.action.delete")}</span>,
-      content: <span dangerouslySetInnerHTML={{ __html: t("certificate.action.delete.confirm", { name: certificate.subjectAltNames }) }} />,
+      title: <span className="text-error">{t("certificate.action.delete.modal.title")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("certificate.action.delete.modal.content", { name: certificate.subjectAltNames }) }} />,
       icon: (
         <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />

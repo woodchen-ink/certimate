@@ -9,11 +9,12 @@
 
   "access.search.placeholder": "Search by credential name ...",
 
-  "access.action.create": "Create credential",
-  "access.action.edit": "Edit credential",
-  "access.action.duplicate": "Duplicate credential",
-  "access.action.delete": "Delete credential",
-  "access.action.delete.confirm": "Are you sure want to delete this \"{{name}}\" credential?<br>This action cannot be undone.",
+  "access.action.create.button": "Create credential",
+  "access.action.create.modal.title": "Create credential",
+  "access.action.edit.modal.title": "Edit credential",
+  "access.action.duplicate.modal.title": "Duplicate credential",
+  "access.action.delete.modal.title": "Delete credential",
+  "access.action.delete.modal.content": "Are you sure want to delete this \"{{name}}\" credential?<br>This action cannot be undone.",
 
   "access.props.name": "Name",
   "access.props.provider.usage.dns": "DNS",

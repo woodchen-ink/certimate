@@ -299,7 +299,7 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
           <CertificateDetailDrawer
             data={record}
             trigger={
-              <Tooltip title={t("certificate.action.view")}>
+              <Tooltip title={t("common.button.view")}>
                 <Button color="primary" disabled={!!record.deleted} icon={<IconBrowserShare size="1.25em" />} variant="text" />
               </Tooltip>
             }

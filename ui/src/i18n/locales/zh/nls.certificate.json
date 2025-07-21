@@ -8,10 +8,8 @@
 
   "certificate.search.placeholder": "按证书名称或序列号搜索……",
 
-  "certificate.action.view": "查看证书",
-  "certificate.action.delete": "删除证书",
-  "certificate.action.delete.confirm": "确定要删除证书「{{name}}」吗？<br>注意此操作不可撤销，请谨慎操作。",
-  "certificate.action.download": "下载证书",
+  "certificate.action.delete.modal.title": "删除证书",
+  "certificate.action.delete.modal.content": "确定要删除证书「{{name}}」吗？<br>注意此操作不可撤销，请谨慎操作。",
 
   "certificate.props.subject_alt_names": "名称",
   "certificate.props.validity": "有效期限",

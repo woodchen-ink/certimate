@@ -77,7 +77,7 @@ const AccessList = () => {
       width: 120,
       render: (_, record) => (
         <div className="flex items-center justify-end">
-          <Tooltip title={t("access.action.edit")}>
+          <Tooltip title={t("common.button.edit")}>
             <Button
               color="primary"
               icon={<IconEdit size="1.25em" />}
@@ -88,7 +88,7 @@ const AccessList = () => {
               }}
             />
           </Tooltip>
-          <Tooltip title={t("access.action.duplicate")}>
+          <Tooltip title={t("common.button.duplicate")}>
             <Button
               color="primary"
               icon={<IconCopy size="1.25em" />}
@@ -99,7 +99,7 @@ const AccessList = () => {
               }}
             />
           </Tooltip>
-          <Tooltip title={t("access.action.delete")}>
+          <Tooltip title={t("common.button.delete")}>
             <Button
               color="danger"
               icon={<IconTrash size="1.25em" />}
@@ -183,25 +183,25 @@ const AccessList = () => {
   };
 
   const [detailRecord, setDetailRecord] = useState<MaybeModelRecord<AccessModel>>();
-  const [detailScene, setDetailScene] = useState<AccessEditDrawerProps["scene"]>("create");
+  const [detailAction, setDetailAction] = useState<AccessEditDrawerProps["action"]>("create");
   const [detailOpen, setDetailOpen] = useState<boolean>(false);
 
   const handleRecordDetailClick = (access: AccessModel) => {
     setDetailRecord(access);
-    setDetailScene("edit");
+    setDetailAction("edit");
     setDetailOpen(true);
   };
 
   const handleRecordDuplicateClick = (access: AccessModel) => {
     setDetailRecord({ ...access, id: undefined, name: `${access.name}-copy` });
-    setDetailScene("create");
+    setDetailAction("create");
     setDetailOpen(true);
   };
 
   const handleRecordDeleteClick = async (access: AccessModel) => {
     modal.confirm({
-      title: <span className="text-error">{t("access.action.delete")}</span>,
-      content: <span dangerouslySetInnerHTML={{ __html: t("access.action.delete.confirm", { name: access.name }) }} />,
+      title: <span className="text-error">{t("access.action.delete.modal.title")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("access.action.delete.modal.content", { name: access.name }) }} />,
       icon: (
         <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
@@ -246,11 +246,11 @@ const AccessList = () => {
           </div>
           <div>
             <AccessEditDrawer
-              scene="create"
+              action="create"
               usage={filters["usage"] as AccessUsageProp}
               trigger={
                 <Button className="text-sm" icon={<IconPlus size="1.25em" />} size="large" type="primary">
-                  {t("access.action.create")}
+                  {t("access.action.create.button")}
                 </Button>
               }
             />
@@ -292,11 +292,11 @@ const AccessList = () => {
                 icon={<IconFingerprint size={24} />}
                 extra={
                   <AccessEditDrawer
-                    scene="create"
+                    action="create"
                     usage={filters["usage"] as AccessUsageProp}
                     trigger={
                       <Button icon={<IconCirclePlus size="1.25em" />} type="primary">
-                        {t("access.action.create")}
+                        {t("access.action.create.button")}
                       </Button>
                     }
                   />
@@ -328,7 +328,13 @@ const AccessList = () => {
           })}
         />
 
-        <AccessEditDrawer data={detailRecord} open={detailOpen} scene={detailScene} usage={filters["usage"] as AccessUsageProp} onOpenChange={setDetailOpen} />
+        <AccessEditDrawer
+          data={detailRecord}
+          open={detailOpen}
+          action={detailAction}
+          usage={filters["usage"] as AccessUsageProp}
+          onOpenChange={setDetailOpen}
+        />
       </div>
     </div>
   );

@@ -76,7 +76,7 @@ const WorkflowDetail = () => {
 
   const handleEnableChange = async () => {
     if (!workflow.enabled && (!workflow.content || !isAllNodesValidated(workflow.content))) {
-      message.warning(t("workflow.action.enable.failed.uncompleted"));
+      message.warning(t("workflow.action.enable.errmsg.uncompleted"));
       return;
     }
 
@@ -90,8 +90,8 @@ const WorkflowDetail = () => {
 
   const handleDeleteClick = () => {
     modal.confirm({
-      title: <span className="text-error">{t("workflow.action.delete")}</span>,
-      content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.confirm", { name: workflow.name }) }} />,
+      title: <span className="text-error">{t("workflow.action.delete.modal.title")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.modal.content", { name: workflow.name }) }} />,
       icon: (
         <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
@@ -115,8 +115,8 @@ const WorkflowDetail = () => {
 
   const handleDiscardClick = () => {
     modal.confirm({
-      title: t("workflow.detail.orchestration.action.discard"),
-      content: t("workflow.detail.orchestration.action.discard.confirm"),
+      title: t("workflow.action.discard.modal.title"),
+      content: t("workflow.action.discard.modal.content"),
       onOk: async () => {
         try {
           await workflowState.discard();
@@ -132,13 +132,13 @@ const WorkflowDetail = () => {
 
   const handleReleaseClick = () => {
     if (!isAllNodesValidated(workflow.draft!)) {
-      message.warning(t("workflow.detail.orchestration.action.release.failed.uncompleted"));
+      message.warning(t("workflow.action.release.errmsg.uncompleted"));
       return;
     }
 
     modal.confirm({
-      title: t("workflow.detail.orchestration.action.release"),
-      content: t("workflow.detail.orchestration.action.release.confirm"),
+      title: t("workflow.action.release.modal.title"),
+      content: t("workflow.action.release.modal.content"),
       onOk: async () => {
         try {
           await workflowState.release();
@@ -156,8 +156,8 @@ const WorkflowDetail = () => {
     const { promise, resolve, reject } = Promise.withResolvers();
     if (workflow.hasDraft) {
       modal.confirm({
-        title: t("workflow.detail.orchestration.action.run"),
-        content: t("workflow.detail.orchestration.action.run.confirm"),
+        title: t("workflow.action.run.modal.title"),
+        content: t("workflow.action.run.modal.content"),
         onOk: () => resolve(void 0),
         onCancel: () => reject(),
       });
@@ -181,7 +181,7 @@ const WorkflowDetail = () => {
 
         await startWorkflowRun(workflowId!);
 
-        message.info(t("workflow.detail.orchestration.action.run.prompt"));
+        message.info(t("workflow.action.run.prompt"));
       } catch (err) {
         setIsPendingOrRunning(false);
         unsubscribeFn?.();
@@ -206,18 +206,16 @@ const WorkflowDetail = () => {
                 {initialized
                   ? [
                       <WorkflowBaseInfoModal key="edit" trigger={<Button>{t("common.button.edit")}</Button>} />,
-
                       <Button key="enable" onClick={handleEnableChange}>
-                        {workflow.enabled ? t("workflow.action.disable") : t("workflow.action.enable")}
+                        {workflow.enabled ? t("workflow.action.disable.button") : t("workflow.action.enable.button")}
                       </Button>,
-
                       <Dropdown
                         key="more"
                         menu={{
                           items: [
                             {
                               key: "delete",
-                              label: t("workflow.action.delete"),
+                              label: t("common.button.delete"),
                               danger: true,
                               icon: <IconTrash size="1.25em" />,
                               onClick: () => {
@@ -291,21 +289,19 @@ const WorkflowDetail = () => {
               <div className="flex justify-end">
                 <Space>
                   <Button disabled={!allowRun} icon={<IconPlayerPlay size="1.25em" />} loading={isPendingOrRunning} type="primary" onClick={handleRunClick}>
-                    {t("workflow.detail.orchestration.action.run")}
+                    {t("workflow.action.run.button")}
                   </Button>
-
                   <Space.Compact>
                     <Button color="primary" disabled={!allowRelease} variant="outlined" onClick={handleReleaseClick}>
-                      {t("workflow.detail.orchestration.action.release")}
+                      {t("workflow.action.release.button")}
                     </Button>
-
                     <Dropdown
                       menu={{
                         items: [
                           {
                             key: "discard",
                             disabled: !allowDiscard,
-                            label: t("workflow.detail.orchestration.action.discard"),
+                            label: t("workflow.action.discard.button"),
                             icon: <IconArrowBackUp size="1.25em" />,
                             onClick: handleDiscardClick,
                           },

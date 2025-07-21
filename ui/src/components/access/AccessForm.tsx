@@ -86,15 +86,15 @@ import AccessFormWestcnConfig from "./AccessFormWestcnConfig";
 import AccessFormZeroSSLConfig from "./AccessFormZeroSSLConfig";
 
 type AccessFormFieldValues = Partial<MaybeModelRecord<AccessModel>>;
-type AccessFormScenes = "create" | "edit";
+type AccessFormActions = "create" | "edit";
 type AccessFormUsages = "both-dns-hosting" | "ca-only" | "notification-only";
 
 export type AccessFormProps = {
   className?: string;
   style?: React.CSSProperties;
+  action: AccessFormActions;
   disabled?: boolean;
   initialValues?: AccessFormFieldValues;
-  scene: AccessFormScenes;
   usage?: AccessFormUsages;
   onValuesChange?: (values: AccessFormFieldValues) => void;
 };
@@ -105,7 +105,7 @@ export type AccessFormInstance = {
   validateFields: FormInstance<AccessFormFieldValues>["validateFields"];
 };
 
-const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className, style, disabled, initialValues, usage, scene, onValuesChange }, ref) => {
+const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className, style, action, disabled, initialValues, usage, onValuesChange }, ref) => {
   const { t } = useTranslation();
 
   const formSchema = z.object({
@@ -406,7 +406,7 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
             <Form.Item name="provider" label={providerLabel} rules={[formRule]} tooltip={providerTooltip}>
               <AccessProviderSelect
                 filter={providerFilter}
-                disabled={scene !== "create"}
+                disabled={action !== "create"}
                 placeholder={providerPlaceholder}
                 showOptionTags={usage == null || (usage === "both-dns-hosting" ? { [ACCESS_USAGES.DNS]: true, [ACCESS_USAGES.HOSTING]: true } : false)}
                 showSearch={!disabled}

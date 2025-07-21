@@ -58,28 +58,20 @@ const RootApp = () => {
         ...antdTheme,
         token: {
           /* @see global.css, YOU MUST MODIFY BOTH DEFINITIONS AT THE SAME TIME! */
+          colorBgBase: browserTheme === "dark" ? "#17191c" : "#ffffff",
+          colorTextBase: browserTheme === "dark" ? "#fafaf9" : "#141414",
           colorPrimary: browserTheme === "dark" ? "#f97316" : "#ea580c",
           colorLink: browserTheme === "dark" ? "#f97316" : "#ea580c",
           colorInfo: browserTheme === "dark" ? "#478be6" : "#0969da",
           colorSuccess: browserTheme === "dark" ? "#57ab5a" : "#1a7f37",
           colorWarning: browserTheme === "dark" ? "#daaa3f" : "#eac54f",
           colorError: browserTheme === "dark" ? "#e5534b" : "#d1242f",
-          colorBgContainer: "var(--color-container)",
         },
         components: {
           Layout: {
             ...antdTheme?.components?.Layout,
             bodyBg: "transparent",
-            headerBg: "var(--color-container)",
             siderBg: "transparent",
-          },
-          Table: {
-            ...antdTheme?.components?.Table,
-            bodySortBg: "var(--color-container)",
-            headerBg: "var(--color-container)",
-            headerSortActiveBg: "var(--color-container)",
-            headerSortHoverBg: "var(--color-container-hover)",
-            rowHoverBg: "var(--color-container-hover)",
           },
         },
       }}

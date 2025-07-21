@@ -33,7 +33,7 @@ const ApplyNode = ({ node, disabled }: ApplyNodeProps) => {
     }
 
     const config = (node.config as WorkflowNodeConfigForApply) ?? {};
-    return <Typography.Text className="truncate">{config.domains || "　"}</Typography.Text>;
+    return <Typography.Text className="truncate">{config.domains || "\u00A0"}</Typography.Text>;
   }, [node]);
 
   const formRef = useRef<ApplyNodeConfigFormInstance>(null);

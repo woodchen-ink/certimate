@@ -44,9 +44,9 @@ const WorkflowList = () => {
       ellipsis: true,
       render: (_, record) => (
         <div className="flex max-w-full flex-col gap-1">
-          <Typography.Text ellipsis>{record.name}</Typography.Text>
+          <Typography.Text ellipsis>{record.name || "\u00A0"}</Typography.Text>
           <Typography.Text ellipsis type="secondary">
-            {record.description || "　"}
+            {record.description || "\u00A0"}
           </Typography.Text>
         </div>
       ),
@@ -65,7 +65,7 @@ const WorkflowList = () => {
           return (
             <div className="flex max-w-full flex-col gap-1">
               <Typography.Text>{t("workflow.props.trigger.auto")}</Typography.Text>
-              <Typography.Text type="secondary">{record.triggerCron ?? ""}</Typography.Text>
+              <Typography.Text type="secondary">{record.triggerCron || "\u00A0"}</Typography.Text>
             </div>
           );
         }

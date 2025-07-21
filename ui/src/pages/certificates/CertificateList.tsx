@@ -90,8 +90,8 @@ const CertificateList = () => {
       title: t("certificate.props.brand"),
       render: (_, record) => (
         <div className="flex max-w-full flex-col gap-1">
-          <Typography.Text>{record.issuerOrg}</Typography.Text>
-          <Typography.Text>{record.keyAlgorithm}</Typography.Text>
+          <Typography.Text>{record.issuerOrg || "\u00A0"}</Typography.Text>
+          <Typography.Text>{record.keyAlgorithm || "\u00A0"}</Typography.Text>
         </div>
       ),
     },

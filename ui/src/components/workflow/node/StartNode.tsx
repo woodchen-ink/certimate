@@ -44,7 +44,7 @@ const StartNode = ({ node, disabled }: StartNodeProps) => {
             ? t("workflow.props.trigger.auto")
             : config.trigger === WORKFLOW_TRIGGERS.MANUAL
               ? t("workflow.props.trigger.manual")
-              : "　"}
+              : "\u00A0"}
         </Typography.Text>
         <Typography.Text className="truncate" type="secondary">
           {config.trigger === WORKFLOW_TRIGGERS.AUTO ? config.triggerCron : ""}

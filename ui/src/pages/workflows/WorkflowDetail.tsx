@@ -199,8 +199,8 @@ const WorkflowDetail = () => {
           <div className="mx-auto max-w-320">
             <div className="flex justify-between gap-2">
               <div>
-                <h1>{workflow.name || "　"}</h1>
-                <p className="mb-0 text-base text-gray-500">{workflow.description || "　"}</p>
+                <h1>{workflow.name || "\u00A0"}</h1>
+                <p className="mb-0 text-base text-gray-500">{workflow.description || "\u00A0"}</p>
               </div>
               <Flex gap="small">
                 {initialized
@@ -238,6 +238,7 @@ const WorkflowDetail = () => {
             </div>
 
             <Tabs
+              className="-mb-4"
               activeKey={tabValue}
               defaultActiveKey="orchestration"
               items={[

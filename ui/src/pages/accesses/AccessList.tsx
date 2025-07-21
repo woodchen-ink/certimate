@@ -54,9 +54,9 @@ const AccessList = () => {
           <div className="flex max-w-full items-center gap-4 truncate overflow-hidden">
             <Avatar shape="square" src={accessProvidersMap.get(record.provider)?.icon} size={28} />
             <div className="flex max-w-full flex-col gap-1">
-              <Typography.Text ellipsis>{record.name}</Typography.Text>
+              <Typography.Text ellipsis>{record.name || "\u00A0"}</Typography.Text>
               <Typography.Text ellipsis type="secondary">
-                {t(accessProvidersMap.get(record.provider)?.name ?? "")}
+                {t(accessProvidersMap.get(record.provider)?.name ?? "") || "\u00A0"}
               </Typography.Text>
             </div>
           </div>

@@ -53,7 +53,7 @@ const AccessProviderSelect = ({ filter, showOptionTags, ...props }: AccessProvid
     const provider = accessProvidersMap.get(key) ?? ({ type: "", name: "", icon: "", usages: [] } as unknown as AccessProvider);
     return (
       <div className="flex max-w-full items-center justify-between gap-4 overflow-hidden">
-        <div className="flex items-center gap-2 overflow-hidden truncate">
+        <div className="flex items-center gap-2 truncate overflow-hidden">
           <Avatar shape="square" src={provider.icon} size="small" />
           <Typography.Text type={provider.builtin ? "secondary" : undefined} ellipsis>
             {t(provider.name)}

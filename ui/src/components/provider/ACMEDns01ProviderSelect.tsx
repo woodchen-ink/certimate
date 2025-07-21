@@ -36,7 +36,7 @@ const ACMEDns01ProviderSelect = ({ filter, ...props }: ACMEDns01ProviderSelectPr
   const renderOption = (key: string) => {
     const provider = acmeDns01ProvidersMap.get(key);
     return (
-      <div className="flex items-center gap-2 overflow-hidden truncate">
+      <div className="flex items-center gap-2 truncate overflow-hidden">
         <Avatar shape="square" src={provider?.icon} size="small" />
         <Typography.Text ellipsis>{t(provider?.name ?? "")}</Typography.Text>
       </div>

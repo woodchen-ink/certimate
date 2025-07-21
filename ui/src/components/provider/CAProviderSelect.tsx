@@ -45,7 +45,7 @@ const CAProviderSelect = ({ filter, ...props }: CAProviderSelectProps) => {
   const renderOption = (key: string) => {
     if (key === "") {
       return (
-        <div className="flex items-center gap-2 overflow-hidden truncate">
+        <div className="flex items-center gap-2 truncate overflow-hidden">
           <Typography.Text className="italic" ellipsis italic>
             {t("provider.default_ca_provider.label")}
           </Typography.Text>
@@ -55,7 +55,7 @@ const CAProviderSelect = ({ filter, ...props }: CAProviderSelectProps) => {
 
     const provider = caProvidersMap.get(key);
     return (
-      <div className="flex items-center gap-2 overflow-hidden truncate">
+      <div className="flex items-center gap-2 truncate overflow-hidden">
         <Avatar shape="square" src={provider?.icon} size="small" />
         <Typography.Text ellipsis>{t(provider?.name ?? "")}</Typography.Text>
       </div>

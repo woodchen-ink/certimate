@@ -145,7 +145,7 @@ const SharedNodeMenu = ({ menus, trigger, node, disabled, branchId, branchIndex,
         disabled: disabled,
         label: isNodeBranchLike(node) ? t("workflow_node.action.rename_branch") : t("workflow_node.action.rename_node"),
         icon: (
-          <span className="anticon scale-125">
+          <span className="anticon scale-125" role="img">
             <IconLabel size="1em" />
           </span>
         ),
@@ -180,7 +180,7 @@ const SharedNodeMenu = ({ menus, trigger, node, disabled, branchId, branchIndex,
         disabled: disabled || isNodeUnduplicatable(node),
         label: isNodeBranchLike(node) ? t("workflow_node.action.duplicate_branch") : t("workflow_node.action.duplicate_node"),
         icon: (
-          <span className="anticon scale-125">
+          <span className="anticon scale-125" role="img">
             <IconCopy size="1em" />
           </span>
         ),
@@ -194,7 +194,7 @@ const SharedNodeMenu = ({ menus, trigger, node, disabled, branchId, branchIndex,
         disabled: disabled || isNodeUnremovable(node),
         label: isNodeBranchLike(node) ? t("workflow_node.action.remove_branch") : t("workflow_node.action.remove_node"),
         icon: (
-          <span className="anticon scale-125">
+          <span className="anticon scale-125" role="img">
             <IconTrashX size="1em" />
           </span>
         ),

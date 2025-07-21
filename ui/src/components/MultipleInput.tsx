@@ -1,6 +1,6 @@
 ﻿import { type ChangeEvent, forwardRef, useImperativeHandle, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { IconArrowDown, IconArrowUp, IconMinus, IconPlus } from "@tabler/icons-react";
+import { IconCircleArrowDown, IconCircleArrowUp, IconCircleMinus, IconCirclePlus } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
 import { Button, Input, type InputProps, type InputRef, Space } from "antd";
 import { produce } from "immer";
@@ -210,17 +210,17 @@ const MultipleInputItem = forwardRef<MultipleInputItemInstance, MultipleInputIte
 
     const upBtn = useMemo(() => {
       if (!showSortButton) return null;
-      return <Button icon={<IconArrowUp size="1.25em" />} color="default" disabled={disabled || !allowUp} type="text" onClick={onEntryUp} />;
+      return <Button icon={<IconCircleArrowUp size="1.25em" />} color="default" disabled={disabled || !allowUp} type="text" onClick={onEntryUp} />;
     }, [allowUp, disabled, showSortButton, onEntryUp]);
     const downBtn = useMemo(() => {
       if (!showSortButton) return null;
-      return <Button icon={<IconArrowDown size="1.25em" />} color="default" disabled={disabled || !allowDown} type="text" onClick={onEntryDown} />;
+      return <Button icon={<IconCircleArrowDown size="1.25em" />} color="default" disabled={disabled || !allowDown} type="text" onClick={onEntryDown} />;
     }, [allowDown, disabled, showSortButton, onEntryDown]);
     const removeBtn = useMemo(() => {
-      return <Button icon={<IconMinus size="1.25em" />} color="default" disabled={disabled || !allowRemove} type="text" onClick={onEntryRemove} />;
+      return <Button icon={<IconCircleMinus size="1.25em" />} color="default" disabled={disabled || !allowRemove} type="text" onClick={onEntryRemove} />;
     }, [allowRemove, disabled, onEntryRemove]);
     const addBtn = useMemo(() => {
-      return <Button icon={<IconPlus size="1.25em" />} color="default" disabled={disabled || !allowAdd} type="text" onClick={onEntryAdd} />;
+      return <Button icon={<IconCirclePlus size="1.25em" />} color="default" disabled={disabled || !allowAdd} type="text" onClick={onEntryAdd} />;
     }, [allowAdd, disabled, onEntryAdd]);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {

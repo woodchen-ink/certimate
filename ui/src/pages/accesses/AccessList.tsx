@@ -48,12 +48,11 @@ const AccessList = () => {
     {
       key: "name",
       title: t("access.props.name"),
-      ellipsis: true,
       render: (_, record) => {
         return (
-          <div className="flex max-w-full items-center gap-4 truncate overflow-hidden">
+          <div className="flex max-w-full items-center gap-4 overflow-hidden">
             <Avatar shape="square" src={accessProvidersMap.get(record.provider)?.icon} size={28} />
-            <div className="flex max-w-full flex-col gap-1">
+            <div className="flex max-w-full flex-col gap-1 truncate">
               <Typography.Text ellipsis>{record.name || "\u00A0"}</Typography.Text>
               <Typography.Text ellipsis type="secondary">
                 {t(accessProvidersMap.get(record.provider)?.name ?? "") || "\u00A0"}
@@ -204,7 +203,7 @@ const AccessList = () => {
       title: <span className="text-error">{t("access.action.delete")}</span>,
       content: <span dangerouslySetInnerHTML={{ __html: t("access.action.delete.confirm", { name: access.name }) }} />,
       icon: (
-        <span className="anticon">
+        <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
         </span>
       ),

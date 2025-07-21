@@ -25,7 +25,7 @@ const WorkflowNew = () => {
 
   const templateGridSpans = {
     xs: { flex: "100%" },
-    md: { flex: "100%" },
+    md: { flex: "50%" },
     lg: { flex: "50%" },
     xl: { flex: "33.3333%" },
     xxl: { flex: "33.3333%" },
@@ -112,102 +112,96 @@ const WorkflowNew = () => {
   };
 
   return (
-    <div>
-      <Card styles={{ body: { padding: 0 } }}>
-        <div className="px-6 py-4">
-          <div className="mx-auto max-w-320">
-            <h1>{t("workflow.new.title")}</h1>
-            <p className="mb-0 text-base text-gray-500">{t("workflow.new.subtitle")}</p>
-          </div>
-        </div>
-      </Card>
-
-      <div className="p-4">
-        <div className="mx-auto max-w-320">
-          <Typography.Text type="secondary">
-            <div className="mt-4 mb-8 text-xl">{t("workflow.new.templates.title")}</div>
-          </Typography.Text>
-
-          <Row className="justify-stretch" gutter={[16, 16]}>
-            <Col {...templateGridSpans}>
-              <Card
-                className="size-full"
-                cover={<img className="min-h-[120px] object-contain" src="/imgs/workflow/tpl-standard.png" />}
-                hoverable
-                onClick={() => handleTemplateClick(TEMPLATE_KEY_STANDARD)}
-              >
-                <div className="flex w-full items-center gap-4">
-                  <Card.Meta
-                    className="grow"
-                    title={t("workflow.new.templates.template.standard.title")}
-                    description={t("workflow.new.templates.template.standard.description")}
-                  />
-                  <Spin spinning={templateSelectKey === TEMPLATE_KEY_STANDARD} />
-                </div>
-              </Card>
-            </Col>
-
-            <Col {...templateGridSpans}>
-              <Card
-                className="size-full"
-                cover={<img className="min-h-[120px] object-contain" src="/imgs/workflow/tpl-certtest.png" />}
-                hoverable
-                onClick={() => handleTemplateClick(TEMPLATE_KEY_CERTTEST)}
-              >
-                <div className="flex w-full items-center gap-4">
-                  <Card.Meta
-                    className="grow"
-                    title={t("workflow.new.templates.template.certtest.title")}
-                    description={t("workflow.new.templates.template.certtest.description")}
-                  />
-                  <Spin spinning={templateSelectKey === TEMPLATE_KEY_CERTTEST} />
-                </div>
-              </Card>
-            </Col>
-
-            <Col {...templateGridSpans}>
-              <Card
-                className="size-full"
-                cover={<img className="min-h-[120px] object-contain" src="/imgs/workflow/tpl-blank.png" />}
-                hoverable
-                onClick={() => handleTemplateClick(TEMPLATE_KEY_EMPTY)}
-              >
-                <div className="flex w-full items-center gap-4">
-                  <Card.Meta
-                    className="grow"
-                    title={t("workflow.new.templates.template.empty.title")}
-                    description={t("workflow.new.templates.template.empty.description")}
-                  />
-                  <Spin spinning={templateSelectKey === TEMPLATE_KEY_EMPTY} />
-                </div>
-              </Card>
-            </Col>
-          </Row>
-        </div>
-
-        <ModalForm
-          {...formProps}
-          autoFocus
-          disabled={formPending}
-          layout="vertical"
-          form={formInst}
-          modalProps={{ destroyOnHidden: true }}
-          okText={t("common.button.submit")}
-          open={formModalOpen}
-          title={t(`workflow.new.modal.title`)}
-          width={480}
-          onFinish={handleModalFormFinish}
-          onOpenChange={handleModalOpenChange}
-        >
-          <Form.Item name="name" label={t("workflow.new.modal.form.name.label")} rules={[formRule]}>
-            <Input ref={inputRef} autoFocus placeholder={t("workflow.new.modal.form.name.placeholder")} />
-          </Form.Item>
-
-          <Form.Item name="description" label={t("workflow.new.modal.form.description.label")} rules={[formRule]}>
-            <Input placeholder={t("workflow.new.modal.form.description.placeholder")} />
-          </Form.Item>
-        </ModalForm>
+    <div className="px-6 py-4">
+      <div className="mx-auto max-w-320">
+        <h1>{t("workflow.new.title")}</h1>
+        <p className="mb-0 text-base text-gray-500">{t("workflow.new.subtitle")}</p>
       </div>
+
+      <div className="mx-auto max-w-320">
+        <Typography.Text type="secondary">
+          <div className="mt-12 mb-8 text-center text-xl">{t("workflow.new.templates.title")}</div>
+        </Typography.Text>
+
+        <Row className="justify-stretch" gutter={[16, 16]}>
+          <Col {...templateGridSpans}>
+            <Card
+              className="size-full"
+              cover={<img className="min-h-[120px] object-contain" src="/imgs/workflow/tpl-standard.png" />}
+              hoverable
+              onClick={() => handleTemplateClick(TEMPLATE_KEY_STANDARD)}
+            >
+              <div className="flex w-full items-center gap-4">
+                <Card.Meta
+                  className="grow"
+                  title={t("workflow.new.templates.template.standard.title")}
+                  description={t("workflow.new.templates.template.standard.description")}
+                />
+                <Spin spinning={templateSelectKey === TEMPLATE_KEY_STANDARD} />
+              </div>
+            </Card>
+          </Col>
+
+          <Col {...templateGridSpans}>
+            <Card
+              className="size-full"
+              cover={<img className="min-h-[120px] object-contain" src="/imgs/workflow/tpl-certtest.png" />}
+              hoverable
+              onClick={() => handleTemplateClick(TEMPLATE_KEY_CERTTEST)}
+            >
+              <div className="flex w-full items-center gap-4">
+                <Card.Meta
+                  className="grow"
+                  title={t("workflow.new.templates.template.certtest.title")}
+                  description={t("workflow.new.templates.template.certtest.description")}
+                />
+                <Spin spinning={templateSelectKey === TEMPLATE_KEY_CERTTEST} />
+              </div>
+            </Card>
+          </Col>
+
+          <Col {...templateGridSpans}>
+            <Card
+              className="size-full"
+              cover={<img className="min-h-[120px] object-contain" src="/imgs/workflow/tpl-blank.png" />}
+              hoverable
+              onClick={() => handleTemplateClick(TEMPLATE_KEY_EMPTY)}
+            >
+              <div className="flex w-full items-center gap-4">
+                <Card.Meta
+                  className="grow"
+                  title={t("workflow.new.templates.template.empty.title")}
+                  description={t("workflow.new.templates.template.empty.description")}
+                />
+                <Spin spinning={templateSelectKey === TEMPLATE_KEY_EMPTY} />
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      </div>
+
+      <ModalForm
+        {...formProps}
+        autoFocus
+        disabled={formPending}
+        layout="vertical"
+        form={formInst}
+        modalProps={{ destroyOnHidden: true }}
+        okText={t("common.button.submit")}
+        open={formModalOpen}
+        title={t(`workflow.new.modal.title`)}
+        width={480}
+        onFinish={handleModalFormFinish}
+        onOpenChange={handleModalOpenChange}
+      >
+        <Form.Item name="name" label={t("workflow.new.modal.form.name.label")} rules={[formRule]}>
+          <Input ref={inputRef} autoFocus placeholder={t("workflow.new.modal.form.name.placeholder")} />
+        </Form.Item>
+
+        <Form.Item name="description" label={t("workflow.new.modal.form.description.label")} rules={[formRule]}>
+          <Input placeholder={t("workflow.new.modal.form.description.placeholder")} />
+        </Form.Item>
+      </ModalForm>
     </div>
   );
 };

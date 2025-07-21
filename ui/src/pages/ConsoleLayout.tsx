@@ -79,7 +79,7 @@ const ConsoleLayout = () => {
                   {
                     key: "theme",
                     icon: (
-                      <span className="anticon scale-125">
+                      <span className="anticon scale-125" role="img">
                         <AppTheme.Icon size="1em" />
                       </span>
                     ),
@@ -89,7 +89,7 @@ const ConsoleLayout = () => {
                   {
                     key: "locale",
                     icon: (
-                      <span className="anticon scale-115">
+                      <span className="anticon scale-115" role="img">
                         <AppLocale.Icon size="1em" />
                       </span>
                     ),
@@ -99,7 +99,7 @@ const ConsoleLayout = () => {
                   {
                     key: "document",
                     icon: (
-                      <span className="anticon scale-125">
+                      <span className="anticon scale-125" role="img">
                         <IconHelpCircle size="1em" />
                       </span>
                     ),
@@ -110,7 +110,7 @@ const ConsoleLayout = () => {
                     key: "logout",
                     danger: true,
                     icon: (
-                      <span className="anticon scale-125">
+                      <span className="anticon scale-125" role="img">
                         <IconLogout size="1em" />
                       </span>
                     ),
@@ -166,20 +166,26 @@ const SiderMenu = memo(({ onSelect }: { onSelect?: (key: string) => void }) => {
   const MENU_KEY_CERTIFICATES = "/certificates";
   const MENU_KEY_ACCESSES = "/accesses";
   const MENU_KEY_SETTINGS = "/settings";
-  const menuItems: Required<MenuProps>["items"] = [
-    [MENU_KEY_HOME, <IconHome size="1em" />, t("dashboard.page.title")],
-    [MENU_KEY_WORKFLOWS, <IconSchema size="1em" />, t("workflow.page.title")],
-    [MENU_KEY_CERTIFICATES, <IconShieldCheckered size="1em" />, t("certificate.page.title")],
-    [MENU_KEY_ACCESSES, <IconFingerprint size="1em" />, t("access.page.title")],
-    [MENU_KEY_SETTINGS, <IconSettings size="1em" />, t("settings.page.title")],
-  ].map(([key, icon, label]) => {
+  const menuItems: Required<MenuProps>["items"] = (
+    [
+      [MENU_KEY_HOME, "dashboard.page.title", <IconHome size="1em" />],
+      [MENU_KEY_WORKFLOWS, "workflow.page.title", <IconSchema size="1em" />],
+      [MENU_KEY_CERTIFICATES, "certificate.page.title", <IconShieldCheckered size="1em" />],
+      [MENU_KEY_ACCESSES, "access.page.title", <IconFingerprint size="1em" />],
+      [MENU_KEY_SETTINGS, "settings.page.title", <IconSettings size="1em" />],
+    ] satisfies Array<[string, string, React.ReactNode]>
+  ).map(([key, label, icon]) => {
     return {
-      key: key as string,
-      icon: <span className="anticon scale-125">{icon}</span>,
-      label: label,
+      key: key,
+      icon: (
+        <span className="anticon scale-125" role="img">
+          {icon}
+        </span>
+      ),
+      label: t(label),
       onClick: () => {
-        navigate(key as string);
-        onSelect?.(key as string);
+        navigate(key);
+        onSelect?.(key);
       },
     };
   });

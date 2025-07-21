@@ -45,13 +45,11 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
     {
       key: "id",
       title: t("workflow_run.props.id"),
-      ellipsis: true,
       render: (_, record) => <span className="font-mono">{record.id}</span>,
     },
     {
       key: "status",
       title: t("workflow_run.props.status"),
-      ellipsis: true,
       render: (_, record) => {
         return <WorkflowStatusTag status={record.status} />;
       },
@@ -243,7 +241,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
         />
       ),
       icon: (
-        <span className="anticon">
+        <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
         </span>
       ),
@@ -273,7 +271,11 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
         dataSource={tableData}
         loading={loading}
         locale={{
-          emptyText: loading ? <Skeleton /> : <Empty title={t("common.text.nodata")} icon={<IconHistory size={24} />} />,
+          emptyText: loading ? (
+            <Skeleton />
+          ) : (
+            <Empty title={t("common.text.nodata")} description={loadedError ? getErrMsg(loadedError) : undefined} icon={<IconHistory size={24} />} />
+          ),
         }}
         pagination={{
           current: page,

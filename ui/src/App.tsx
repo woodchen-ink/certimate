@@ -66,6 +66,25 @@ const RootApp = () => {
           colorSuccess: browserTheme === "dark" ? "#57ab5a" : "#1a7f37",
           colorWarning: browserTheme === "dark" ? "#daaa3f" : "#eac54f",
           colorError: browserTheme === "dark" ? "#e5534b" : "#d1242f",
+
+          /* @see https://tailwindcss.com/docs/responsive-design#overview */
+          screenXS: 30 * 16,
+          screenXSMin: 30 * 16,
+          screenXSMax: 40 * 16 - 1,
+          screenSM: 40 * 16,
+          screenSMMin: 40 * 16,
+          screenSMMax: 48 * 16 - 1,
+          screenMD: 48 * 16,
+          screenMDMin: 48 * 16,
+          screenMDMax: 64 * 16 - 1,
+          screenLG: 64 * 16,
+          screenLGMin: 64 * 16,
+          screenLGMax: 80 * 16 - 1,
+          screenXL: 80 * 16,
+          screenXLMin: 80 * 16,
+          screenXLMax: 96 * 16 - 1,
+          screenXXL: 96 * 16,
+          screenXXLMin: 96 * 16,
         },
         components: {
           Layout: {

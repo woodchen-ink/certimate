@@ -49,36 +49,41 @@ const CertificateList = () => {
     {
       key: "expiry",
       title: t("certificate.props.validity"),
-      ellipsis: true,
       sorter: true,
       sortOrder: sorter.columnKey === "expiry" ? sorter.order : undefined,
       render: (_, record) => {
         const total = dayjs(record.expireAt).diff(dayjs(record.created), "d") + 1;
-        const expired = dayjs().isAfter(dayjs(record.expireAt));
-        const leftDays = dayjs(record.expireAt).diff(dayjs(), "d");
+        const isExpired = dayjs().isAfter(dayjs(record.expireAt));
+        const leftHours = dayjs(record.expireAt).diff(dayjs(), "h");
+        const leftDays = Math.round(leftHours / 24);
 
         return (
-          <div className="flex max-w-full flex-col gap-1">
-            {!expired ? (
-              leftDays >= 1 ? (
-                <Typography.Text type="success">
-                  <span className="mr-1 inline-block size-2 rounded-full bg-success leading-2">&nbsp;</span>
+          <div className="flex max-w-full flex-col gap-1 truncate">
+            {!isExpired ? (
+              leftDays >= 20 ? (
+                <Typography.Text ellipsis type="success">
+                  <span className="mr-2 inline-block size-2 rounded-full bg-success leading-2">&nbsp;</span>
+                  {t("certificate.props.validity.left_days", { left: leftDays, total })}
+                </Typography.Text>
+              ) : leftDays >= 1 ? (
+                <Typography.Text ellipsis type="warning">
+                  <span className="mr-2 inline-block size-2 rounded-full bg-warning leading-2">&nbsp;</span>
                   {t("certificate.props.validity.left_days", { left: leftDays, total })}
                 </Typography.Text>
               ) : (
-                <Typography.Text type="warning">
-                  <span className="mr-1 inline-block size-2 rounded-full bg-warning leading-2">&nbsp;</span>
+                <Typography.Text ellipsis type="warning">
+                  <span className="mr-2 inline-block size-2 rounded-full bg-warning leading-2">&nbsp;</span>
                   {t("certificate.props.validity.less_than_a_day")}
                 </Typography.Text>
               )
             ) : (
-              <Typography.Text type="danger">
-                <span className="mr-1 inline-block size-2 rounded-full bg-error leading-2">&nbsp;</span>
+              <Typography.Text ellipsis type="danger">
+                <span className="mr-2 inline-block size-2 rounded-full bg-error leading-2">&nbsp;</span>
                 {t("certificate.props.validity.expired")}
               </Typography.Text>
             )}
 
-            <Typography.Text type="secondary">
+            <Typography.Text ellipsis type="secondary">
               {t("certificate.props.validity.expiration", { date: dayjs(record.expireAt).format("YYYY-MM-DD") })}
             </Typography.Text>
           </div>
@@ -89,24 +94,23 @@ const CertificateList = () => {
       key: "brand",
       title: t("certificate.props.brand"),
       render: (_, record) => (
-        <div className="flex max-w-full flex-col gap-1">
-          <Typography.Text>{record.issuerOrg || "\u00A0"}</Typography.Text>
-          <Typography.Text>{record.keyAlgorithm || "\u00A0"}</Typography.Text>
+        <div className="flex max-w-full flex-col gap-1 truncate">
+          <Typography.Text ellipsis>{record.issuerOrg || "\u00A0"}</Typography.Text>
+          <Typography.Text ellipsis>{record.keyAlgorithm || "\u00A0"}</Typography.Text>
         </div>
       ),
     },
     {
       key: "source",
       title: t("certificate.props.source"),
-      ellipsis: true,
       render: (_, record) => {
         const workflowId = record.workflowId;
         return (
-          <div className="flex max-w-full flex-col gap-1">
-            <Typography.Text>{t(`certificate.props.source.${record.source}`)}</Typography.Text>
+          <div className="flex max-w-full flex-col gap-1 truncate">
+            <Typography.Text ellipsis>{t(`certificate.props.source.${record.source}`)}</Typography.Text>
             <Typography.Link
-              type="secondary"
               ellipsis
+              type="secondary"
               onClick={(e) => {
                 e.stopPropagation();
                 if (workflowId) {
@@ -226,7 +230,7 @@ const CertificateList = () => {
       title: <span className="text-error">{t("certificate.action.delete")}</span>,
       content: <span dangerouslySetInnerHTML={{ __html: t("certificate.action.delete.confirm", { name: certificate.subjectAltNames }) }} />,
       icon: (
-        <span className="anticon">
+        <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
         </span>
       ),

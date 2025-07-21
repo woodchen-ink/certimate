@@ -41,9 +41,8 @@ const WorkflowList = () => {
     {
       key: "name",
       title: t("workflow.props.name"),
-      ellipsis: true,
       render: (_, record) => (
-        <div className="flex max-w-full flex-col gap-1">
+        <div className="flex max-w-full flex-col gap-1 truncate">
           <Typography.Text ellipsis>{record.name || "\u00A0"}</Typography.Text>
           <Typography.Text ellipsis type="secondary">
             {record.description || "\u00A0"}
@@ -54,7 +53,6 @@ const WorkflowList = () => {
     {
       key: "trigger",
       title: t("workflow.props.trigger"),
-      ellipsis: true,
       render: (_, record) => {
         const trigger = record.trigger;
         if (!trigger) {
@@ -99,7 +97,7 @@ const WorkflowList = () => {
       render: (_, record) => {
         return (
           <Flex gap="small">
-            <WorkflowStatusIcon color={true} status={record.lastRunStatus!} />
+            <WorkflowStatusIcon color={true} size="1.25em" status={record.lastRunStatus!} />
             <Typography.Text>{record.lastRunTime ? dayjs(record.lastRunTime!).format("YYYY-MM-DD HH:mm:ss") : ""}</Typography.Text>
           </Flex>
         );
@@ -137,7 +135,7 @@ const WorkflowList = () => {
               color="primary"
               icon={<IconCopy size="1.25em" />}
               variant="text"
-              onClick={() => {
+              onClick={(e) => {
                 e.stopPropagation();
                 handleRecordDuplicateClick(record);
               }}
@@ -276,7 +274,7 @@ const WorkflowList = () => {
       title: <span className="text-error">{t("workflow.action.delete")}</span>,
       content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.confirm", { name: workflow.name }) }} />,
       icon: (
-        <span className="anticon">
+        <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
         </span>
       ),

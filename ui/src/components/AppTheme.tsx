@@ -12,15 +12,17 @@ export const useAppThemeMenuItems = () => {
 
   const { themeMode, setThemeMode } = useBrowserTheme();
 
-  const items = [
-    ["light", "common.theme.light", <IconSun size="1em" />],
-    ["dark", "common.theme.dark", <IconMoon size="1em" />],
-    ["system", "common.theme.system", <IconSunMoon size="1em" />],
-  ].map(([key, label, icon]) => {
+  const items = (
+    [
+      ["light", "common.theme.light", <IconSun size="1em" />],
+      ["dark", "common.theme.dark", <IconMoon size="1em" />],
+      ["system", "common.theme.system", <IconSunMoon size="1em" />],
+    ] satisfies Array<[string, string, React.ReactNode]>
+  ).map(([key, label, icon]) => {
     return {
-      key: key as string,
-      label: t(label as string),
-      icon: icon as React.ReactElement,
+      key: key,
+      label: t(label),
+      icon: icon,
       onClick: () => {
         if (key !== themeMode) {
           setThemeMode(key as Parameters<typeof setThemeMode>[0]);

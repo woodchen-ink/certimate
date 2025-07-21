@@ -1,7 +1,7 @@
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import { IconChevronRight, IconHelp, IconPlus, IconX } from "@tabler/icons-react";
+import { IconChevronRight, IconCircleMinus, IconHelp, IconPlus } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
 import { AutoComplete, Button, Divider, Flex, Form, type FormInstance, Input, InputNumber, Select, Switch, Tooltip, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
@@ -607,7 +607,7 @@ const EmailInput = memo(
           <Button
             color="default"
             disabled={disabled}
-            icon={<IconX size="1.25em" />}
+            icon={<IconCircleMinus size="1.25em" />}
             size="small"
             type="text"
             onClick={(e) => {

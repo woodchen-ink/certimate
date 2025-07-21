@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { IconChevronDown, IconChevronUp, IconPlus, IconX } from "@tabler/icons-react";
+import { IconCircleArrowDown, IconCircleArrowUp, IconCircleMinus, IconCirclePlus } from "@tabler/icons-react";
 import { Button, Collapse, Form, type FormInstance, Input, InputNumber, Select, Space } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod/v4";
@@ -246,7 +246,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
                       extra: (
                         <div className="flex items-center justify-end">
                           <Button
-                            icon={<IconChevronUp size="1.25em" />}
+                            icon={<IconCircleArrowUp size="1.25em" />}
                             color="default"
                             disabled={disabled || index === 0}
                             size="small"
@@ -257,7 +257,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
                             }}
                           />
                           <Button
-                            icon={<IconChevronDown size="1.25em" />}
+                            icon={<IconCircleArrowDown size="1.25em" />}
                             color="default"
                             disabled={disabled || index === fields.length - 1}
                             size="small"
@@ -268,7 +268,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
                             }}
                           />
                           <Button
-                            icon={<IconX size="1.25em" />}
+                            icon={<IconCircleMinus size="1.25em" />}
                             color="default"
                             disabled={disabled}
                             size="small"
@@ -285,7 +285,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
                   })}
                 />
               ) : null}
-              <Button className="w-full" type="dashed" icon={<IconPlus size="1.25em" />} onClick={() => add(initFormModel())}>
+              <Button className="w-full" type="dashed" icon={<IconCirclePlus size="1.25em" />} onClick={() => add(initFormModel())}>
                 {t("access.form.ssh_jump_servers.add")}
               </Button>
             </Space>

@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconPlus, IconX } from "@tabler/icons-react";
+import { IconCircleMinus, IconCirclePlus } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
 import { Button, Form, Input, Radio, Select, theme } from "antd";
 
@@ -368,20 +368,12 @@ const ConditionNodeConfigFormExpressionEditor = forwardRef<ConditionNodeConfigFo
                     }}
                   </Form.Item>
 
-                  <Button
-                    className="my-1"
-                    color="default"
-                    disabled={disabled}
-                    icon={<IconX size="1.25em" />}
-                    size="small"
-                    type="text"
-                    onClick={() => remove(index)}
-                  />
+                  <Button color="default" disabled={disabled} icon={<IconCircleMinus size="1.25em" />} type="text" onClick={() => remove(index)} />
                 </div>
               ))}
 
               <Form.Item>
-                <Button type="dashed" block icon={<IconPlus size="1.25em" />} onClick={() => add({})}>
+                <Button type="dashed" block icon={<IconCirclePlus size="1.25em" />} onClick={() => add({})}>
                   {t("workflow_node.condition.form.expression.add_condition.button")}
                 </Button>
               </Form.Item>

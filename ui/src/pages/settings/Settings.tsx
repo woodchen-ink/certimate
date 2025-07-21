@@ -40,7 +40,11 @@ const Settings = () => {
             items={menus.map(([key, label, icon]) => ({
               key,
               label: t(label),
-              icon: <span className="anticon scale-125">{icon}</span>,
+              icon: (
+                <span className="anticon scale-125" role="img">
+                  {icon}
+                </span>
+              ),
             }))}
             onClick={({ key }) => {
               setMenuValue(key);
@@ -58,7 +62,11 @@ const Settings = () => {
               items={menus.map(([key, label, icon]) => ({
                 key,
                 label: t(label),
-                icon: <span className="anticon scale-125">{icon}</span>,
+                icon: (
+                  <span className="anticon scale-125" role="img">
+                    {icon}
+                  </span>
+                ),
               }))}
               onClick={({ key }) => {
                 setMenuValue(key);

@@ -189,7 +189,11 @@ const StatisticCards = () => {
 };
 
 const WorkflowRunHistoryTable = () => {
+  const navigate = useNavigate();
+
   const { t } = useTranslation();
+
+  const { notification } = App.useApp();
 
   const tableColumns: TableProps<WorkflowRunModel>["columns"] = [
     {
@@ -202,27 +206,27 @@ const WorkflowRunHistoryTable = () => {
     {
       key: "name",
       title: t("workflow.props.name"),
-      ellipsis: true,
       render: (_, record) => {
         const workflow = record.expand?.workflowId;
         return (
-          <Typography.Link
-            ellipsis
-            onClick={() => {
-              if (workflow) {
-                navigate(`/workflows/${workflow.id}`);
-              }
-            }}
-          >
-            {workflow?.name ?? <span className="font-mono">{t(`#${record.workflowId}`)}</span>}
-          </Typography.Link>
+          <div className="max-w-full truncate">
+            <Typography.Link
+              ellipsis
+              onClick={() => {
+                if (workflow) {
+                  navigate(`/workflows/${workflow.id}`);
+                }
+              }}
+            >
+              {workflow?.name ?? <span className="font-mono">{t(`#${record.workflowId}`)}</span>}
+            </Typography.Link>
+          </div>
         );
       },
     },
     {
       key: "status",
       title: t("workflow_run.props.status"),
-      ellipsis: true,
       render: (_, record) => {
         return <WorkflowStatusTag status={record.status} />;
       },

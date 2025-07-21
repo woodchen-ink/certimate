@@ -89,45 +89,31 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
   const [showWhitespace, setShowWhitespace] = useState(true);
 
   const renderBadge = () => {
+    let color: string | undefined;
+
     switch (runStatus) {
       case WORKFLOW_RUN_STATUSES.PENDING:
-        return (
-          <Flex gap="small">
-            <WorkflowStatusIcon status={runStatus} />
-            {t("workflow_run.props.status.pending")}
-          </Flex>
-        );
+        break;
       case WORKFLOW_RUN_STATUSES.RUNNING:
-        return (
-          <Flex gap="small" style={{ color: themeToken.colorInfo }}>
-            <WorkflowStatusIcon status={runStatus} />
-            {t("workflow_run.props.status.running")}
-          </Flex>
-        );
+        color = themeToken.colorInfo;
+        break;
       case WORKFLOW_RUN_STATUSES.SUCCEEDED:
-        return (
-          <Flex gap="small" style={{ color: themeToken.colorSuccess }}>
-            <WorkflowStatusIcon status={runStatus} />
-            {t("workflow_run.props.status.succeeded")}
-          </Flex>
-        );
+        color = themeToken.colorSuccess;
+        break;
       case WORKFLOW_RUN_STATUSES.FAILED:
-        return (
-          <Flex gap="small" style={{ color: themeToken.colorError }}>
-            <WorkflowStatusIcon status={runStatus} />
-            {t("workflow_run.props.status.failed")}
-          </Flex>
-        );
+        color = themeToken.colorError;
+        break;
       case WORKFLOW_RUN_STATUSES.CANCELED:
-        return (
-          <Flex gap="small" style={{ color: themeToken.colorWarning }}>
-            <WorkflowStatusIcon status={runStatus} />
-            {t("workflow_run.props.status.canceled")}
-          </Flex>
-        );
+        color = themeToken.colorWarning;
+        break;
     }
 
-    return <></>;
+    return (
+      <Flex gap="small" style={{ color: color }}>
+        <WorkflowStatusIcon size="1.25em" status={runStatus} />
+        {t(`workflow_run.props.status.${runStatus}`)}
+      </Flex>
+    );
   };
 
   const renderRecord = (record: Log) => {
@@ -294,12 +280,13 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
     {
       key: "name",
       title: t("workflow_run_artifact.props.name"),
-      ellipsis: true,
       render: (_, record) => {
         return (
-          <Typography.Text delete={!!record.deleted} ellipsis>
-            {record.subjectAltNames}
-          </Typography.Text>
+          <div className="max-w-full truncate">
+            <Typography.Text delete={!!record.deleted} ellipsis>
+              {record.subjectAltNames}
+            </Typography.Text>
+          </div>
         );
       },
     },

@@ -93,7 +93,7 @@ const WorkflowDetail = () => {
       title: <span className="text-error">{t("workflow.action.delete")}</span>,
       content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.confirm", { name: workflow.name }) }} />,
       icon: (
-        <span className="anticon">
+        <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
         </span>
       ),
@@ -246,7 +246,7 @@ const WorkflowDetail = () => {
                   key: "orchestration",
                   label: t("workflow.detail.orchestration.tab"),
                   icon: (
-                    <span className="anticon scale-125">
+                    <span className="anticon scale-125" role="img">
                       <IconRobot size="1em" />
                     </span>
                   ),
@@ -255,7 +255,7 @@ const WorkflowDetail = () => {
                   key: "runs",
                   label: t("workflow.detail.runs.tab"),
                   icon: (
-                    <span className="anticon scale-125">
+                    <span className="anticon scale-125" role="img">
                       <IconHistory size="1em" />
                     </span>
                   ),

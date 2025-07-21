@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconBrowserShare, IconExternalLink, IconReload, IconShieldCheckeredFilled, IconTrash } from "@tabler/icons-react";
+import { IconBrowserShare, IconCertificate, IconExternalLink, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { App, Button, Input, Segmented, Skeleton, Table, type TableProps, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
@@ -304,7 +304,7 @@ const CertificateList = () => {
               <Empty
                 title={t("certificate.nodata.title")}
                 description={getErrMsg(loadedError ?? t("certificate.nodata.description"))}
-                icon={<IconShieldCheckeredFilled size={24} />}
+                icon={<IconCertificate size={24} />}
                 extra={
                   loadedError ? (
                     <Button icon={<IconReload size="1.25em" />} type="primary" onClick={handleReloadClick}>

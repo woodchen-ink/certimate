@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconCirclePlus, IconCopy, IconEdit, IconPlus, IconReload, IconSchema, IconTrash } from "@tabler/icons-react";
+import { IconCirclePlus, IconCopy, IconEdit, IconHierarchy3, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { App, Button, Flex, Input, Segmented, Skeleton, Switch, Table, type TableProps, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
@@ -352,7 +352,7 @@ const WorkflowList = () => {
               <Empty
                 title={t("workflow.nodata.title")}
                 description={getErrMsg(loadedError ?? t("workflow.nodata.description"))}
-                icon={<IconSchema size={24} />}
+                icon={<IconHierarchy3 size={24} />}
                 extra={
                   loadedError ? (
                     <Button icon={<IconReload size="1.25em" />} type="primary" onClick={handleReloadClick}>

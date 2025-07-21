@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import {
   IconActivity,
   IconBrowserShare,
+  IconHierarchy3,
   IconPlugConnected,
   IconPlus,
-  IconSchema,
   IconShieldCheckered,
   IconShieldExclamation,
   IconShieldX,
@@ -166,7 +166,7 @@ const StatisticCards = () => {
       </Col>
       <Col {...statisticsGridSpans}>
         <StatisticCard
-          icon={<IconSchema size={48} strokeWidth={1} color={themeToken.colorInfo} />}
+          icon={<IconHierarchy3 size={48} strokeWidth={1} color={themeToken.colorInfo} />}
           label={t("dashboard.statistics.all_workflows")}
           loading={statisticsLoading}
           value={statistics?.workflowTotal ?? "-"}

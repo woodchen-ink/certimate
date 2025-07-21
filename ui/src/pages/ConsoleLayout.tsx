@@ -3,14 +3,14 @@ import { useTranslation } from "react-i18next";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   IconBrandGithub,
+  IconCertificate,
   IconFingerprint,
   IconHelpCircle,
+  IconHierarchy3,
   IconHome,
   IconLogout,
   IconMenu2,
-  IconSchema,
   IconSettings,
-  IconShieldCheckered,
 } from "@tabler/icons-react";
 import { Alert, Button, Drawer, Layout, Menu, type MenuProps, theme } from "antd";
 
@@ -169,8 +169,8 @@ const SiderMenu = memo(({ onSelect }: { onSelect?: (key: string) => void }) => {
   const menuItems: Required<MenuProps>["items"] = (
     [
       [MENU_KEY_HOME, "dashboard.page.title", <IconHome size="1em" />],
-      [MENU_KEY_WORKFLOWS, "workflow.page.title", <IconSchema size="1em" />],
-      [MENU_KEY_CERTIFICATES, "certificate.page.title", <IconShieldCheckered size="1em" />],
+      [MENU_KEY_WORKFLOWS, "workflow.page.title", <IconHierarchy3 size="1em" />],
+      [MENU_KEY_CERTIFICATES, "certificate.page.title", <IconCertificate size="1em" />],
       [MENU_KEY_ACCESSES, "access.page.title", <IconFingerprint size="1em" />],
       [MENU_KEY_SETTINGS, "settings.page.title", <IconSettings size="1em" />],
     ] satisfies Array<[string, string, React.ReactNode]>

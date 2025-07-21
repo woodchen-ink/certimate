@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { App, Card, Col, Form, Input, type InputRef, Row, Spin, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import ModalForm from "@/components/ModalForm";
 import { type WorkflowModel, initWorkflow } from "@/domain/workflow";

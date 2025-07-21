@@ -58,7 +58,7 @@ const ConsoleLayout = () => {
   return (
     <Layout className="h-screen bg-background text-foreground">
       <Show when={!isBrowserHappy()}>
-        <Alert message={t("common.text.happy_browser")} type="warning" showIcon closable />
+        <Alert banner message={t("common.text.happy_browser")} type="warning" showIcon closable />
       </Show>
 
       <Layout className="h-screen" hasSider>

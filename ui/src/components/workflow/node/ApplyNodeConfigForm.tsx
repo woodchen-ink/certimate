@@ -5,7 +5,7 @@ import { IconChevronRight, IconCircleMinus, IconHelp, IconPlus } from "@tabler/i
 import { useControllableValue } from "ahooks";
 import { AutoComplete, Button, Divider, Flex, Form, type FormInstance, Input, InputNumber, Select, Switch, Tooltip, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import AccessEditModal from "@/components/access/AccessEditModal";
 import AccessSelect from "@/components/access/AccessSelect";

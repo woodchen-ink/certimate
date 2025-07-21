@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { App, Button, Divider, Flex, Form, Input, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { useAntdForm } from "@/hooks";
 import { authWithPassword, getAuthStore, save as saveAdmin } from "@/repository/admin";

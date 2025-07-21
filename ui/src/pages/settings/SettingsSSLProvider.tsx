@@ -4,7 +4,7 @@ import { CheckCard } from "@ant-design/pro-components";
 import { Alert, App, Button, Form, Input, Skeleton, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { produce } from "immer";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 import { type CAProviderType, CA_PROVIDERS } from "@/domain/provider";

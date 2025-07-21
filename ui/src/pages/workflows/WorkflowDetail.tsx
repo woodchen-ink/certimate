@@ -5,7 +5,7 @@ import { IconArrowBackUp, IconChevronDown, IconDots, IconHistory, IconPlayerPlay
 import { Alert, App, Button, Card, Dropdown, Flex, Form, Input, Space, Tabs } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { isEqual } from "radash";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { startRun as startWorkflowRun } from "@/api/workflows";
 import ModalForm from "@/components/ModalForm";
@@ -285,7 +285,7 @@ const WorkflowDetail = () => {
             <div className="absolute inset-x-6 top-4 z-2 mx-auto flex max-w-320 items-center justify-between gap-4">
               <div className="flex-1 overflow-hidden">
                 <Show when={workflow.hasDraft!}>
-                  <Alert banner message={<div className="truncate">{t("workflow.detail.orchestration.draft.alert")}</div>} type="warning" />
+                  <Alert message={<div className="truncate">{t("workflow.detail.orchestration.draft.alert")}</div>} showIcon type="warning" />
                 </Show>
               </div>
               <div className="flex justify-end">

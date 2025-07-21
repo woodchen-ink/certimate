@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { IconChevronDown } from "@tabler/icons-react";
 import { Alert, Button, Dropdown, Form, type FormInstance, Input, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import CodeInput from "@/components/CodeInput";
 import Show from "@/components/Show";

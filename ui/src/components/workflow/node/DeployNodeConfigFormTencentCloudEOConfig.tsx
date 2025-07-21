@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { validDomainName } from "@/utils/validators";
 import MultipleSplitValueInput from "@/components/MultipleSplitValueInput";
@@ -40,14 +40,12 @@ const DeployNodeConfigFormTencentCloudEOConfig = ({
     zoneId: z
       .string(t("workflow_node.deploy.form.tencentcloud_eo_zone_id.placeholder"))
       .nonempty(t("workflow_node.deploy.form.tencentcloud_eo_zone_id.placeholder")),
-    domains: z
-      .string(t("workflow_node.deploy.form.tencentcloud_eo_domains.placeholder"))
-      .refine((v) => {
-        if (!v) return false;
-        return String(v)
-          .split(MULTIPLE_INPUT_SEPARATOR)
-          .every((e) => validDomainName(e, { allowWildcard: true }));
-      }, t("common.errmsg.domain_invalid")),
+    domains: z.string(t("workflow_node.deploy.form.tencentcloud_eo_domains.placeholder")).refine((v) => {
+      if (!v) return false;
+      return String(v)
+        .split(MULTIPLE_INPUT_SEPARATOR)
+        .every((e) => validDomainName(e, { allowWildcard: true }));
+    }, t("common.errmsg.domain_invalid")),
   });
   const formRule = createSchemaFieldRule(formSchema);
 

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Alert, Form, type FormInstance, Input, Radio } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import dayjs from "dayjs";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 import { WORKFLOW_TRIGGERS, type WorkflowNodeConfigForStart, type WorkflowTriggerType, defaultNodeConfigForStart } from "@/domain/workflow";

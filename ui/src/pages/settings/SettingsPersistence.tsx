@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { App, Button, Form, InputNumber, Skeleton } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { produce } from "immer";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 import { type PersistenceSettingsContent, SETTINGS_NAMES, type SettingsModel } from "@/domain/settings";

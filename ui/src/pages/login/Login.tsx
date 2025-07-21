@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { IconArrowRight, IconLock, IconMail } from "@tabler/icons-react";
 import { App, Button, Card, Divider, Form, Input, Space } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import AppDocument from "@/components/AppDocument";
 import AppLocale from "@/components/AppLocale";

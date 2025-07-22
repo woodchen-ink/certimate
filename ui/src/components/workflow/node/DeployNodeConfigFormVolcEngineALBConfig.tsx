@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 import { validDomainName } from "@/utils/validators";
@@ -14,13 +14,13 @@ type DeployNodeConfigFormVolcEngineALBConfigFieldValues = Nullish<{
   domain?: string;
 }>;
 
-export type DeployNodeConfigFormVolcEngineALBConfigProps = {
+export interface DeployNodeConfigFormVolcEngineALBConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormVolcEngineALBConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormVolcEngineALBConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;

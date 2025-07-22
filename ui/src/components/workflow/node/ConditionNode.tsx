@@ -1,5 +1,5 @@
 import { memo, useRef, useState } from "react";
-import { FilterFilled as FilterFilledIcon, FilterOutlined as FilterOutlinedIcon, MoreOutlined as MoreOutlinedIcon } from "@ant-design/icons";
+import { IconDotsVertical, IconFilter, IconFilterFilled } from "@tabler/icons-react";
 import { Button, Card, Popover } from "antd";
 import { produce } from "immer";
 
@@ -10,10 +10,10 @@ import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import AddNode from "./AddNode";
 import ConditionNodeConfigForm, { type ConditionNodeConfigFormFieldValues, type ConditionNodeConfigFormInstance } from "./ConditionNodeConfigForm";
 
-export type ConditionNodeProps = SharedNodeProps & {
+export interface ConditionNodeProps extends SharedNodeProps {
   branchId: string;
   branchIndex: number;
-};
+}
 
 const ConditionNode = ({ node, disabled, branchId, branchIndex }: ConditionNodeProps) => {
   const { updateNode } = useWorkflowStore(useZustandShallowSelector(["updateNode"]));
@@ -59,29 +59,31 @@ const ConditionNode = ({ node, disabled, branchId, branchIndex }: ConditionNodeP
             branchId={branchId}
             branchIndex={branchIndex}
             disabled={disabled}
-            trigger={<Button color="primary" icon={<MoreOutlinedIcon />} variant="text" />}
+            trigger={<Button color="primary" icon={<IconDotsVertical size="1em" />} variant="text" />}
           />
         }
         placement="rightTop"
       >
-        <Card className="relative z-[1] mt-10 w-[256px] shadow-md" styles={{ body: { padding: 0 } }} hoverable onClick={() => setDrawerOpen(true)}>
-          <div className="flex h-[48px] flex-col items-center justify-center truncate px-4 py-2">
-            <div className="relative w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
-              <SharedNode.Title
-                className="focus:bg-background focus:text-foreground overflow-hidden outline-slate-200 focus:rounded-sm"
-                node={node}
-                disabled={disabled}
-              />
-              <div className="absolute right-0 top-1/2 -translate-y-1/2" onClick={() => setDrawerOpen(true)}>
-                {node.config?.expression ? (
-                  <Button color="primary" icon={<FilterFilledIcon />} variant="link" />
-                ) : (
-                  <Button color="default" icon={<FilterOutlinedIcon />} variant="link" />
-                )}
+        <div className="relative z-1 mt-10 w-[256px]">
+          <Card className="shadow-md" styles={{ body: { padding: 0 } }} hoverable onClick={() => setDrawerOpen(true)}>
+            <div className="flex h-[48px] flex-col items-center justify-center truncate px-4 py-2">
+              <div className="relative w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                <SharedNode.Title
+                  className="overflow-hidden outline-slate-200 focus:rounded-xs focus:bg-background focus:text-foreground"
+                  node={node}
+                  disabled={disabled}
+                />
+                <div className="absolute top-1/2 right-0 -translate-y-1/2" onClick={() => setDrawerOpen(true)}>
+                  {node.config?.expression ? (
+                    <Button color="primary" icon={<IconFilterFilled size="1em" />} variant="link" />
+                  ) : (
+                    <Button color="default" icon={<IconFilter size="1em" />} variant="link" />
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       </Popover>
 
       <SharedNode.ConfigDrawer

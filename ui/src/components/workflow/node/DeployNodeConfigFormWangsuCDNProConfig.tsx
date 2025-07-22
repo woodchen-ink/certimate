@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { validDomainName } from "@/utils/validators";
 
@@ -12,13 +12,13 @@ type DeployNodeConfigFormWangsuCDNProConfigFieldValues = Nullish<{
   webhookId?: string;
 }>;
 
-export type DeployNodeConfigFormWangsuCDNProConfigProps = {
+export interface DeployNodeConfigFormWangsuCDNProConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormWangsuCDNProConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormWangsuCDNProConfigFieldValues) => void;
-};
+}
 
 const ENVIRONMENT_PRODUCTION = "production" as const;
 const ENVIRONMENT_STAGING = "stating" as const;

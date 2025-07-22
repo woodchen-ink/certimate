@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 import { validDomainName } from "@/utils/validators";
@@ -14,13 +14,13 @@ type DeployNodeConfigFormHuaweiCloudWAFConfigFieldValues = Nullish<{
   listenerId?: string;
 }>;
 
-export type DeployNodeConfigFormHuaweiCloudWAFConfigProps = {
+export interface DeployNodeConfigFormHuaweiCloudWAFConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormHuaweiCloudWAFConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormHuaweiCloudWAFConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 const RESOURCE_TYPE_CLOUDSERVER = "cloudserver" as const;

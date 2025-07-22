@@ -1,20 +1,20 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, InputNumber, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForEmail } from "@/domain/access";
 import { validEmailAddress, validPortNumber } from "@/utils/validators";
 
 type AccessFormEmailConfigFieldValues = Nullish<AccessConfigForEmail>;
 
-export type AccessFormEmailConfigProps = {
+export interface AccessFormEmailConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormEmailConfigFieldValues;
   onValuesChange?: (values: AccessFormEmailConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormEmailConfigFieldValues => {
   return {
@@ -95,7 +95,7 @@ const AccessFormEmailConfig = ({ form: formInst, formName, disabled, initialValu
 
         <div className="w-2/5">
           <Form.Item name="smtpPort" label={t("access.form.email_smtp_port.label")} rules={[formRule]}>
-            <InputNumber className="w-full" placeholder={t("access.form.email_smtp_port.placeholder")} min={1} max={65535} />
+            <InputNumber style={{ width: "100%" }} placeholder={t("access.form.email_smtp_port.placeholder")} min={1} max={65535} />
           </Form.Item>
         </div>
       </div>

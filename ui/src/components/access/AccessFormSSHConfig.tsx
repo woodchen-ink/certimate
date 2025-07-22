@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { ArrowDownOutlined, ArrowUpOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Collapse, Form, type FormInstance, Input, InputNumber, Select, Space } from "antd";
+import { IconCircleArrowDown, IconCircleArrowUp, IconCircleMinus, IconCirclePlus } from "@tabler/icons-react";
+import { Button, Collapse, Form, type FormInstance, Input, InputNumber, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 import TextFileInput from "@/components/TextFileInput";
@@ -11,13 +11,13 @@ import { validDomainName, validIPv4Address, validIPv6Address, validPortNumber } 
 
 type AccessFormSSHConfigFieldValues = Nullish<AccessConfigForSSH>;
 
-export type AccessFormSSHConfigProps = {
+export interface AccessFormSSHConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormSSHConfigFieldValues;
   onValuesChange?: (values: AccessFormSSHConfigFieldValues) => void;
-};
+}
 
 const AUTH_METHOD_NONE = "none" as const;
 const AUTH_METHOD_PASSWORD = "password" as const;
@@ -129,7 +129,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
 
         <div className="w-1/3">
           <Form.Item name="port" label={t("access.form.ssh_port.label")} rules={[formRule]}>
-            <InputNumber className="w-full" min={1} max={65535} placeholder={t("access.form.ssh_port.placeholder")} />
+            <InputNumber style={{ width: "100%" }} min={1} max={65535} placeholder={t("access.form.ssh_port.placeholder")} />
           </Form.Item>
         </div>
       </div>
@@ -171,7 +171,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
       <Form.Item name="jumpServers" label={t("access.form.ssh_jump_servers.label")} rules={[formRule]}>
         <Form.List name="jumpServers">
           {(fields, { add, remove, move }) => (
-            <Space className="w-full" direction="vertical" size="small">
+            <div className="flex flex-col gap-2">
               {fields?.length > 0 ? (
                 <Collapse
                   items={fields.map((field, index) => {
@@ -198,7 +198,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
                             </div>
                             <div className="w-1/3">
                               <Form.Item name={[field.name, "port"]} label={t("access.form.ssh_port.label")} rules={[formRule]}>
-                                <InputNumber className="w-full" placeholder={t("access.form.ssh_port.placeholder")} min={1} max={65535} />
+                                <InputNumber style={{ width: "100%" }} placeholder={t("access.form.ssh_port.placeholder")} min={1} max={65535} />
                               </Form.Item>
                             </div>
                           </div>
@@ -244,9 +244,9 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
                       key: field.key,
                       label: <Label />,
                       extra: (
-                        <Space.Compact>
+                        <div className="flex items-center justify-end">
                           <Button
-                            icon={<ArrowUpOutlined />}
+                            icon={<IconCircleArrowUp size="1.25em" />}
                             color="default"
                             disabled={disabled || index === 0}
                             size="small"
@@ -257,7 +257,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
                             }}
                           />
                           <Button
-                            icon={<ArrowDownOutlined />}
+                            icon={<IconCircleArrowDown size="1.25em" />}
                             color="default"
                             disabled={disabled || index === fields.length - 1}
                             size="small"
@@ -268,7 +268,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
                             }}
                           />
                           <Button
-                            icon={<CloseOutlined />}
+                            icon={<IconCircleMinus size="1.25em" />}
                             color="default"
                             disabled={disabled}
                             size="small"
@@ -278,17 +278,17 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
                               e.stopPropagation();
                             }}
                           />
-                        </Space.Compact>
+                        </div>
                       ),
                       children: <Fields />,
                     };
                   })}
                 />
               ) : null}
-              <Button className="w-full" type="dashed" icon={<PlusOutlined />} onClick={() => add(initFormModel())}>
+              <Button className="w-full" type="dashed" icon={<IconCirclePlus size="1.25em" />} onClick={() => add(initFormModel())}>
                 {t("access.form.ssh_jump_servers.add")}
               </Button>
-            </Space>
+            </div>
           )}
         </Form.List>
       </Form.Item>

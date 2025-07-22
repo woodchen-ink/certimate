@@ -1,44 +1,43 @@
-import { memo, useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Avatar, Select, type SelectProps, Space, Typography, theme } from "antd";
+import { Avatar, Select, type SelectProps, Typography, theme } from "antd";
 
 import { type NotificationProvider, notificationProvidersMap } from "@/domain/provider";
 
-export type NotificationProviderSelectProps = Omit<
-  SelectProps,
-  "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"
-> & {
+export interface NotificationProviderSelectProps
+  extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
   filter?: (record: NotificationProvider) => boolean;
-};
+}
 
 const NotificationProviderSelect = ({ filter, ...props }: NotificationProviderSelectProps) => {
   const { t } = useTranslation();
 
   const { token: themeToken } = theme.useToken();
 
-  const [options, setOptions] = useState<Array<{ key: string; value: string; label: string; data: NotificationProvider }>>([]);
-  useEffect(() => {
-    const allItems = Array.from(notificationProvidersMap.values());
-    const filteredItems = filter != null ? allItems.filter(filter) : allItems;
-    setOptions(
-      filteredItems.map((item) => ({
-        key: item.type,
-        value: item.type,
-        label: t(item.name),
-        data: item,
-      }))
-    );
+  const options = useMemo<Array<{ key: string; value: string; label: string; data: NotificationProvider }>>(() => {
+    return Array.from(notificationProvidersMap.values())
+      .filter((provider) => {
+        if (filter) {
+          return filter(provider);
+        }
+
+        return true;
+      })
+      .map((provider) => ({
+        key: provider.type,
+        value: provider.type,
+        label: t(provider.name),
+        data: provider,
+      }));
   }, [filter]);
 
   const renderOption = (key: string) => {
     const provider = notificationProvidersMap.get(key);
     return (
-      <Space className="max-w-full grow overflow-hidden truncate" size={4}>
+      <div className="flex items-center gap-2 truncate overflow-hidden">
         <Avatar shape="square" src={provider?.icon} size="small" />
-        <Typography.Text className="leading-loose" ellipsis>
-          {t(provider?.name ?? "")}
-        </Typography.Text>
-      </Space>
+        <Typography.Text ellipsis>{t(provider?.name ?? "")}</Typography.Text>
+      </div>
     );
   };
 
@@ -66,4 +65,4 @@ const NotificationProviderSelect = ({ filter, ...props }: NotificationProviderSe
   );
 };
 
-export default memo(NotificationProviderSelect);
+export default NotificationProviderSelect;

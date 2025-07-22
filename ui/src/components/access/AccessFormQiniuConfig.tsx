@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForQiniu } from "@/domain/access";
 
 type AccessFormQiniuConfigFieldValues = Nullish<AccessConfigForQiniu>;
 
-export type AccessFormQiniuConfigProps = {
+export interface AccessFormQiniuConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormQiniuConfigFieldValues;
   onValuesChange?: (values: AccessFormQiniuConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormQiniuConfigFieldValues => {
   return {

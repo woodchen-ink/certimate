@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { validDomainName } from "@/utils/validators";
 
@@ -9,13 +9,13 @@ type DeployNodeConfigFormJDCloudVODConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormJDCloudVODConfigProps = {
+export interface DeployNodeConfigFormJDCloudVODConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormJDCloudVODConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormJDCloudVODConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormJDCloudVODConfigFieldValues => {
   return {};

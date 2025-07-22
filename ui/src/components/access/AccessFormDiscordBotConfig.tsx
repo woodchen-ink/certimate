@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForDiscordBot } from "@/domain/access";
 
 type AccessFormDiscordBotConfigFieldValues = Nullish<AccessConfigForDiscordBot>;
 
-export type AccessFormDiscordBotConfigProps = {
+export interface AccessFormDiscordBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDiscordBotConfigFieldValues;
   onValuesChange?: (values: AccessFormDiscordBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDiscordBotConfigFieldValues => {
   return {

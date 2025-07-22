@@ -5,11 +5,11 @@ import { WorkflowNodeType, newNode } from "@/domain/workflow";
 import { useZustandShallowSelector } from "@/hooks";
 import { useWorkflowStore } from "@/stores/workflow";
 
-export type WorkflowElementsProps = {
+export interface WorkflowElementsProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
-};
+}
 
 const WorkflowElements = ({ className, style, disabled }: WorkflowElementsProps) => {
   const { workflow } = useWorkflowStore(useZustandShallowSelector(["workflow"]));

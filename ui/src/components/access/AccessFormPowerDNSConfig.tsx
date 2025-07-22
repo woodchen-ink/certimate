@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForPowerDNS } from "@/domain/access";
 
 type AccessFormPowerDNSConfigFieldValues = Nullish<AccessConfigForPowerDNS>;
 
-export type AccessFormPowerDNSConfigProps = {
+export interface AccessFormPowerDNSConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormPowerDNSConfigFieldValues;
   onValuesChange?: (values: AccessFormPowerDNSConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormPowerDNSConfigFieldValues => {
   return {

@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForBytePlus } from "@/domain/access";
 
 type AccessFormBytePlusConfigFieldValues = Nullish<AccessConfigForBytePlus>;
 
-export type AccessFormBytePlusConfigProps = {
+export interface AccessFormBytePlusConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormBytePlusConfigFieldValues;
   onValuesChange?: (values: AccessFormBytePlusConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormBytePlusConfigFieldValues => {
   return {

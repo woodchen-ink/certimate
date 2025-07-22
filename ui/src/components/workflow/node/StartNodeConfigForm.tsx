@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Alert, Form, type FormInstance, Input, Radio } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import dayjs from "dayjs";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 import { WORKFLOW_TRIGGERS, type WorkflowNodeConfigForStart, type WorkflowTriggerType, defaultNodeConfigForStart } from "@/domain/workflow";
@@ -12,19 +12,19 @@ import { getNextCronExecutions, validCronExpression } from "@/utils/cron";
 
 type StartNodeConfigFormFieldValues = Partial<WorkflowNodeConfigForStart>;
 
-export type StartNodeConfigFormProps = {
+export interface StartNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: StartNodeConfigFormFieldValues;
   onValuesChange?: (values: StartNodeConfigFormFieldValues) => void;
-};
+}
 
-export type StartNodeConfigFormInstance = {
+export interface StartNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<StartNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<StartNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<StartNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const initFormModel = (): StartNodeConfigFormFieldValues => {
   return defaultNodeConfigForStart();
@@ -87,12 +87,7 @@ const StartNodeConfigForm = forwardRef<StartNodeConfigFormInstance, StartNodeCon
 
     return (
       <Form className={className} style={style} {...formProps} disabled={disabled} layout="vertical" scrollToFirstError onValuesChange={handleFormChange}>
-        <Form.Item
-          name="trigger"
-          label={t("workflow_node.start.form.trigger.label")}
-          rules={[formRule]}
-          tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.start.form.trigger.tooltip") }}></span>}
-        >
+        <Form.Item name="trigger" label={t("workflow_node.start.form.trigger.label")} rules={[formRule]}>
           <Radio.Group onChange={(e) => handleTriggerChange(e.target.value)}>
             <Radio value={WORKFLOW_TRIGGERS.AUTO}>{t("workflow_node.start.form.trigger.option.auto.label")}</Radio>
             <Radio value={WORKFLOW_TRIGGERS.MANUAL}>{t("workflow_node.start.form.trigger.option.manual.label")}</Radio>

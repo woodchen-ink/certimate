@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForTelegramBot } from "@/domain/access";
 
 type AccessFormTelegramBotConfigFieldValues = Nullish<AccessConfigForTelegramBot>;
 
-export type AccessFormTelegramBotConfigProps = {
+export interface AccessFormTelegramBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormTelegramBotConfigFieldValues;
   onValuesChange?: (values: AccessFormTelegramBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormTelegramBotConfigFieldValues => {
   return {

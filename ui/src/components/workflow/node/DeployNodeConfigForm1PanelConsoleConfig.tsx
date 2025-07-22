@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type DeployNodeConfigForm1PanelConsoleConfigFieldValues = Nullish<{
   autoRestart?: boolean;
 }>;
 
-export type DeployNodeConfigForm1PanelConsoleConfigProps = {
+export interface DeployNodeConfigForm1PanelConsoleConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigForm1PanelConsoleConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigForm1PanelConsoleConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigForm1PanelConsoleConfigFieldValues => {
   return {

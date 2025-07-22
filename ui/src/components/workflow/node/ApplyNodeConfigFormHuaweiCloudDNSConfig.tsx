@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type ApplyNodeConfigFormHuaweiCloudDNSConfigFieldValues = Nullish<{
   region: string;
 }>;
 
-export type ApplyNodeConfigFormHuaweiCloudDNSConfigProps = {
+export interface ApplyNodeConfigFormHuaweiCloudDNSConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: ApplyNodeConfigFormHuaweiCloudDNSConfigFieldValues;
   onValuesChange?: (values: ApplyNodeConfigFormHuaweiCloudDNSConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): ApplyNodeConfigFormHuaweiCloudDNSConfigFieldValues => {
   return {

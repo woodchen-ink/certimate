@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { validDomainName } from "@/utils/validators";
 
@@ -9,13 +9,13 @@ type DeployNodeConfigFormVolcEngineDCDNConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormVolcEngineDCDNConfigProps = {
+export interface DeployNodeConfigFormVolcEngineDCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormVolcEngineDCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormVolcEngineDCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormVolcEngineDCDNConfigFieldValues => {
   return {};

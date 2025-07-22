@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForDigitalOcean } from "@/domain/access";
 
 type AccessFormDigitalOceanConfigFieldValues = Nullish<AccessConfigForDigitalOcean>;
 
-export type AccessFormDigitalOceanConfigProps = {
+export interface AccessFormDigitalOceanConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDigitalOceanConfigFieldValues;
   onValuesChange?: (values: AccessFormDigitalOceanConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDigitalOceanConfigFieldValues => {
   return {

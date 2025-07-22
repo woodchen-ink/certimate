@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type NotifyNodeConfigFormDiscordBotConfigFieldValues = Nullish<{
   channelId?: string;
 }>;
 
-export type NotifyNodeConfigFormDiscordBotConfigProps = {
+export interface NotifyNodeConfigFormDiscordBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: NotifyNodeConfigFormDiscordBotConfigFieldValues;
   onValuesChange?: (values: NotifyNodeConfigFormDiscordBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): NotifyNodeConfigFormDiscordBotConfigFieldValues => {
   return {};

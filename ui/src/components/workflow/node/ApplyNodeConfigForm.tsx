@@ -1,18 +1,13 @@
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import {
-  CloseOutlined as CloseOutlinedIcon,
-  PlusOutlined as PlusOutlinedIcon,
-  QuestionCircleOutlined as QuestionCircleOutlinedIcon,
-  RightOutlined as RightOutlinedIcon,
-} from "@ant-design/icons";
+import { IconChevronRight, IconCircleMinus, IconHelp, IconPlus } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
 import { AutoComplete, Button, Divider, Flex, Form, type FormInstance, Input, InputNumber, Select, Switch, Tooltip, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
-import AccessEditModal from "@/components/access/AccessEditModal";
+import AccessEditDrawer from "@/components/access/AccessEditDrawer";
 import AccessSelect from "@/components/access/AccessSelect";
 import MultipleSplitValueInput from "@/components/MultipleSplitValueInput";
 import ACMEDns01ProviderSelect from "@/components/provider/ACMEDns01ProviderSelect";
@@ -33,19 +28,19 @@ import ApplyNodeConfigFormTencentCloudEOConfig from "./ApplyNodeConfigFormTencen
 
 type ApplyNodeConfigFormFieldValues = Partial<WorkflowNodeConfigForApply>;
 
-export type ApplyNodeConfigFormProps = {
+export interface ApplyNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: ApplyNodeConfigFormFieldValues;
   onValuesChange?: (values: ApplyNodeConfigFormFieldValues) => void;
-};
+}
 
-export type ApplyNodeConfigFormInstance = {
+export interface ApplyNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<ApplyNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<ApplyNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<ApplyNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const MULTIPLE_INPUT_SEPARATOR = ";";
 
@@ -279,7 +274,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
               modalTitle={t("workflow_node.apply.form.domains.multiple_input_modal.title")}
               placeholder={t("workflow_node.apply.form.domains.placeholder")}
               placeholderInModal={t("workflow_node.apply.form.domains.multiple_input_modal.placeholder")}
-              splitOptions={{ trim: true, removeEmpty: true }}
+              splitOptions={{ removeEmpty: true, trimSpace: true }}
             />
           </Form.Item>
 
@@ -318,27 +313,27 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
             />
           </Form.Item>
 
-          <Form.Item className="mb-0" htmlFor="null">
+          <Form.Item noStyle>
             <label className="mb-1 block">
               <div className="flex w-full items-center justify-between gap-4">
                 <div className="max-w-full grow truncate">
                   <span>{t("workflow_node.apply.form.provider_access.label")}</span>
                   <Tooltip title={t("workflow_node.apply.form.provider_access.tooltip")}>
                     <Typography.Text className="ms-1" type="secondary">
-                      <QuestionCircleOutlinedIcon />
+                      <IconHelp size="1.25em" />
                     </Typography.Text>
                   </Tooltip>
                 </div>
                 <div className="text-right">
-                  <AccessEditModal
-                    scene="add"
+                  <AccessEditDrawer
+                    mode="create"
                     trigger={
                       <Button size="small" type="link">
                         {t("workflow_node.apply.form.provider_access.button")}
-                        <PlusOutlinedIcon className="text-xs" />
+                        <IconPlus size="1.25em" />
                       </Button>
                     }
-                    usage="both-dns-hosting"
+                    usage="dns"
                     afterSubmit={(record) => {
                       const provider = accessProvidersMap.get(record.provider);
                       if (provider?.usages?.includes(ACCESS_USAGES.DNS)) {
@@ -375,7 +370,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
         </Divider>
 
         <Form className={className} style={style} {...formProps} disabled={disabled} layout="vertical" scrollToFirstError onValuesChange={handleFormChange}>
-          <Form.Item className="mb-0" htmlFor="null">
+          <Form.Item noStyle>
             <label className="mb-1 block">
               <div className="flex w-full items-center justify-between gap-4">
                 <div className="max-w-full grow truncate">
@@ -386,7 +381,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                     <Link className="ant-typography" to="/settings/ssl-provider" target="_blank">
                       <Button size="small" type="link">
                         {t("workflow_node.apply.form.ca_provider.button")}
-                        <RightOutlinedIcon className="text-xs" />
+                        <IconChevronRight size="1.25em" />
                       </Button>
                     </Link>
                   </Show>
@@ -404,23 +399,23 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
             </Form.Item>
           </Form.Item>
 
-          <Form.Item className="mb-0" htmlFor="null" hidden={!showCAProviderAccess}>
+          <Form.Item hidden={!showCAProviderAccess} noStyle>
             <label className="mb-1 block">
               <div className="flex w-full items-center justify-between gap-4">
                 <div className="max-w-full grow truncate">
                   <span>{t("workflow_node.apply.form.ca_provider_access.label")}</span>
                 </div>
                 <div className="text-right">
-                  <AccessEditModal
+                  <AccessEditDrawer
                     data={{ provider: caProvidersMap.get(fieldCAProvider!)?.provider }}
-                    scene="add"
+                    mode="create"
                     trigger={
                       <Button size="small" type="link">
                         {t("workflow_node.apply.form.ca_provider_access.button")}
-                        <PlusOutlinedIcon className="text-xs" />
+                        <IconChevronRight size="1.25em" />
                       </Button>
                     }
-                    usage="ca-only"
+                    usage="ca"
                     afterSubmit={(record) => {
                       const provider = accessProvidersMap.get(record.provider);
                       if (provider?.usages?.includes(ACCESS_USAGES.CA)) {
@@ -488,7 +483,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
               modalTitle={t("workflow_node.apply.form.nameservers.multiple_input_modal.title")}
               placeholder={t("workflow_node.apply.form.nameservers.placeholder")}
               placeholderInModal={t("workflow_node.apply.form.nameservers.multiple_input_modal.placeholder")}
-              splitOptions={{ trim: true, removeEmpty: true }}
+              splitOptions={{ removeEmpty: true, trimSpace: true }}
             />
           </Form.Item>
 
@@ -607,12 +602,12 @@ const EmailInput = memo(
 
     const renderOptionLabel = (email: string, removable: boolean = false) => (
       <div className="flex items-center gap-2 overflow-hidden">
-        <span className="flex-1 overflow-hidden truncate">{email}</span>
+        <span className="flex-1 truncate overflow-hidden">{email}</span>
         {removable && (
           <Button
             color="default"
             disabled={disabled}
-            icon={<CloseOutlinedIcon />}
+            icon={<IconCircleMinus size="1.25em" />}
             size="small"
             type="text"
             onClick={(e) => {

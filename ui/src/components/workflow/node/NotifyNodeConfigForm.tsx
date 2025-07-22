@@ -1,21 +1,18 @@
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
-import { PlusOutlined as PlusOutlinedIcon, RightOutlined as RightOutlinedIcon } from "@ant-design/icons";
-import { Button, Divider, Flex, Form, type FormInstance, Input, Select, Switch, Typography } from "antd";
+import { IconPlus } from "@tabler/icons-react";
+import { Button, Divider, Flex, Form, type FormInstance, Input, Switch, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
-import AccessEditModal from "@/components/access/AccessEditModal";
+import AccessEditDrawer from "@/components/access/AccessEditDrawer";
 import AccessSelect from "@/components/access/AccessSelect";
 import NotificationProviderSelect from "@/components/provider/NotificationProviderSelect";
 import Show from "@/components/Show";
 import { ACCESS_USAGES, NOTIFICATION_PROVIDERS, accessProvidersMap, notificationProvidersMap } from "@/domain/provider";
-import { notifyChannelsMap } from "@/domain/settings";
 import { type WorkflowNodeConfigForNotify, defaultNodeConfigForNotify } from "@/domain/workflow";
 import { useAntdForm, useAntdFormName, useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
-import { useNotifyChannelsStore } from "@/stores/notify";
 
 import NotifyNodeConfigFormDiscordBotConfig from "./NotifyNodeConfigFormDiscordBotConfig";
 import NotifyNodeConfigFormEmailConfig from "./NotifyNodeConfigFormEmailConfig";
@@ -26,19 +23,19 @@ import NotifyNodeConfigFormWebhookConfig from "./NotifyNodeConfigFormWebhookConf
 
 type NotifyNodeConfigFormFieldValues = Partial<WorkflowNodeConfigForNotify>;
 
-export type NotifyNodeConfigFormProps = {
+export interface NotifyNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: NotifyNodeConfigFormFieldValues;
   onValuesChange?: (values: NotifyNodeConfigFormFieldValues) => void;
-};
+}
 
-export type NotifyNodeConfigFormInstance = {
+export interface NotifyNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<NotifyNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<NotifyNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<NotifyNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const initFormModel = (): NotifyNodeConfigFormFieldValues => {
   return defaultNodeConfigForNotify();
@@ -49,15 +46,6 @@ const NotifyNodeConfigForm = forwardRef<NotifyNodeConfigFormInstance, NotifyNode
     const { t } = useTranslation();
 
     const { accesses } = useAccessesStore(useZustandShallowSelector("accesses"));
-
-    const {
-      channels,
-      loadedAtOnce: channelsLoadedAtOnce,
-      fetchChannels,
-    } = useNotifyChannelsStore(useZustandShallowSelector(["channels", "loadedAtOnce", "fetchChannels"]));
-    useEffect(() => {
-      fetchChannels();
-    }, []);
 
     const formSchema = z.object({
       subject: z
@@ -187,34 +175,6 @@ const NotifyNodeConfigForm = forwardRef<NotifyNodeConfigFormInstance, NotifyNode
           <Input.TextArea autoSize={{ minRows: 3, maxRows: 10 }} placeholder={t("workflow_node.notify.form.message.placeholder")} />
         </Form.Item>
 
-        <Form.Item className="mb-0" htmlFor="null">
-          <label className="mb-1 block">
-            <div className="flex w-full items-center justify-between gap-4">
-              <div className="max-w-full grow truncate line-through">{t("workflow_node.notify.form.channel.label")}</div>
-              <div className="text-right">
-                <Link className="ant-typography" to="/settings/notification" target="_blank">
-                  <Button size="small" type="link">
-                    {t("workflow_node.notify.form.channel.button")}
-                    <RightOutlinedIcon className="text-xs" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </label>
-          <Form.Item name="channel" rules={[formRule]}>
-            <Select
-              loading={!channelsLoadedAtOnce}
-              options={Object.entries(channels)
-                .filter(([_, v]) => v?.enabled)
-                .map(([k, _]) => ({
-                  label: t(notifyChannelsMap.get(k)?.name ?? k),
-                  value: k,
-                }))}
-              placeholder={t("workflow_node.notify.form.channel.placeholder")}
-            />
-          </Form.Item>
-        </Form.Item>
-
         <Form.Item name="provider" label={t("workflow_node.notify.form.provider.label")} hidden={!showProvider} rules={[formRule]}>
           <NotificationProviderSelect
             disabled={!showProvider}
@@ -231,22 +191,22 @@ const NotifyNodeConfigForm = forwardRef<NotifyNodeConfigFormInstance, NotifyNode
           />
         </Form.Item>
 
-        <Form.Item className="mb-0" htmlFor="null">
+        <Form.Item noStyle>
           <label className="mb-1 block">
             <div className="flex w-full items-center justify-between gap-4">
               <div className="max-w-full grow truncate">
                 <span>{t("workflow_node.notify.form.provider_access.label")}</span>
               </div>
               <div className="text-right">
-                <AccessEditModal
-                  scene="add"
+                <AccessEditDrawer
+                  mode="create"
                   trigger={
                     <Button size="small" type="link">
                       {t("workflow_node.notify.form.provider_access.button")}
-                      <PlusOutlinedIcon className="text-xs" />
+                      <IconPlus size="1.25em" />
                     </Button>
                   }
-                  usage="notification-only"
+                  usage="notification"
                   afterSubmit={(record) => {
                     const provider = accessProvidersMap.get(record.provider);
                     if (provider?.usages?.includes(ACCESS_USAGES.NOTIFICATION)) {

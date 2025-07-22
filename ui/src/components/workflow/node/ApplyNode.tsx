@@ -11,7 +11,7 @@ import { useWorkflowStore } from "@/stores/workflow";
 import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import ApplyNodeConfigForm, { type ApplyNodeConfigFormInstance } from "./ApplyNodeConfigForm";
 
-export type ApplyNodeProps = SharedNodeProps;
+export interface ApplyNodeProps extends SharedNodeProps {}
 
 const ApplyNode = ({ node, disabled }: ApplyNodeProps) => {
   if (node.type !== WorkflowNodeType.Apply) {
@@ -33,7 +33,7 @@ const ApplyNode = ({ node, disabled }: ApplyNodeProps) => {
     }
 
     const config = (node.config as WorkflowNodeConfigForApply) ?? {};
-    return <Typography.Text className="truncate">{config.domains || "　"}</Typography.Text>;
+    return <Typography.Text className="truncate">{config.domains || "\u00A0"}</Typography.Text>;
   }, [node]);
 
   const formRef = useRef<ApplyNodeConfigFormInstance>(null);

@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForAliyun } from "@/domain/access";
 
 type AccessFormAliyunConfigFieldValues = Nullish<AccessConfigForAliyun>;
 
-export type AccessFormAliyunConfigProps = {
+export interface AccessFormAliyunConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormAliyunConfigFieldValues;
   onValuesChange?: (values: AccessFormAliyunConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormAliyunConfigFieldValues => {
   return {

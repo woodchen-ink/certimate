@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type DeployNodeConfigFormUCloudUCDNConfigFieldValues = Nullish<{
   domainId: string;
 }>;
 
-export type DeployNodeConfigFormUCloudUCDNConfigProps = {
+export interface DeployNodeConfigFormUCloudUCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormUCloudUCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormUCloudUCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormUCloudUCDNConfigFieldValues => {
   return {};

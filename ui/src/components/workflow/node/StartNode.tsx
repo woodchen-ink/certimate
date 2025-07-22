@@ -10,7 +10,7 @@ import { useWorkflowStore } from "@/stores/workflow";
 import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import StartNodeConfigForm, { type StartNodeConfigFormInstance } from "./StartNodeConfigForm";
 
-export type StartNodeProps = SharedNodeProps;
+export interface StartNodeProps extends SharedNodeProps {}
 
 const StartNode = ({ node, disabled }: StartNodeProps) => {
   if (node.type !== WorkflowNodeType.Start) {
@@ -44,7 +44,7 @@ const StartNode = ({ node, disabled }: StartNodeProps) => {
             ? t("workflow.props.trigger.auto")
             : config.trigger === WORKFLOW_TRIGGERS.MANUAL
               ? t("workflow.props.trigger.manual")
-              : "　"}
+              : "\u00A0"}
         </Typography.Text>
         <Typography.Text className="truncate" type="secondary">
           {config.trigger === WORKFLOW_TRIGGERS.AUTO ? config.triggerCron : ""}

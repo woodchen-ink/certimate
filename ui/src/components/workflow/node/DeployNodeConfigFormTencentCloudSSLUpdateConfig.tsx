@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Alert, Form, type FormInstance, Input, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import MultipleSplitValueInput from "@/components/MultipleSplitValueInput";
 
@@ -13,13 +13,13 @@ type DeployNodeConfigFormTencentCloudSSLUpdateConfigFieldValues = Nullish<{
   isReplaced?: boolean;
 }>;
 
-export type DeployNodeConfigFormTencentCloudSSLUpdateConfigProps = {
+export interface DeployNodeConfigFormTencentCloudSSLUpdateConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormTencentCloudSSLUpdateConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormTencentCloudSSLUpdateConfigFieldValues) => void;
-};
+}
 
 const MULTIPLE_INPUT_SEPARATOR = ";";
 
@@ -105,7 +105,7 @@ const DeployNodeConfigFormTencentCloudSSLUpdateConfig = ({
           modalTitle={t("workflow_node.deploy.form.tencentcloud_ssl_update_resource_types.multiple_input_modal.title")}
           placeholder={t("workflow_node.deploy.form.tencentcloud_ssl_update_resource_types.placeholder")}
           placeholderInModal={t("workflow_node.deploy.form.tencentcloud_ssl_update_resource_types.multiple_input_modal.placeholder")}
-          splitOptions={{ trim: true, removeEmpty: true }}
+          splitOptions={{ removeEmpty: true, trimSpace: true }}
         />
       </Form.Item>
 
@@ -119,7 +119,7 @@ const DeployNodeConfigFormTencentCloudSSLUpdateConfig = ({
           modalTitle={t("workflow_node.deploy.form.tencentcloud_ssl_update_resource_regions.multiple_input_modal.title")}
           placeholder={t("workflow_node.deploy.form.tencentcloud_ssl_update_resource_regions.placeholder")}
           placeholderInModal={t("workflow_node.deploy.form.tencentcloud_ssl_update_resource_regions.multiple_input_modal.placeholder")}
-          splitOptions={{ trim: true, removeEmpty: true }}
+          splitOptions={{ removeEmpty: true, trimSpace: true }}
         />
       </Form.Item>
 

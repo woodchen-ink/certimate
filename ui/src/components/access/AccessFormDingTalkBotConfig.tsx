@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForDingTalkBot } from "@/domain/access";
 
 type AccessFormDingTalkBotConfigFieldValues = Nullish<AccessConfigForDingTalkBot>;
 
-export type AccessFormDingTalkBotConfigProps = {
+export interface AccessFormDingTalkBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDingTalkBotConfigFieldValues;
   onValuesChange?: (values: AccessFormDingTalkBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDingTalkBotConfigFieldValues => {
   return {

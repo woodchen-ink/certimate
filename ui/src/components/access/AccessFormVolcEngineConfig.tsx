@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForVolcEngine } from "@/domain/access";
 
 type AccessFormVolcEngineConfigFieldValues = Nullish<AccessConfigForVolcEngine>;
 
-export type AccessFormVolcEngineConfigProps = {
+export interface AccessFormVolcEngineConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormVolcEngineConfigFieldValues;
   onValuesChange?: (values: AccessFormVolcEngineConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormVolcEngineConfigFieldValues => {
   return {

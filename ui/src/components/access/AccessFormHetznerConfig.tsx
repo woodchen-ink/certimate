@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForHetzner } from "@/domain/access";
 
 type AccessFormHetznerConfigFieldValues = Nullish<AccessConfigForHetzner>;
 
-export type AccessFormHetznerConfigProps = {
+export interface AccessFormHetznerConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormHetznerConfigFieldValues;
   onValuesChange?: (values: AccessFormHetznerConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormHetznerConfigFieldValues => {
   return {

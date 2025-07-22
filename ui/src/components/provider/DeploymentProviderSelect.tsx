@@ -1,44 +1,43 @@
-import { memo, useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Avatar, Select, type SelectProps, Space, Typography, theme } from "antd";
+import { Avatar, Select, type SelectProps, Typography, theme } from "antd";
 
 import { type DeploymentProvider, deploymentProvidersMap } from "@/domain/provider";
 
-export type DeploymentProviderSelectProps = Omit<
-  SelectProps,
-  "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"
-> & {
+export interface DeploymentProviderSelectProps
+  extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
   filter?: (record: DeploymentProvider) => boolean;
-};
+}
 
 const DeploymentProviderSelect = ({ filter, ...props }: DeploymentProviderSelectProps) => {
   const { t } = useTranslation();
 
   const { token: themeToken } = theme.useToken();
 
-  const [options, setOptions] = useState<Array<{ key: string; value: string; label: string; data: DeploymentProvider }>>([]);
-  useEffect(() => {
-    const allItems = Array.from(deploymentProvidersMap.values());
-    const filteredItems = filter != null ? allItems.filter(filter) : allItems;
-    setOptions(
-      filteredItems.map((item) => ({
-        key: item.type,
-        value: item.type,
-        label: t(item.name),
-        data: item,
-      }))
-    );
+  const options = useMemo<Array<{ key: string; value: string; label: string; data: DeploymentProvider }>>(() => {
+    return Array.from(deploymentProvidersMap.values())
+      .filter((provider) => {
+        if (filter) {
+          return filter(provider);
+        }
+
+        return true;
+      })
+      .map((provider) => ({
+        key: provider.type,
+        value: provider.type,
+        label: t(provider.name),
+        data: provider,
+      }));
   }, [filter]);
 
   const renderOption = (key: string) => {
     const provider = deploymentProvidersMap.get(key);
     return (
-      <Space className="max-w-full grow overflow-hidden truncate" size={4}>
+      <div className="flex items-center gap-2 truncate overflow-hidden">
         <Avatar shape="square" src={provider?.icon} size="small" />
-        <Typography.Text className="leading-loose" ellipsis>
-          {t(provider?.name ?? "")}
-        </Typography.Text>
-      </Space>
+        <Typography.Text ellipsis>{t(provider?.name ?? "")}</Typography.Text>
+      </div>
     );
   };
 
@@ -66,4 +65,4 @@ const DeploymentProviderSelect = ({ filter, ...props }: DeploymentProviderSelect
   );
 };
 
-export default memo(DeploymentProviderSelect);
+export default DeploymentProviderSelect;

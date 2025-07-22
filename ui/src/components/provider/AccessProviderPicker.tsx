@@ -1,23 +1,30 @@
-﻿import { memo, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Avatar, Card, Col, Empty, Flex, Input, type InputRef, Row, Tag, Typography } from "antd";
+import { useSize } from "ahooks";
+import { Avatar, Card, Empty, Input, type InputRef, Tag, Typography } from "antd";
 
 import Show from "@/components/Show";
 import { ACCESS_USAGES, type AccessProvider, type AccessUsageType, accessProvidersMap } from "@/domain/provider";
 import { mergeCls } from "@/utils/css";
 
-export type AccessProviderPickerProps = {
+export interface AccessProviderPickerProps {
   className?: string;
   style?: React.CSSProperties;
   autoFocus?: boolean;
   filter?: (record: AccessProvider) => boolean;
+  gap?: number | "small" | "middle" | "large";
   placeholder?: string;
   showOptionTags?: boolean | { [key in AccessUsageType]?: boolean };
   onSelect?: (value: string) => void;
-};
+}
 
-const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder, showOptionTags, onSelect }: AccessProviderPickerProps) => {
+const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder, showOptionTags, onSelect, ...props }: AccessProviderPickerProps) => {
+  const { gap = "middle" } = props;
+
   const { t } = useTranslation();
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const wrapperSize = useSize(wrapperRef);
 
   const [keyword, setKeyword] = useState<string>();
   const keywordInputRef = useRef<InputRef>(null);
@@ -26,6 +33,22 @@ const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder
       setTimeout(() => keywordInputRef.current?.focus(), 1);
     }
   }, []);
+
+  const showOptionTagForDNS = useMemo(() => {
+    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.DNS] : !!showOptionTags;
+  }, [showOptionTags]);
+  const showOptionTagForHosting = useMemo(() => {
+    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.HOSTING] : !!showOptionTags;
+  }, [showOptionTags]);
+  const showOptionTagForCA = useMemo(() => {
+    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.CA] : !!showOptionTags;
+  }, [showOptionTags]);
+  const showOptionTagForNotification = useMemo(() => {
+    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.NOTIFICATION] : !!showOptionTags;
+  }, [showOptionTags]);
+  const showOptionTagAnyhow = useMemo(() => {
+    return showOptionTagForDNS || showOptionTagForHosting || showOptionTagForCA || showOptionTagForNotification;
+  }, [showOptionTagForDNS, showOptionTagForHosting, showOptionTagForCA, showOptionTagForNotification]);
 
   const providers = useMemo(() => {
     return Array.from(accessProvidersMap.values())
@@ -45,36 +68,38 @@ const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder
         return true;
       });
   }, [filter, keyword]);
+  const providerCols = useMemo(() => {
+    if (!wrapperSize) {
+      return 1;
+    }
 
-  const showOptionTagForDNS = useMemo(() => {
-    return typeof showOptionTags === "object" ? !!showOptionTags[ACCESS_USAGES.DNS] : !!showOptionTags;
-  }, [showOptionTags]);
-  const showOptionTagForHosting = useMemo(() => {
-    return typeof showOptionTags === "object" ? !!showOptionTags[ACCESS_USAGES.HOSTING] : !!showOptionTags;
-  }, [showOptionTags]);
-  const showOptionTagForCA = useMemo(() => {
-    return typeof showOptionTags === "object" ? !!showOptionTags[ACCESS_USAGES.CA] : !!showOptionTags;
-  }, [showOptionTags]);
-  const showOptionTagForNotification = useMemo(() => {
-    return typeof showOptionTags === "object" ? !!showOptionTags[ACCESS_USAGES.NOTIFICATION] : !!showOptionTags;
-  }, [showOptionTags]);
+    const cols = Math.floor(wrapperSize.width / (showOptionTagAnyhow ? 240 : 200));
+    return Math.min(9, Math.max(1, cols));
+  }, [wrapperSize, showOptionTagAnyhow]);
 
   const handleProviderTypeSelect = (value: string) => {
     onSelect?.(value);
   };
 
   return (
-    <div className={className} style={style}>
+    <div className={className} style={style} ref={wrapperRef}>
       <Input.Search ref={keywordInputRef} placeholder={placeholder ?? t("common.text.search")} onChange={(e) => setKeyword(e.target.value.trim())} />
 
       <div className="mt-4">
         <Show when={providers.length > 0} fallback={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}>
-          <Row gutter={[16, 16]}>
-            {providers.map((provider, index) => {
+          <div
+            className={mergeCls("grid w-full gap-2", `grid-cols-${providerCols}`, {
+              "gap-4": gap === "large",
+              "gap-2": gap === "middle",
+              "gap-1": gap === "small",
+              [`gap-${+gap || "2"}`]: typeof gap === "number",
+            })}
+          >
+            {providers.map((provider) => {
               return (
-                <Col key={index} xs={24} md={12} span={8}>
+                <div key={provider.type}>
                   <Card
-                    className={mergeCls("h-20 w-full overflow-hidden shadow-sm", provider.builtin ? " cursor-not-allowed" : "")}
+                    className={mergeCls("h-20 w-full overflow-hidden shadow", provider.builtin ? " cursor-not-allowed" : "")}
                     styles={{ body: { height: "100%", padding: "0.5rem 1rem" } }}
                     hoverable
                     onClick={() => {
@@ -85,40 +110,42 @@ const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder
                       handleProviderTypeSelect(provider.type);
                     }}
                   >
-                    <Flex className="size-full overflow-hidden" align="center" gap={8}>
-                      <Avatar shape="square" src={provider.icon} size="small" />
+                    <div className="flex size-full items-center gap-4 overflow-hidden">
+                      <Avatar className="bg-stone-100" icon={<img src={provider.icon} />} shape="square" size={28} />
                       <div className="flex-1 overflow-hidden">
-                        <Typography.Text className="mb-1 line-clamp-1" type={provider.builtin ? "secondary" : undefined}>
-                          {t(provider.name)}
-                        </Typography.Text>
-                        <div className="origin-left scale-[75%]">
-                          <Show when={provider.builtin}>
-                            <Tag>{t("access.props.provider.builtin")}</Tag>
-                          </Show>
-                          <Show when={showOptionTagForDNS && provider.usages.includes(ACCESS_USAGES.DNS)}>
-                            <Tag color="orange">{t("access.props.provider.usage.dns")}</Tag>
-                          </Show>
-                          <Show when={showOptionTagForHosting && provider.usages.includes(ACCESS_USAGES.HOSTING)}>
-                            <Tag color="geekblue">{t("access.props.provider.usage.hosting")}</Tag>
-                          </Show>
-                          <Show when={showOptionTagForCA && provider.usages.includes(ACCESS_USAGES.CA)}>
-                            <Tag color="magenta">{t("access.props.provider.usage.ca")}</Tag>
-                          </Show>
-                          <Show when={showOptionTagForNotification && provider.usages.includes(ACCESS_USAGES.NOTIFICATION)}>
-                            <Tag color="cyan">{t("access.props.provider.usage.notification")}</Tag>
-                          </Show>
+                        <div className={mergeCls("max-w-full", showOptionTagAnyhow ? "mb-1 truncate" : "line-clamp-2")}>
+                          <Typography.Text type={provider.builtin ? "secondary" : undefined}>{t(provider.name) || "\u00A0"}</Typography.Text>
                         </div>
+                        <Show when={showOptionTagAnyhow}>
+                          <div className="origin-left scale-80 whitespace-nowrap">
+                            <Show when={provider.builtin}>
+                              <Tag>{t("access.props.provider.builtin")}</Tag>
+                            </Show>
+                            <Show when={showOptionTagForDNS && provider.usages.includes(ACCESS_USAGES.DNS)}>
+                              <Tag color="#d93f0b99">{t("access.props.provider.usage.dns")}</Tag>
+                            </Show>
+                            <Show when={showOptionTagForHosting && provider.usages.includes(ACCESS_USAGES.HOSTING)}>
+                              <Tag color="#0052cc99">{t("access.props.provider.usage.hosting")}</Tag>
+                            </Show>
+                            <Show when={showOptionTagForCA && provider.usages.includes(ACCESS_USAGES.CA)}>
+                              <Tag color="#0e8a1699">{t("access.props.provider.usage.ca")}</Tag>
+                            </Show>
+                            <Show when={showOptionTagForNotification && provider.usages.includes(ACCESS_USAGES.NOTIFICATION)}>
+                              <Tag color="#1d76db99">{t("access.props.provider.usage.notification")}</Tag>
+                            </Show>
+                          </div>
+                        </Show>
                       </div>
-                    </Flex>
+                    </div>
                   </Card>
-                </Col>
+                </div>
               );
             })}
-          </Row>
+          </div>
         </Show>
       </div>
     </div>
   );
 };
 
-export default memo(AccessProviderPicker);
+export default AccessProviderPicker;

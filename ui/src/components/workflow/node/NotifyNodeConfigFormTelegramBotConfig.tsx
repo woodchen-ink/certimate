@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type NotifyNodeConfigFormTelegramBotConfigFieldValues = Nullish<{
   chatId?: string | number;
 }>;
 
-export type NotifyNodeConfigFormTelegramBotConfigProps = {
+export interface NotifyNodeConfigFormTelegramBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: NotifyNodeConfigFormTelegramBotConfigFieldValues;
   onValuesChange?: (values: NotifyNodeConfigFormTelegramBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): NotifyNodeConfigFormTelegramBotConfigFieldValues => {
   return {};

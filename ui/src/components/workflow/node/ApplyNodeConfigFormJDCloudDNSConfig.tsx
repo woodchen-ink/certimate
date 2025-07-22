@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type ApplyNodeConfigFormJDCloudDNSConfigFieldValues = Nullish<{
   regionId: string;
 }>;
 
-export type ApplyNodeConfigFormJDCloudDNSConfigProps = {
+export interface ApplyNodeConfigFormJDCloudDNSConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: ApplyNodeConfigFormJDCloudDNSConfigFieldValues;
   onValuesChange?: (values: ApplyNodeConfigFormJDCloudDNSConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): ApplyNodeConfigFormJDCloudDNSConfigFieldValues => {
   return {

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 import { validDomainName } from "@/utils/validators";
@@ -13,13 +13,13 @@ type DeployNodeConfigFormAliyunGAConfigFieldValues = Nullish<{
   domain?: string;
 }>;
 
-export type DeployNodeConfigFormAliyunGAConfigProps = {
+export interface DeployNodeConfigFormAliyunGAConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAliyunGAConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAliyunGAConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_ACCELERATOR = "accelerator" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;

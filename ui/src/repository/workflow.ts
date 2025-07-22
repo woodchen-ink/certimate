@@ -6,6 +6,7 @@ import { COLLECTION_NAME_WORKFLOW, getPocketBase } from "./_pocketbase";
 export type ListRequest = {
   keyword?: string;
   enabled?: boolean;
+  sort?: string;
   page?: number;
   perPage?: number;
 };
@@ -21,11 +22,14 @@ export const list = async (request: ListRequest) => {
     filters.push(pb.filter("enabled={:enabled}", { enabled: request.enabled }));
   }
 
+  const sort = request.sort || "-created";
+
   const page = request.page || 1;
   const perPage = request.perPage || 10;
+
   return await pb.collection(COLLECTION_NAME_WORKFLOW).getList<WorkflowModel>(page, perPage, {
     filter: filters.join(" && "),
-    sort: "-created",
+    sort: sort,
     requestKey: null,
   });
 };

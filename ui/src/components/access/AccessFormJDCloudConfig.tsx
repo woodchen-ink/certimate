@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForJDCloud } from "@/domain/access";
 
 type AccessFormJDCloudConfigFieldValues = Nullish<AccessConfigForJDCloud>;
 
-export type AccessFormJDCloudConfigProps = {
+export interface AccessFormJDCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormJDCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormJDCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormJDCloudConfigFieldValues => {
   return {

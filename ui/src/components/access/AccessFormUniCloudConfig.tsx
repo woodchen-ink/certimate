@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForUniCloud } from "@/domain/access";
 
 type AccessFormUniCloudConfigFieldValues = Nullish<AccessConfigForUniCloud>;
 
-export type AccessFormUniCloudConfigProps = {
+export interface AccessFormUniCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormUniCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormUniCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormUniCloudConfigFieldValues => {
   return {

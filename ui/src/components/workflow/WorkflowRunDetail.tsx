@@ -1,35 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  CheckCircleOutlined as CheckCircleOutlinedIcon,
-  CheckOutlined as CheckOutlinedIcon,
-  ClockCircleOutlined as ClockCircleOutlinedIcon,
-  CloseCircleOutlined as CloseCircleOutlinedIcon,
-  DownloadOutlined as DownloadOutlinedIcon,
-  RightOutlined as RightOutlinedIcon,
-  SelectOutlined as SelectOutlinedIcon,
-  SettingOutlined as SettingOutlinedIcon,
-  StopOutlined as StopOutlinedIcon,
-  SyncOutlined as SyncOutlinedIcon,
-} from "@ant-design/icons";
+import { IconBrowserShare, IconCheck, IconChevronRight, IconDownload, IconSettings2 } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import {
-  Button,
-  Collapse,
-  Divider,
-  Dropdown,
-  Empty,
-  Flex,
-  Skeleton,
-  Space,
-  Spin,
-  Table,
-  type TableProps,
-  Tooltip,
-  Typography,
-  notification,
-  theme,
-} from "antd";
+import { App, Button, Collapse, Divider, Dropdown, Empty, Flex, Skeleton, Spin, Table, type TableProps, Tooltip, Typography, theme } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
@@ -44,11 +17,13 @@ import { listByWorkflowRunId as listLogsByWorkflowRunId } from "@/repository/wor
 import { mergeCls } from "@/utils/css";
 import { getErrMsg } from "@/utils/error";
 
-export type WorkflowRunDetailProps = {
+import WorkflowStatusIcon from "./WorkflowStatusIcon";
+
+export interface WorkflowRunDetailProps {
   className?: string;
   style?: React.CSSProperties;
   data: WorkflowRunModel;
-};
+}
 
 const WorkflowRunDetail = ({ data, ...props }: WorkflowRunDetailProps) => {
   return (
@@ -114,45 +89,31 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
   const [showWhitespace, setShowWhitespace] = useState(true);
 
   const renderBadge = () => {
+    let color: string | undefined;
+
     switch (runStatus) {
       case WORKFLOW_RUN_STATUSES.PENDING:
-        return (
-          <Flex gap="small">
-            <ClockCircleOutlinedIcon />
-            {t("workflow_run.props.status.pending")}
-          </Flex>
-        );
+        break;
       case WORKFLOW_RUN_STATUSES.RUNNING:
-        return (
-          <Flex gap="small" style={{ color: themeToken.colorInfo }}>
-            <SyncOutlinedIcon spin />
-            {t("workflow_run.props.status.running")}
-          </Flex>
-        );
+        color = themeToken.colorInfo;
+        break;
       case WORKFLOW_RUN_STATUSES.SUCCEEDED:
-        return (
-          <Flex gap="small" style={{ color: themeToken.colorSuccess }}>
-            <CheckCircleOutlinedIcon />
-            {t("workflow_run.props.status.succeeded")}
-          </Flex>
-        );
+        color = themeToken.colorSuccess;
+        break;
       case WORKFLOW_RUN_STATUSES.FAILED:
-        return (
-          <Flex gap="small" style={{ color: themeToken.colorError }}>
-            <CloseCircleOutlinedIcon />
-            {t("workflow_run.props.status.failed")}
-          </Flex>
-        );
+        color = themeToken.colorError;
+        break;
       case WORKFLOW_RUN_STATUSES.CANCELED:
-        return (
-          <Flex gap="small" style={{ color: themeToken.colorWarning }}>
-            <StopOutlinedIcon />
-            {t("workflow_run.props.status.canceled")}
-          </Flex>
-        );
+        color = themeToken.colorWarning;
+        break;
     }
 
-    return <></>;
+    return (
+      <Flex gap="small" style={{ color: color }}>
+        <WorkflowStatusIcon size="1.25em" status={runStatus} />
+        {t(`workflow_run.props.status.${runStatus}`)}
+      </Flex>
+    );
   };
 
   const renderRecord = (record: Log) => {
@@ -162,7 +123,7 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
         <details>
           <summary>{record.message}</summary>
           {Object.entries(record.data).map(([key, value]) => (
-            <div key={key} className="flex space-x-2 " style={{ wordBreak: "break-word" }}>
+            <div key={key} className="flex space-x-2" style={{ wordBreak: "break-word" }}>
               <div className="whitespace-nowrap">{key}:</div>
               <div className={!showWhitespace ? "whitespace-pre-line" : ""}>{JSON.stringify(value)}</div>
             </div>
@@ -232,13 +193,13 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
                   {
                     key: "show-timestamp",
                     label: t("workflow_run.logs.menu.show_timestamps"),
-                    icon: <CheckOutlinedIcon className={showTimestamp ? "visible" : "invisible"} />,
+                    icon: <IconCheck className={showTimestamp ? "visible" : "invisible"} size="1.25em" />,
                     onClick: () => setShowTimestamp(!showTimestamp),
                   },
                   {
                     key: "show-whitespace",
                     label: t("workflow_run.logs.menu.show_whitespaces"),
-                    icon: <CheckOutlinedIcon className={showWhitespace ? "visible" : "invisible"} />,
+                    icon: <IconCheck className={showWhitespace ? "visible" : "invisible"} size="1.25em" />,
                     onClick: () => setShowWhitespace(!showWhitespace),
                   },
                   {
@@ -247,14 +208,14 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
                   {
                     key: "download-logs",
                     label: t("workflow_run.logs.menu.download_logs"),
-                    icon: <DownloadOutlinedIcon className="invisible" />,
+                    icon: <IconDownload className="invisible" size="1.25em" />,
                     onClick: handleDownloadClick,
                   },
                 ],
               }}
               trigger={["click"]}
             >
-              <Button color="primary" icon={<SettingOutlinedIcon />} ghost={browserTheme === "light"} />
+              <Button color="primary" icon={<IconSettings2 size="1.25em" />} ghost={browserTheme === "light"} />
             </Dropdown>
           </div>
         </div>
@@ -274,7 +235,7 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
               style={{ color: "inherit" }}
               bordered={false}
               defaultActiveKey={listData.map((group) => group.id)}
-              expandIcon={({ isActive }) => <RightOutlinedIcon rotate={isActive ? 90 : 0} />}
+              expandIcon={({ isActive }) => <IconChevronRight className={mergeCls(isActive ? "" : "rotate-90", "transition-transform")} size="1.25em" />}
               items={listData.map((group) => {
                 return {
                   key: group.id,
@@ -301,7 +262,7 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
 const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
   const { t } = useTranslation();
 
-  const [notificationApi, NotificationContextHolder] = notification.useNotification();
+  const { notification } = App.useApp();
 
   const tableColumns: TableProps<CertificateModel>["columns"] = [
     {
@@ -319,12 +280,13 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
     {
       key: "name",
       title: t("workflow_run_artifact.props.name"),
-      ellipsis: true,
       render: (_, record) => {
         return (
-          <Typography.Text delete={!!record.deleted} ellipsis>
-            {record.subjectAltNames}
-          </Typography.Text>
+          <div className="max-w-full truncate">
+            <Typography.Text delete={!!record.deleted} ellipsis>
+              {record.subjectAltNames}
+            </Typography.Text>
+          </div>
         );
       },
     },
@@ -333,16 +295,16 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
       align: "end",
       width: 120,
       render: (_, record) => (
-        <Space.Compact>
+        <div className="flex items-center justify-end">
           <CertificateDetailDrawer
             data={record}
             trigger={
-              <Tooltip title={t("certificate.action.view")}>
-                <Button color="primary" disabled={!!record.deleted} icon={<SelectOutlinedIcon />} variant="text" />
+              <Tooltip title={t("common.button.view")}>
+                <Button color="primary" disabled={!!record.deleted} icon={<IconBrowserShare size="1.25em" />} variant="text" />
               </Tooltip>
             }
           />
-        </Space.Compact>
+        </div>
       ),
     },
   ];
@@ -362,7 +324,7 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
         }
 
         console.error(err);
-        notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       },
@@ -371,8 +333,6 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
 
   return (
     <>
-      {NotificationContextHolder}
-
       <Typography.Title level={5}>{t("workflow_run.artifacts")}</Typography.Title>
       <Table<CertificateModel>
         columns={tableColumns}

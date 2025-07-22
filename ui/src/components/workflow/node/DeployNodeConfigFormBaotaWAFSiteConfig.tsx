@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, InputNumber } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { validPortNumber } from "@/utils/validators";
 
@@ -10,13 +10,13 @@ type DeployNodeConfigFormBaotaWAFSiteConfigFieldValues = Nullish<{
   sitePort: number;
 }>;
 
-export type DeployNodeConfigFormBaotaWAFSiteConfigProps = {
+export interface DeployNodeConfigFormBaotaWAFSiteConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormBaotaWAFSiteConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormBaotaWAFSiteConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormBaotaWAFSiteConfigFieldValues => {
   return {
@@ -69,7 +69,7 @@ const DeployNodeConfigFormBaotaWAFSiteConfig = ({
       </Form.Item>
 
       <Form.Item name="sitePort" label={t("workflow_node.deploy.form.baotawaf_site_port.label")} rules={[formRule]}>
-        <InputNumber className="w-full" placeholder={t("access.form.ssh_port.placeholder")} min={1} max={65535} />
+        <InputNumber style={{ width: "100%" }} placeholder={t("access.form.ssh_port.placeholder")} min={1} max={65535} />
       </Form.Item>
     </Form>
   );

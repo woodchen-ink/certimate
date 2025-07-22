@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 
@@ -10,13 +10,13 @@ type DeployNodeConfigFormKongConfigFieldValues = Nullish<{
   certificateId?: string;
 }>;
 
-export type DeployNodeConfigFormKongConfigProps = {
+export interface DeployNodeConfigFormKongConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormKongConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormKongConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 

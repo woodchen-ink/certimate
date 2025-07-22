@@ -4,7 +4,7 @@ import { useRequest } from "ahooks";
 import { Button, Form, Input, Skeleton, message, notification } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { ClientResponseError } from "pocketbase";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 import { type NotifyTemplatesSettingsContent, SETTINGS_NAMES, defaultNotifyTemplate } from "@/domain/settings";
@@ -12,10 +12,10 @@ import { useAntdForm } from "@/hooks";
 import { get as getSettings, save as saveSettings } from "@/repository/settings";
 import { getErrMsg } from "@/utils/error";
 
-export type NotifyTemplateFormProps = {
+export interface NotifyTemplateFormProps {
   className?: string;
   style?: React.CSSProperties;
-};
+}
 
 const NotifyTemplateForm = ({ className, style }: NotifyTemplateFormProps) => {
   const { t } = useTranslation();

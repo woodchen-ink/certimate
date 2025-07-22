@@ -1,20 +1,20 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type DeployNodeConfigFormGcoreCDNConfigFieldValues = Nullish<{
   resourceId: string | number;
   certificateId?: string | number;
 }>;
 
-export type DeployNodeConfigFormGcoreCDNConfigProps = {
+export interface DeployNodeConfigFormGcoreCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormGcoreCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormGcoreCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormGcoreCDNConfigFieldValues => {
   return {

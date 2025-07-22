@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type DeployNodeConfigFormWangsuCertificateConfigFieldValues = Nullish<{
   certificateId?: string;
 }>;
 
-export type DeployNodeConfigFormWangsuCertificateConfigProps = {
+export interface DeployNodeConfigFormWangsuCertificateConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormWangsuCertificateConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormWangsuCertificateConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormWangsuCertificateConfigFieldValues => {
   return {};

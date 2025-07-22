@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForDogeCloud } from "@/domain/access";
 
 type AccessFormDogeCloudConfigFieldValues = Nullish<AccessConfigForDogeCloud>;
 
-export type AccessFormDogeCloudConfigProps = {
+export interface AccessFormDogeCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDogeCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormDogeCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDogeCloudConfigFieldValues => {
   return {

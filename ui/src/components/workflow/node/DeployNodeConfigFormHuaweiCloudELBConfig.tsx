@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 
@@ -13,13 +13,13 @@ type DeployNodeConfigFormHuaweiCloudELBConfigFieldValues = Nullish<{
   listenerId?: string;
 }>;
 
-export type DeployNodeConfigFormHuaweiCloudELBConfigProps = {
+export interface DeployNodeConfigFormHuaweiCloudELBConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormHuaweiCloudELBConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormHuaweiCloudELBConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;

@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Radio, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForGoEdge } from "@/domain/access";
 
 type AccessFormGoEdgeConfigFieldValues = Nullish<AccessConfigForGoEdge>;
 
-export type AccessFormGoEdgeConfigProps = {
+export interface AccessFormGoEdgeConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormGoEdgeConfigFieldValues;
   onValuesChange?: (values: AccessFormGoEdgeConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormGoEdgeConfigFieldValues => {
   return {

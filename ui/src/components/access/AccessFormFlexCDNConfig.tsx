@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Radio, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForFlexCDN } from "@/domain/access";
 
 type AccessFormFlexCDNConfigFieldValues = Nullish<AccessConfigForFlexCDN>;
 
-export type AccessFormFlexCDNConfigProps = {
+export interface AccessFormFlexCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormFlexCDNConfigFieldValues;
   onValuesChange?: (values: AccessFormFlexCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormFlexCDNConfigFieldValues => {
   return {

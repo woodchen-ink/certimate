@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForTencentCloud } from "@/domain/access";
 
 type AccessFormTencentCloudConfigFieldValues = Nullish<AccessConfigForTencentCloud>;
 
-export type AccessFormTencentCloudConfigProps = {
+export interface AccessFormTencentCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormTencentCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormTencentCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormTencentCloudConfigFieldValues => {
   return {

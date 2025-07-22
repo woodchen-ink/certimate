@@ -1,19 +1,15 @@
 import { memo } from "react";
-import {
-  CheckCircleOutlined as CheckCircleOutlinedIcon,
-  CloseCircleOutlined as CloseCircleOutlinedIcon,
-  MoreOutlined as MoreOutlinedIcon,
-} from "@ant-design/icons";
+import { IconCircleCheck, IconCircleX, IconDotsVertical } from "@tabler/icons-react";
 import { Button, Card, Popover, theme } from "antd";
 
 import { WorkflowNodeType } from "@/domain/workflow";
 import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import AddNode from "./AddNode";
 
-export type ConditionNodeProps = SharedNodeProps & {
+export interface ConditionNodeProps extends SharedNodeProps {
   branchId: string;
   branchIndex: number;
-};
+}
 
 const ExecuteResultNode = ({ node, disabled, branchId, branchIndex }: ConditionNodeProps) => {
   const { token: themeToken } = theme.useToken();
@@ -30,27 +26,29 @@ const ExecuteResultNode = ({ node, disabled, branchId, branchIndex }: ConditionN
             branchId={branchId}
             branchIndex={branchIndex}
             disabled={disabled}
-            trigger={<Button color="primary" icon={<MoreOutlinedIcon />} variant="text" />}
+            trigger={<Button color="primary" icon={<IconDotsVertical size="1em" />} variant="text" />}
           />
         }
         placement="rightTop"
       >
-        <Card className="relative z-[1] mt-10 w-[256px] shadow-md" styles={{ body: { padding: 0 } }} hoverable>
-          <div className="flex h-[48px] flex-col items-center justify-center truncate px-4 py-2">
-            <div className="flex items-center space-x-2">
-              {node.type === WorkflowNodeType.ExecuteSuccess ? (
-                <CheckCircleOutlinedIcon style={{ color: themeToken.colorSuccess }} />
-              ) : (
-                <CloseCircleOutlinedIcon style={{ color: themeToken.colorError }} />
-              )}
-              <SharedNode.Title
-                className="focus:bg-background focus:text-foreground overflow-hidden outline-slate-200 focus:rounded-sm"
-                node={node}
-                disabled={disabled}
-              />
+        <div className="relative z-1 mt-10 w-[256px]">
+          <Card className="shadow-md" styles={{ body: { padding: 0 } }} hoverable>
+            <div className="flex h-[48px] flex-col items-center justify-center truncate px-4 py-2">
+              <div className="flex items-center space-x-2">
+                {node.type === WorkflowNodeType.ExecuteSuccess ? (
+                  <IconCircleCheck style={{ color: themeToken.colorSuccess }} size="1.5em" />
+                ) : (
+                  <IconCircleX style={{ color: themeToken.colorError }} size="1.5em" />
+                )}
+                <SharedNode.Title
+                  className="overflow-hidden outline-slate-200 focus:rounded-xs focus:bg-background focus:text-foreground"
+                  node={node}
+                  disabled={disabled}
+                />
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       </Popover>
 
       <AddNode node={node} disabled={disabled} />

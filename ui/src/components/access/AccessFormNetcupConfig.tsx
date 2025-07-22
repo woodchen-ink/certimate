@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForNetcup } from "@/domain/access";
 
 type AccessFormNetcupConfigFieldValues = Nullish<AccessConfigForNetcup>;
 
-export type AccessFormNetcupConfigProps = {
+export interface AccessFormNetcupConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormNetcupConfigFieldValues;
   onValuesChange?: (values: AccessFormNetcupConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormNetcupConfigFieldValues => {
   return {

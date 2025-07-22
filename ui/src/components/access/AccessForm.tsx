@@ -2,7 +2,7 @@ import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import AccessProviderPicker from "@/components/provider/AccessProviderPicker";
 import AccessProviderSelect from "@/components/provider/AccessProviderSelect";
@@ -86,26 +86,26 @@ import AccessFormWestcnConfig from "./AccessFormWestcnConfig";
 import AccessFormZeroSSLConfig from "./AccessFormZeroSSLConfig";
 
 type AccessFormFieldValues = Partial<MaybeModelRecord<AccessModel>>;
-type AccessFormScenes = "add" | "edit";
-type AccessFormUsages = "both-dns-hosting" | "ca-only" | "notification-only";
+type AccessFormModes = "create" | "edit";
+type AccessFormUsages = "dns" | "hosting" | "dns-hosting" | "ca" | "notification";
 
-export type AccessFormProps = {
+export interface AccessFormProps {
   className?: string;
   style?: React.CSSProperties;
+  mode: AccessFormModes;
   disabled?: boolean;
   initialValues?: AccessFormFieldValues;
-  scene: AccessFormScenes;
   usage?: AccessFormUsages;
   onValuesChange?: (values: AccessFormFieldValues) => void;
-};
+}
 
-export type AccessFormInstance = {
+export interface AccessFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<AccessFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<AccessFormFieldValues>["resetFields"];
   validateFields: FormInstance<AccessFormFieldValues>["validateFields"];
-};
+}
 
-const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className, style, disabled, initialValues, usage, scene, onValuesChange }, ref) => {
+const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className, style, mode, disabled, initialValues, usage, onValuesChange }, ref) => {
   const { t } = useTranslation();
 
   const formSchema = z.object({
@@ -113,14 +113,7 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
       .string(t("access.form.name.placeholder"))
       .min(1, t("access.form.name.placeholder"))
       .max(64, t("common.errmsg.string_max", { max: 64 })),
-    provider: z.nativeEnum(ACCESS_PROVIDERS, {
-      message:
-        usage === "ca-only"
-          ? t("access.form.certificate_authority.placeholder")
-          : usage === "notification-only"
-            ? t("access.form.notification_channel.placeholder")
-            : t("access.form.provider.placeholder"),
-    }),
+    provider: z.enum(ACCESS_PROVIDERS, t("access.form.provider.placeholder")),
     config: z.any(),
     reserve: z.string().nullish(),
   });
@@ -132,39 +125,23 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
 
   const providerFilter = useMemo(() => {
     switch (usage) {
-      case "both-dns-hosting":
+      case "dns":
+        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.DNS);
+      case "hosting":
+        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.HOSTING);
+      case "dns-hosting":
         return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.DNS) || record.usages.includes(ACCESS_USAGES.HOSTING);
-      case "ca-only":
+      case "ca":
         return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.CA);
-      case "notification-only":
+      case "notification":
         return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.NOTIFICATION);
     }
 
     return undefined;
   }, [usage]);
-  const providerLabel = useMemo(() => {
-    switch (usage) {
-      case "ca-only":
-        return t("access.form.certificate_authority.label");
-      case "notification-only":
-        return t("access.form.notification_channel.label");
-    }
-
-    return t("access.form.provider.label");
-  }, [usage]);
-  const providerPlaceholder = useMemo(() => {
-    switch (usage) {
-      case "ca-only":
-        return t("access.form.certificate_authority.placeholder");
-      case "notification-only":
-        return t("access.form.notification_channel.placeholder");
-    }
-
-    return t("access.form.provider.placeholder");
-  }, [usage]);
   const providerTooltip = useMemo(() => {
     switch (usage) {
-      case "both-dns-hosting":
+      case "dns-hosting":
         return <span dangerouslySetInnerHTML={{ __html: t("access.form.provider.tooltip") }}></span>;
     }
 
@@ -330,7 +307,7 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
       case ACCESS_PROVIDERS.WEBHOOK:
         return (
           <AccessFormWebhookConfig
-            usage={usage === "notification-only" ? "notification" : usage === "both-dns-hosting" ? "deployment" : "none"}
+            usage={usage === "notification" ? "notification" : usage === "hosting" || usage === "dns-hosting" ? "deployment" : "none"}
             {...nestedFormProps}
           />
         );
@@ -365,7 +342,7 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
       getFieldsValue: () => {
         const values = formInst.getFieldsValue(true);
         values.config = nestedFormInst.getFieldsValue();
-        values.reserve = usage === "ca-only" ? "ca" : usage === "notification-only" ? "notification" : undefined;
+        values.reserve = usage === "ca" ? "ca" : usage === "notification" ? "notification" : undefined;
         return values;
       },
       resetFields: (fields) => {
@@ -394,7 +371,7 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
                 autoFocus
                 filter={providerFilter}
                 placeholder={t("access.form.provider.search.placeholder")}
-                showOptionTags={usage == null || (usage === "both-dns-hosting" ? { [ACCESS_USAGES.DNS]: true, [ACCESS_USAGES.HOSTING]: true } : false)}
+                showOptionTags={usage == null || (usage === "dns-hosting" ? { [ACCESS_USAGES.DNS]: true, [ACCESS_USAGES.HOSTING]: true } : false)}
                 onSelect={handleProviderPick}
               />
             }
@@ -403,12 +380,12 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
               <Input placeholder={t("access.form.name.placeholder")} />
             </Form.Item>
 
-            <Form.Item name="provider" label={providerLabel} rules={[formRule]} tooltip={providerTooltip}>
+            <Form.Item name="provider" label={t("access.form.provider.label")} rules={[formRule]} tooltip={providerTooltip}>
               <AccessProviderSelect
                 filter={providerFilter}
-                disabled={scene !== "add"}
-                placeholder={providerPlaceholder}
-                showOptionTags={usage == null || (usage === "both-dns-hosting" ? { [ACCESS_USAGES.DNS]: true, [ACCESS_USAGES.HOSTING]: true } : false)}
+                disabled={mode !== "create"}
+                placeholder={t("access.form.provider.placeholder")}
+                showOptionTags={usage == null || (usage === "dns-hosting" ? { [ACCESS_USAGES.DNS]: true, [ACCESS_USAGES.HOSTING]: true } : false)}
                 showSearch={!disabled}
               />
             </Form.Item>

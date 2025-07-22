@@ -21,7 +21,7 @@
 ### 要求
 
 - Go 1.24+（用于修改后端代码）
-- Node.js 22.0+（用于修改前端代码）
+- Node.js 22.12+（用于修改前端代码）
 
 ### 后端代码
 
@@ -74,7 +74,7 @@ npm run build
 
 **在向主仓库提交 PR 之前，你应该：**
 
-- 使用 [ESLint](https://github.com/eslint/eslint) 格式化你的代码。推荐使用 VSCode，并安装 ESLint+Prettier 插件，以便在保存时自动格式化。
+- 使用 [ESLint](https://github.com/eslint/eslint) 格式化你的代码。推荐使用 VSCode，并安装 ESLint 插件，以便在保存时自动格式化。
 
 ## 提交 PR
 

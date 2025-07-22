@@ -1,18 +1,18 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { type AccessConfigForCMCCCloud } from "@/domain/access";
 
 type AccessFormCMCCCloudConfigFieldValues = Nullish<AccessConfigForCMCCCloud>;
 
-export type AccessFormCMCCCloudConfigProps = {
+export interface AccessFormCMCCCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormCMCCCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormCMCCCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormCMCCCloudConfigFieldValues => {
   return {

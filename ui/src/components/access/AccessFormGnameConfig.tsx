@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForGname } from "@/domain/access";
 
 type AccessFormGnameConfigFieldValues = Nullish<AccessConfigForGname>;
 
-export type AccessFormGnameConfigProps = {
+export interface AccessFormGnameConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormGnameConfigFieldValues;
   onValuesChange?: (values: AccessFormGnameConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormGnameConfigFieldValues => {
   return {

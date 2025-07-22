@@ -2,7 +2,7 @@ import { forwardRef, memo, useImperativeHandle } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Form, type FormInstance, Input, InputNumber } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type WorkflowNodeConfigForMonitor, defaultNodeConfigForMonitor } from "@/domain/workflow";
 import { useAntdForm } from "@/hooks";
@@ -10,19 +10,19 @@ import { validDomainName, validIPv4Address, validIPv6Address, validPortNumber } 
 
 type MonitorNodeConfigFormFieldValues = Partial<WorkflowNodeConfigForMonitor>;
 
-export type MonitorNodeConfigFormProps = {
+export interface MonitorNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: MonitorNodeConfigFormFieldValues;
   onValuesChange?: (values: MonitorNodeConfigFormFieldValues) => void;
-};
+}
 
-export type MonitorNodeConfigFormInstance = {
+export interface MonitorNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<MonitorNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<MonitorNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<MonitorNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const initFormModel = (): MonitorNodeConfigFormFieldValues => {
   return defaultNodeConfigForMonitor();
@@ -91,7 +91,7 @@ const MonitorNodeConfigForm = forwardRef<MonitorNodeConfigFormInstance, MonitorN
 
           <div className="w-1/3">
             <Form.Item name="port" label={t("workflow_node.monitor.form.port.label")} rules={[formRule]}>
-              <InputNumber className="w-full" min={1} max={65535} placeholder={t("workflow_node.monitor.form.port.placeholder")} />
+              <InputNumber style={{ width: "100%" }} min={1} max={65535} placeholder={t("workflow_node.monitor.form.port.placeholder")} />
             </Form.Item>
           </div>
         </div>

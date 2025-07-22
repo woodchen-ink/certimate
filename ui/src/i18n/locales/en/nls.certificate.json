@@ -1,21 +1,23 @@
 {
   "certificate.page.title": "Certificates",
+  "certificate.page.subtitle": "SSL certificates contain the website's public key and the website's identity, along with related information. They are generated from the execution output of workflows.",
 
-  "certificate.nodata": "No certificates. Please create a workflow to generate certificates! 😀",
+  "certificate.nodata.title": "No Certificates",
+  "certificate.nodata.description": "Add a workflow to generate certificates!",
+  "certificate.nodata.button": "Go to workflows",
 
   "certificate.search.placeholder": "Search by certificate name or serial number ...",
 
-  "certificate.action.view": "View certificate",
-  "certificate.action.delete": "Delete certificate",
-  "certificate.action.delete.confirm": "Are you sure to delete this certificate?",
-  "certificate.action.download": "Download certificate",
+  "certificate.action.delete.modal.title": "Delete certificate",
+  "certificate.action.delete.modal.content": "Are you sure want to delete this \"{{name}}\" certificate?<br>This action cannot be undone.",
 
   "certificate.props.subject_alt_names": "Name",
   "certificate.props.validity": "Expiry",
   "certificate.props.validity.left_days": "{{left}} / {{total}} days left",
-  "certificate.props.validity.less_than_day": "Expire soon ({{hours}} hours left)",
+  "certificate.props.validity.less_than_a_day": "≤1 / {{total}} days left",
   "certificate.props.validity.expired": "Expired",
   "certificate.props.validity.expiration": "Expire on {{date}}",
+  "certificate.props.validity.filter.all": "All",
   "certificate.props.validity.filter.expire_soon": "Expire soon",
   "certificate.props.validity.filter.expired": "Expired",
   "certificate.props.brand": "Brand",

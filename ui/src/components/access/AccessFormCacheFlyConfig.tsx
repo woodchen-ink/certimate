@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForCacheFly } from "@/domain/access";
 
 type AccessFormCacheFlyConfigFieldValues = Nullish<AccessConfigForCacheFly>;
 
-export type AccessFormCacheFlyConfigProps = {
+export interface AccessFormCacheFlyConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormCacheFlyConfigFieldValues;
   onValuesChange?: (values: AccessFormCacheFlyConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormCacheFlyConfigFieldValues => {
   return {

@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForHuaweiCloud } from "@/domain/access";
 
 type AccessFormHuaweiCloudConfigFieldValues = Nullish<AccessConfigForHuaweiCloud>;
 
-export type AccessFormHuaweiCloudConfigProps = {
+export interface AccessFormHuaweiCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormHuaweiCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormHuaweiCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormHuaweiCloudConfigFieldValues => {
   return {

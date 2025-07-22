@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForGcore } from "@/domain/access";
 
 type AccessFormGcoreConfigFieldValues = Nullish<AccessConfigForGcore>;
 
-export type AccessFormGcoreConfigProps = {
+export interface AccessFormGcoreConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormGcoreConfigFieldValues;
   onValuesChange?: (values: AccessFormGcoreConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormGcoreConfigFieldValues => {
   return {

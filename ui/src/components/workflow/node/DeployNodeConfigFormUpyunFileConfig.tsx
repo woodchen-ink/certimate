@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Alert, Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { validDomainName } from "@/utils/validators";
 
@@ -9,13 +9,13 @@ type DeployNodeConfigFormUpyunFileConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormUpyunFileConfigProps = {
+export interface DeployNodeConfigFormUpyunFileConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormUpyunFileConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormUpyunFileConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormUpyunFileConfigFieldValues => {
   return {};

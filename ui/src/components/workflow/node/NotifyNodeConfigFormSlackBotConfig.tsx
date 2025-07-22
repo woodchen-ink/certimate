@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type NotifyNodeConfigFormSlackBotConfigFieldValues = Nullish<{
   channelId?: string;
 }>;
 
-export type NotifyNodeConfigFormSlackBotConfigProps = {
+export interface NotifyNodeConfigFormSlackBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: NotifyNodeConfigFormSlackBotConfigFieldValues;
   onValuesChange?: (values: NotifyNodeConfigFormSlackBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): NotifyNodeConfigFormSlackBotConfigFieldValues => {
   return {};

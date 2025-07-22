@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { validEmailAddress } from "@/utils/validators";
 
@@ -10,13 +10,13 @@ type NotifyNodeConfigFormEmailConfigFieldValues = Nullish<{
   receiverAddress?: string;
 }>;
 
-export type NotifyNodeConfigFormEmailConfigProps = {
+export interface NotifyNodeConfigFormEmailConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: NotifyNodeConfigFormEmailConfigFieldValues;
   onValuesChange?: (values: NotifyNodeConfigFormEmailConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): NotifyNodeConfigFormEmailConfigFieldValues => {
   return {};

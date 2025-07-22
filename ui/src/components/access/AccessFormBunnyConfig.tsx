@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForBunny } from "@/domain/access";
 
 type AccessFormBunnyConfigFieldValues = Nullish<AccessConfigForBunny>;
 
-export type AccessFormBunnyConfigProps = {
+export interface AccessFormBunnyConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormBunnyConfigFieldValues;
   onValuesChange?: (values: AccessFormBunnyConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormBunnyConfigFieldValues => {
   return {

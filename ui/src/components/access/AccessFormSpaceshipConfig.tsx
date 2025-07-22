@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForSpaceship } from "@/domain/access";
 
 type AccessFormSpaceshipConfigFieldValues = Nullish<AccessConfigForSpaceship>;
 
-export type AccessFormSpaceshipConfigProps = {
+export interface AccessFormSpaceshipConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormSpaceshipConfigFieldValues;
   onValuesChange?: (values: AccessFormSpaceshipConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormSpaceshipConfigFieldValues => {
   return {

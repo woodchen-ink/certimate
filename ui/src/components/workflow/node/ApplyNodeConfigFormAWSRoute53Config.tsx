@@ -1,20 +1,20 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type ApplyNodeConfigFormAWSRoute53ConfigFieldValues = Nullish<{
   region: string;
   hostedZoneId: string;
 }>;
 
-export type ApplyNodeConfigFormAWSRoute53ConfigProps = {
+export interface ApplyNodeConfigFormAWSRoute53ConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: ApplyNodeConfigFormAWSRoute53ConfigFieldValues;
   onValuesChange?: (values: ApplyNodeConfigFormAWSRoute53ConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): ApplyNodeConfigFormAWSRoute53ConfigFieldValues => {
   return {

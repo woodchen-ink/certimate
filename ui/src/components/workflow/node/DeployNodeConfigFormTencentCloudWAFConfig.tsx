@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { validDomainName } from "@/utils/validators";
 
@@ -13,13 +13,13 @@ type DeployNodeConfigFormTencentCloudWAFConfigFieldValues = Nullish<{
   instanceId: string;
 }>;
 
-export type DeployNodeConfigFormTencentCloudWAFConfigProps = {
+export interface DeployNodeConfigFormTencentCloudWAFConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormTencentCloudWAFConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormTencentCloudWAFConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormTencentCloudWAFConfigFieldValues => {
   return {};

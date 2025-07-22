@@ -1,11 +1,11 @@
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PlusOutlined as PlusOutlinedIcon, QuestionCircleOutlined as QuestionCircleOutlinedIcon } from "@ant-design/icons";
+import { IconHelp, IconPlus } from "@tabler/icons-react";
 import { Button, Divider, Flex, Form, type FormInstance, Select, Switch, Tooltip, Typography, theme } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
-import AccessEditModal from "@/components/access/AccessEditModal";
+import AccessEditDrawer from "@/components/access/AccessEditDrawer";
 import AccessSelect from "@/components/access/AccessSelect";
 import DeploymentProviderPicker from "@/components/provider/DeploymentProviderPicker.tsx";
 import DeploymentProviderSelect from "@/components/provider/DeploymentProviderSelect.tsx";
@@ -111,20 +111,20 @@ import DeployNodeConfigFormWebhookConfig from "./DeployNodeConfigFormWebhookConf
 
 type DeployNodeConfigFormFieldValues = Partial<WorkflowNodeConfigForDeploy>;
 
-export type DeployNodeConfigFormProps = {
+export interface DeployNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormFieldValues;
   nodeId: string;
   onValuesChange?: (values: DeployNodeConfigFormFieldValues) => void;
-};
+}
 
-export type DeployNodeConfigFormInstance = {
+export interface DeployNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<DeployNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<DeployNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<DeployNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormFieldValues => {
   return defaultNodeConfigForDeploy();
@@ -475,28 +475,28 @@ const DeployNodeConfigForm = forwardRef<DeployNodeConfigFormInstance, DeployNode
               />
             </Form.Item>
 
-            <Form.Item className="mb-0" htmlFor="null" hidden={!showProviderAccess}>
+            <Form.Item hidden={!showProviderAccess} noStyle>
               <label className="mb-1 block">
                 <div className="flex w-full items-center justify-between gap-4">
                   <div className="max-w-full grow truncate">
                     <span>{t("workflow_node.deploy.form.provider_access.label")}</span>
                     <Tooltip title={t("workflow_node.deploy.form.provider_access.tooltip")}>
                       <Typography.Text className="ms-1" type="secondary">
-                        <QuestionCircleOutlinedIcon />
+                        <IconHelp size="1.25em" />
                       </Typography.Text>
                     </Tooltip>
                   </div>
                   <div className="text-right">
-                    <AccessEditModal
+                    <AccessEditDrawer
                       data={{ provider: deploymentProvidersMap.get(fieldProvider!)?.provider }}
-                      scene="add"
+                      mode="create"
                       trigger={
                         <Button size="small" type="link">
                           {t("workflow_node.deploy.form.provider_access.button")}
-                          <PlusOutlinedIcon className="text-xs" />
+                          <IconPlus size="1.25em" />
                         </Button>
                       }
-                      usage="both-dns-hosting"
+                      usage="hosting"
                       afterSubmit={(record) => {
                         const provider = accessProvidersMap.get(record.provider);
                         if (provider?.usages?.includes(ACCESS_USAGES.HOSTING)) {

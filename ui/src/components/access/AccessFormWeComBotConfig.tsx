@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForWeComBot } from "@/domain/access";
 
 type AccessFormWeComBotConfigFieldValues = Nullish<AccessConfigForWeComBot>;
 
-export type AccessFormWeComBotConfigProps = {
+export interface AccessFormWeComBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormWeComBotConfigFieldValues;
   onValuesChange?: (values: AccessFormWeComBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormWeComBotConfigFieldValues => {
   return {

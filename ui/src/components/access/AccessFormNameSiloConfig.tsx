@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForNameSilo } from "@/domain/access";
 
 type AccessFormNameSiloConfigFieldValues = Nullish<AccessConfigForNameSilo>;
 
-export type AccessFormNameSiloConfigProps = {
+export interface AccessFormNameSiloConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormNameSiloConfigFieldValues;
   onValuesChange?: (values: AccessFormNameSiloConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormNameSiloConfigFieldValues => {
   return {

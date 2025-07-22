@@ -4,7 +4,6 @@ import { Avatar, Flex, Typography } from "antd";
 import { produce } from "immer";
 
 import { notificationProvidersMap } from "@/domain/provider";
-import { notifyChannelsMap } from "@/domain/settings";
 import { type WorkflowNodeConfigForNotify, WorkflowNodeType } from "@/domain/workflow";
 import { useZustandShallowSelector } from "@/hooks";
 import { useWorkflowStore } from "@/stores/workflow";
@@ -12,7 +11,7 @@ import { useWorkflowStore } from "@/stores/workflow";
 import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import NotifyNodeConfigForm, { type NotifyNodeConfigFormInstance } from "./NotifyNodeConfigForm";
 
-export type NotifyNodeProps = SharedNodeProps;
+export interface NotifyNodeProps extends SharedNodeProps {}
 
 const NotifyNode = ({ node, disabled }: NotifyNodeProps) => {
   if (node.type !== WorkflowNodeType.Notify) {
@@ -39,12 +38,11 @@ const NotifyNode = ({ node, disabled }: NotifyNodeProps) => {
     }
 
     const config = (node.config as WorkflowNodeConfigForNotify) ?? {};
-    const channel = notifyChannelsMap.get(config.channel as string);
     const provider = notificationProvidersMap.get(config.provider);
     return (
       <Flex className="size-full overflow-hidden" align="center" gap={8}>
         <Avatar shape="square" src={provider?.icon} size="small" />
-        <Typography.Text className="flex-1 truncate">{t(channel?.name ?? provider?.name ?? "　")}</Typography.Text>
+        <Typography.Text className="flex-1 truncate">{t(provider?.name ?? "\u00A0")}</Typography.Text>
         <Typography.Text className="truncate" type="secondary">
           {config.subject ?? ""}
         </Typography.Text>

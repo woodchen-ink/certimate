@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { validDomainName } from "@/utils/validators";
 
@@ -10,13 +10,13 @@ type DeployNodeConfigFormTencentCloudCSSConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormTencentCloudCSSConfigProps = {
+export interface DeployNodeConfigFormTencentCloudCSSConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormTencentCloudCSSConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormTencentCloudCSSConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormTencentCloudCSSConfigFieldValues => {
   return {};

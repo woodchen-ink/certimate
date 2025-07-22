@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 
@@ -11,13 +11,13 @@ type DeployNodeConfigFormCdnflyConfigFieldValues = Nullish<{
   certificateId?: string | number;
 }>;
 
-export type DeployNodeConfigFormCdnflyConfigProps = {
+export interface DeployNodeConfigFormCdnflyConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormCdnflyConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormCdnflyConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_SITE = "site" as const;
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;

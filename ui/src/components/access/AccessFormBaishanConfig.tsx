@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForBaishan } from "@/domain/access";
 
 type AccessFormBaishanConfigFieldValues = Nullish<AccessConfigForBaishan>;
 
-export type AccessFormBaishanConfigProps = {
+export interface AccessFormBaishanConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormBaishanConfigFieldValues;
   onValuesChange?: (values: AccessFormBaishanConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormBaishanConfigFieldValues => {
   return {

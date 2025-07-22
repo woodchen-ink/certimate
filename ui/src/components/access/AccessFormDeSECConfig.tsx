@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForDeSEC } from "@/domain/access";
 
 type AccessFormDeSECConfigFieldValues = Nullish<AccessConfigForDeSEC>;
 
-export type AccessFormDeSECConfigProps = {
+export interface AccessFormDeSECConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDeSECConfigFieldValues;
   onValuesChange?: (values: AccessFormDeSECConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDeSECConfigFieldValues => {
   return {

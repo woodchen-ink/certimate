@@ -1,61 +1,40 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  CheckCircleOutlined as CheckCircleOutlinedIcon,
-  ClockCircleOutlined as ClockCircleOutlinedIcon,
-  CloseCircleOutlined as CloseCircleOutlinedIcon,
-  DeleteOutlined as DeleteOutlinedIcon,
-  EditOutlined as EditOutlinedIcon,
-  PlusOutlined as PlusOutlinedIcon,
-  ReloadOutlined as ReloadOutlinedIcon,
-  SnippetsOutlined as SnippetsOutlinedIcon,
-  StopOutlined as StopOutlinedIcon,
-  SyncOutlined as SyncOutlinedIcon,
-} from "@ant-design/icons";
-
-import { PageHeader } from "@ant-design/pro-components";
+import { IconCirclePlus, IconCopy, IconEdit, IconHierarchy3, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import {
-  Button,
-  Card,
-  Divider,
-  Empty,
-  Flex,
-  Input,
-  Menu,
-  type MenuProps,
-  Modal,
-  Radio,
-  Space,
-  Switch,
-  Table,
-  type TableProps,
-  Tooltip,
-  Typography,
-  message,
-  notification,
-  theme,
-} from "antd";
+import { App, Button, Flex, Input, Segmented, Skeleton, Switch, Table, type TableProps, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
+import Empty from "@/components/Empty";
+import WorkflowStatusIcon from "@/components/workflow/WorkflowStatusIcon";
 import { WORKFLOW_TRIGGERS, type WorkflowModel, cloneNode, initWorkflow, isAllNodesValidated } from "@/domain/workflow";
-import { WORKFLOW_RUN_STATUSES } from "@/domain/workflowRun";
+import { useAppSettings } from "@/hooks";
 import { list as listWorkflows, remove as removeWorkflow, save as saveWorkflow } from "@/repository/workflow";
 import { getErrMsg } from "@/utils/error";
 
 const WorkflowList = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { t } = useTranslation();
 
-  const { token: themeToken } = theme.useToken();
+  const { message, modal, notification } = App.useApp();
 
-  const [messageApi, MessageContextHolder] = message.useMessage();
-  const [modalApi, ModelContextHolder] = Modal.useModal();
-  const [notificationApi, NotificationContextHolder] = notification.useNotification();
+  const { appSettings: globalAppSettings } = useAppSettings();
+
+  const [filters, setFilters] = useState<Record<string, unknown>>(() => {
+    return {
+      keyword: searchParams.get("keyword"),
+      state: searchParams.get("state"),
+    };
+  });
+  const [sorter, setSorter] = useState<ArrayElement<Parameters<NonNullable<TableProps<WorkflowModel>["onChange"]>>[2]>>(() => {
+    return {};
+  });
+  const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
+  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || globalAppSettings.defaultPerPage!);
 
   const tableColumns: TableProps<WorkflowModel>["columns"] = [
     {
@@ -68,20 +47,18 @@ const WorkflowList = () => {
     {
       key: "name",
       title: t("workflow.props.name"),
-      ellipsis: true,
       render: (_, record) => (
-        <Space className="max-w-full" direction="vertical" size={4}>
-          <Typography.Text ellipsis>{record.name}</Typography.Text>
-          <Typography.Text type="secondary" ellipsis>
-            {record.description}
+        <div className="flex max-w-full flex-col gap-1 truncate">
+          <Typography.Text ellipsis>{record.name || "\u00A0"}</Typography.Text>
+          <Typography.Text ellipsis type="secondary">
+            {record.description || "\u00A0"}
           </Typography.Text>
-        </Space>
+        </div>
       ),
     },
     {
       key: "trigger",
       title: t("workflow.props.trigger"),
-      ellipsis: true,
       render: (_, record) => {
         const trigger = record.trigger;
         if (!trigger) {
@@ -90,10 +67,10 @@ const WorkflowList = () => {
           return <Typography.Text>{t("workflow.props.trigger.manual")}</Typography.Text>;
         } else if (trigger === WORKFLOW_TRIGGERS.AUTO) {
           return (
-            <Space className="max-w-full" direction="vertical" size={4}>
+            <div className="flex max-w-full flex-col gap-1">
               <Typography.Text>{t("workflow.props.trigger.auto")}</Typography.Text>
-              <Typography.Text type="secondary">{record.triggerCron ?? ""}</Typography.Text>
-            </Space>
+              <Typography.Text type="secondary">{record.triggerCron || "\u00A0"}</Typography.Text>
+            </div>
           );
         }
       },
@@ -102,87 +79,35 @@ const WorkflowList = () => {
       key: "state",
       title: t("workflow.props.state"),
       defaultFilteredValue: searchParams.has("state") ? [searchParams.get("state") as string] : undefined,
-      filterDropdown: ({ setSelectedKeys, confirm, clearFilters }) => {
-        const items: Required<MenuProps>["items"] = [
-          ["enabled", "workflow.props.state.filter.enabled"],
-          ["disabled", "workflow.props.state.filter.disabled"],
-        ].map(([key, label]) => {
-          return {
-            key,
-            label: <Radio checked={filters["state"] === key}>{t(label)}</Radio>,
-            onClick: () => {
-              if (filters["state"] !== key) {
-                setPage(1);
-                setFilters((prev) => ({ ...prev, state: key }));
-                setSelectedKeys([key]);
-              }
-
-              confirm({ closeDropdown: true });
-            },
-          };
-        });
-
-        const handleResetClick = () => {
-          setPage(1);
-          setFilters((prev) => ({ ...prev, state: undefined }));
-          setSelectedKeys([]);
-          clearFilters?.();
-          confirm();
-        };
-
-        const handleConfirmClick = () => {
-          confirm();
-        };
-
-        return (
-          <div style={{ padding: 0 }}>
-            <Menu items={items} selectable={false} />
-            <Divider className="my-0" />
-            <Space className="w-full justify-end" style={{ padding: themeToken.paddingSM }}>
-              <Button size="small" disabled={!filters.state} onClick={handleResetClick}>
-                {t("common.button.reset")}
-              </Button>
-              <Button type="primary" size="small" onClick={handleConfirmClick}>
-                {t("common.button.ok")}
-              </Button>
-            </Space>
-          </div>
-        );
-      },
       render: (_, record) => {
         const enabled = record.enabled;
         return (
-          <Switch
-            checked={enabled}
-            onChange={() => {
-              handleEnabledChange(record);
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
             }}
-          />
+          >
+            <Switch
+              checked={enabled}
+              onChange={() => {
+                handleRecordActiveChange(record);
+              }}
+            />
+          </div>
         );
       },
     },
     {
       key: "lastRun",
       title: t("workflow.props.last_run_at"),
+      sorter: true,
+      sortOrder: sorter.columnKey === "lastRun" ? sorter.order : undefined,
       render: (_, record) => {
-        let icon = <></>;
-        if (record.lastRunStatus === WORKFLOW_RUN_STATUSES.PENDING) {
-          icon = <ClockCircleOutlinedIcon style={{ color: themeToken.colorTextSecondary }} />;
-        } else if (record.lastRunStatus === WORKFLOW_RUN_STATUSES.RUNNING) {
-          icon = <SyncOutlinedIcon style={{ color: themeToken.colorInfo }} spin />;
-        } else if (record.lastRunStatus === WORKFLOW_RUN_STATUSES.SUCCEEDED) {
-          icon = <CheckCircleOutlinedIcon style={{ color: themeToken.colorSuccess }} />;
-        } else if (record.lastRunStatus === WORKFLOW_RUN_STATUSES.FAILED) {
-          icon = <CloseCircleOutlinedIcon style={{ color: themeToken.colorError }} />;
-        } else if (record.lastRunStatus === WORKFLOW_RUN_STATUSES.CANCELED) {
-          icon = <StopOutlinedIcon style={{ color: themeToken.colorWarning }} />;
-        }
-
         return (
-          <Space>
-            {icon}
+          <Flex gap="small">
+            <WorkflowStatusIcon color={true} size="1.25em" status={record.lastRunStatus!} />
             <Typography.Text>{record.lastRunTime ? dayjs(record.lastRunTime!).format("YYYY-MM-DD HH:mm:ss") : ""}</Typography.Text>
-          </Space>
+          </Flex>
         );
       },
     },
@@ -195,69 +120,52 @@ const WorkflowList = () => {
       },
     },
     {
-      key: "updatedAt",
-      title: t("workflow.props.updated_at"),
-      ellipsis: true,
-      render: (_, record) => {
-        return dayjs(record.updated!).format("YYYY-MM-DD HH:mm:ss");
-      },
-    },
-    {
       key: "$action",
       align: "end",
       fixed: "right",
       width: 120,
       render: (_, record) => (
-        <Space.Compact>
-          <Tooltip title={t("workflow.action.edit")}>
+        <div className="flex items-center justify-end">
+          <Tooltip title={t("common.button.edit")}>
             <Button
               color="primary"
-              icon={<EditOutlinedIcon />}
+              icon={<IconEdit size="1.25em" />}
               variant="text"
-              onClick={() => {
-                navigate(`/workflows/${record.id}`);
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDetailClick(record);
               }}
             />
           </Tooltip>
-
-          <Tooltip title={t("workflow.action.duplicate")}>
+          <Tooltip title={t("common.button.duplicate")}>
             <Button
               color="primary"
-              icon={<SnippetsOutlinedIcon />}
+              icon={<IconCopy size="1.25em" />}
               variant="text"
-              onClick={() => {
-                handleDuplicateClick(record);
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDuplicateClick(record);
               }}
             />
           </Tooltip>
-
-          <Tooltip title={t("workflow.action.delete")}>
+          <Tooltip title={t("common.button.delete")}>
             <Button
               color="danger"
               danger
-              icon={<DeleteOutlinedIcon />}
+              icon={<IconTrash size="1.25em" />}
               variant="text"
-              onClick={() => {
-                handleDeleteClick(record);
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDeleteClick(record);
               }}
             />
           </Tooltip>
-        </Space.Compact>
+        </div>
       ),
     },
   ];
   const [tableData, setTableData] = useState<WorkflowModel[]>([]);
   const [tableTotal, setTableTotal] = useState<number>(0);
-
-  const [filters, setFilters] = useState<Record<string, unknown>>(() => {
-    return {
-      keyword: searchParams.get("keyword"),
-      state: searchParams.get("state"),
-    };
-  });
-
-  const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
-  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 10);
 
   const {
     loading,
@@ -265,15 +173,41 @@ const WorkflowList = () => {
     run: refreshData,
   } = useRequest(
     () => {
+      const { columnKey: sorterKey, order: sorterOrder } = sorter;
+      let sort: string | undefined;
+      sort = sorterKey === "lastRun" ? "lastRunTime" : "";
+      sort = sort && (sorterOrder === "ascend" ? `${sort}` : sorterOrder === "descend" ? `-${sort}` : undefined);
+
       return listWorkflows({
         keyword: filters["keyword"] as string,
         enabled: (filters["state"] as string) === "enabled" ? true : (filters["state"] as string) === "disabled" ? false : undefined,
+        sort: sort,
         page: page,
         perPage: pageSize,
       });
     },
     {
-      refreshDeps: [filters, page, pageSize],
+      refreshDeps: [filters, sorter, page, pageSize],
+      onBefore: () => {
+        setSearchParams((prev) => {
+          if (filters["keyword"]) {
+            prev.set("keyword", filters["keyword"] as string);
+          } else {
+            prev.delete("keyword");
+          }
+
+          if (filters["state"]) {
+            prev.set("state", filters["state"] as string);
+          } else {
+            prev.delete("state");
+          }
+
+          prev.set("page", page.toString());
+          prev.set("perPage", pageSize.toString());
+
+          return prev;
+        });
+      },
       onSuccess: (res) => {
         setTableData(res.items);
         setTableTotal(res.totalItems);
@@ -284,7 +218,7 @@ const WorkflowList = () => {
         }
 
         console.error(err);
-        notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       },
@@ -296,20 +230,29 @@ const WorkflowList = () => {
     setPage(1);
   };
 
-  const handleCreateClick = () => {
-    navigate("/workflows/new");
-  };
-
   const handleReloadClick = () => {
     if (loading) return;
 
     refreshData();
   };
 
-  const handleEnabledChange = async (workflow: WorkflowModel) => {
+  const handlePaginationChange = (page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
+  };
+
+  const handleCreateClick = () => {
+    navigate("/workflows/new");
+  };
+
+  const handleRecordDetailClick = (workflow: WorkflowModel) => {
+    navigate(`/workflows/${workflow.id}`);
+  };
+
+  const handleRecordActiveChange = async (workflow: WorkflowModel) => {
     try {
       if (!workflow.enabled && (!workflow.content || !isAllNodesValidated(workflow.content))) {
-        messageApi.warning(t("workflow.action.enable.failed.uncompleted"));
+        message.warning(t("workflow.action.enable.errmsg.uncompleted"));
         return;
       }
 
@@ -329,14 +272,14 @@ const WorkflowList = () => {
       }
     } catch (err) {
       console.error(err);
-      notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
     }
   };
 
-  const handleDuplicateClick = (workflow: WorkflowModel) => {
-    modalApi.confirm({
-      title: t("workflow.action.duplicate"),
-      content: t("workflow.action.duplicate.confirm"),
+  const handleRecordDuplicateClick = (workflow: WorkflowModel) => {
+    modal.confirm({
+      title: t("workflow.action.duplicate.modal.title"),
+      content: t("workflow.action.duplicate.modal.content", { name: workflow.name }),
       onOk: async () => {
         try {
           const workflowCopy = {
@@ -357,16 +300,23 @@ const WorkflowList = () => {
           }
         } catch (err) {
           console.error(err);
-          notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
   };
 
-  const handleDeleteClick = (workflow: WorkflowModel) => {
-    modalApi.confirm({
-      title: t("workflow.action.delete"),
-      content: t("workflow.action.delete.confirm"),
+  const handleRecordDeleteClick = (workflow: WorkflowModel) => {
+    modal.confirm({
+      title: <span className="text-error">{t("workflow.action.delete.modal.title")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.modal.content", { name: workflow.name }) }} />,
+      icon: (
+        <span className="anticon" role="img">
+          <IconTrash className="text-error" size="1em" />
+        </span>
+      ),
+      okText: t("common.button.confirm"),
+      okButtonProps: { danger: true },
       onOk: async () => {
         try {
           const resp = await removeWorkflow(workflow);
@@ -376,71 +326,104 @@ const WorkflowList = () => {
           }
         } catch (err) {
           console.error(err);
-          notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
   };
 
   return (
-    <div className="p-4">
-      {MessageContextHolder}
-      {ModelContextHolder}
-      {NotificationContextHolder}
+    <div className="px-6 py-4">
+      <div className="mx-auto max-w-320">
+        <h1>{t("workflow.page.title")}</h1>
+        <p className="text-base text-gray-500">{t("workflow.page.subtitle")}</p>
 
-      <PageHeader
-        title={t("workflow.page.title")}
-        extra={[
-          <Button
-            key="create"
-            type="primary"
-            icon={<PlusOutlinedIcon />}
-            onClick={() => {
-              handleCreateClick();
-            }}
-          >
-            {t("workflow.action.create")}
-          </Button>,
-        ]}
-      />
-
-      <Card size="small">
-        <div className="mb-4">
-          <Flex gap="small">
+        <div className="flex items-center justify-between gap-x-2 gap-y-3 not-md:flex-col-reverse not-md:items-start not-md:justify-normal">
+          <div className="flex w-full flex-1 items-center gap-x-2 md:max-w-200">
+            <div>
+              <Segmented
+                options={[
+                  { label: <span className="text-sm">{t("workflow.props.state.filter.all")}</span>, value: "" },
+                  { label: <span className="text-sm">{t("workflow.props.state.filter.enabled")}</span>, value: "enabled" },
+                  { label: <span className="text-sm">{t("workflow.props.state.filter.disabled")}</span>, value: "disabled" },
+                ]}
+                size="large"
+                value={(filters["state"] as string) || ""}
+                onChange={(value) => {
+                  setPage(1);
+                  setFilters((prev) => ({ ...prev, state: value }));
+                }}
+              />
+            </div>
             <div className="flex-1">
-              <Input.Search allowClear defaultValue={filters["keyword"] as string} placeholder={t("workflow.search.placeholder")} onSearch={handleSearch} />
+              <Input.Search
+                className="text-sm placeholder:text-sm"
+                allowClear
+                defaultValue={filters["keyword"] as string}
+                placeholder={t("workflow.search.placeholder")}
+                size="large"
+                onSearch={handleSearch}
+              />
             </div>
             <div>
-              <Button icon={<ReloadOutlinedIcon spin={loading} />} onClick={handleReloadClick} />
+              <Button icon={<IconReload size="1.25em" />} size="large" onClick={handleReloadClick} />
             </div>
-          </Flex>
+          </div>
+          <div>
+            <Button className="text-sm" icon={<IconPlus size="1.25em" />} size="large" type="primary" onClick={handleCreateClick}>
+              {t("workflow.action.create.button")}
+            </Button>
+          </div>
         </div>
 
         <Table<WorkflowModel>
+          className="mt-4"
           columns={tableColumns}
           dataSource={tableData}
           loading={loading}
           locale={{
-            emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={getErrMsg(loadedError ?? t("workflow.nodata"))} />,
+            emptyText: loading ? (
+              <Skeleton />
+            ) : (
+              <Empty
+                title={t("workflow.nodata.title")}
+                description={getErrMsg(loadedError ?? t("workflow.nodata.description"))}
+                icon={<IconHierarchy3 size={24} />}
+                extra={
+                  loadedError ? (
+                    <Button icon={<IconReload size="1.25em" />} type="primary" onClick={handleReloadClick}>
+                      {t("common.button.reload")}
+                    </Button>
+                  ) : (
+                    <Button icon={<IconCirclePlus size="1.25em" />} type="primary" onClick={handleCreateClick}>
+                      {t("workflow.nodata.button")}
+                    </Button>
+                  )
+                }
+              />
+            ),
           }}
           pagination={{
             current: page,
             pageSize: pageSize,
             total: tableTotal,
             showSizeChanger: true,
-            onChange: (page: number, pageSize: number) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
-            onShowSizeChange: (page: number, pageSize: number) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
+            onChange: handlePaginationChange,
+            onShowSizeChange: handlePaginationChange,
           }}
+          rowClassName="cursor-pointer"
           rowKey={(record) => record.id}
           scroll={{ x: "max(100%, 960px)" }}
+          onChange={(_, __, sorter) => {
+            setSorter(Array.isArray(sorter) ? sorter[0] : sorter);
+          }}
+          onRow={(record) => ({
+            onClick: () => {
+              handleRecordDetailClick(record);
+            },
+          })}
         />
-      </Card>
+      </div>
     </div>
   );
 };

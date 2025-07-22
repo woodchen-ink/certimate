@@ -1,39 +1,44 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
-import {
-  DeleteOutlined as DeleteOutlinedIcon,
-  EditOutlined as EditOutlinedIcon,
-  PlusOutlined as PlusOutlinedIcon,
-  ReloadOutlined as ReloadOutlinedIcon,
-  SnippetsOutlined as SnippetsOutlinedIcon,
-} from "@ant-design/icons";
-import { PageHeader } from "@ant-design/pro-components";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { IconCirclePlus, IconCopy, IconEdit, IconFingerprint, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { Avatar, Button, Card, Empty, Flex, Input, Modal, Space, Table, type TableProps, Tooltip, Typography, notification } from "antd";
+import { App, Avatar, Button, Input, Skeleton, Table, type TableProps, Tabs, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
 import AccessEditDrawer, { type AccessEditDrawerProps } from "@/components/access/AccessEditDrawer";
+import Empty from "@/components/Empty";
 import { type AccessModel } from "@/domain/access";
 import { ACCESS_USAGES, accessProvidersMap } from "@/domain/provider";
-import { useZustandShallowSelector } from "@/hooks";
+import { useAppSettings, useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
 import { getErrMsg } from "@/utils/error";
 
-type AccessUsageProp = AccessEditDrawerProps["usage"];
+type AccessUsages = AccessEditDrawerProps["usage"];
 
 const AccessList = () => {
-  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { t } = useTranslation();
 
-  const [modalApi, ModelContextHolder] = Modal.useModal();
-  const [notificationApi, NotificationContextHolder] = notification.useNotification();
+  const { modal, notification } = App.useApp();
+
+  const { appSettings: globalAppSettings } = useAppSettings();
 
   const { accesses, loadedAtOnce, fetchAccesses, deleteAccess } = useAccessesStore(
     useZustandShallowSelector(["accesses", "loadedAtOnce", "fetchAccesses", "deleteAccess"])
   );
+
+  const [filters, setFilters] = useState<Record<string, unknown>>(() => {
+    return {
+      usage: searchParams.get("usage") || ("dns-hosting" satisfies AccessUsages),
+      keyword: searchParams.get("keyword"),
+    };
+  });
+  const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
+  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || globalAppSettings.defaultPerPage!);
 
   const tableColumns: TableProps<AccessModel>["columns"] = [
     {
@@ -46,19 +51,17 @@ const AccessList = () => {
     {
       key: "name",
       title: t("access.props.name"),
-      ellipsis: true,
-      render: (_, record) => <>{record.name}</>,
-    },
-    {
-      key: "provider",
-      title: t("access.props.provider"),
-      ellipsis: true,
       render: (_, record) => {
         return (
-          <Space className="max-w-full truncate" size={4}>
-            <Avatar shape="square" src={accessProvidersMap.get(record.provider)?.icon} size="small" />
-            <Typography.Text ellipsis>{t(accessProvidersMap.get(record.provider)?.name ?? "")}</Typography.Text>
-          </Space>
+          <div className="flex max-w-full items-center gap-4 overflow-hidden">
+            <Avatar shape="square" size={28} src={accessProvidersMap.get(record.provider)?.icon} />
+            <div className="flex max-w-full flex-col gap-1 truncate">
+              <Typography.Text ellipsis>{record.name || "\u00A0"}</Typography.Text>
+              <Typography.Text ellipsis type="secondary">
+                {t(accessProvidersMap.get(record.provider)?.name ?? "") || "\u00A0"}
+              </Typography.Text>
+            </div>
+          </div>
         );
       },
     },
@@ -71,68 +74,51 @@ const AccessList = () => {
       },
     },
     {
-      key: "updatedAt",
-      title: t("access.props.updated_at"),
-      ellipsis: true,
-      render: (_, record) => {
-        return dayjs(record.updated!).format("YYYY-MM-DD HH:mm:ss");
-      },
-    },
-    {
       key: "$action",
       align: "end",
       fixed: "right",
       width: 120,
       render: (_, record) => (
-        <Space.Compact>
-          <AccessEditDrawer
-            data={record}
-            usage={filters["usage"] as AccessUsageProp}
-            scene="edit"
-            trigger={
-              <Tooltip title={t("access.action.edit")}>
-                <Button color="primary" icon={<EditOutlinedIcon />} variant="text" />
-              </Tooltip>
-            }
-          />
-
-          <AccessEditDrawer
-            data={{ ...record, id: undefined, name: `${record.name}-copy` }}
-            usage={filters["usage"] as AccessUsageProp}
-            scene="add"
-            trigger={
-              <Tooltip title={t("access.action.duplicate")}>
-                <Button color="primary" icon={<SnippetsOutlinedIcon />} variant="text" />
-              </Tooltip>
-            }
-          />
-
-          <Tooltip title={t("access.action.delete")}>
+        <div className="flex items-center justify-end">
+          <Tooltip title={t("common.button.edit")}>
             <Button
-              color="danger"
-              icon={<DeleteOutlinedIcon />}
+              color="primary"
+              icon={<IconEdit size="1.25em" />}
               variant="text"
-              onClick={() => {
-                handleDeleteClick(record);
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDetailClick(record);
               }}
             />
           </Tooltip>
-        </Space.Compact>
+          <Tooltip title={t("common.button.duplicate")}>
+            <Button
+              color="primary"
+              icon={<IconCopy size="1.25em" />}
+              variant="text"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDuplicateClick(record);
+              }}
+            />
+          </Tooltip>
+          <Tooltip title={t("common.button.delete")}>
+            <Button
+              color="danger"
+              icon={<IconTrash size="1.25em" />}
+              variant="text"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRecordDeleteClick(record);
+              }}
+            />
+          </Tooltip>
+        </div>
       ),
     },
   ];
   const [tableData, setTableData] = useState<AccessModel[]>([]);
   const [tableTotal, setTableTotal] = useState<number>(0);
-
-  const [filters, setFilters] = useState<Record<string, unknown>>(() => {
-    return {
-      usage: "both-dns-hosting" satisfies AccessUsageProp,
-      keyword: searchParams.get("keyword"),
-    };
-  });
-
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
 
   useEffect(() => {
     fetchAccesses().catch((err) => {
@@ -141,7 +127,7 @@ const AccessList = () => {
       }
 
       console.error(err);
-      notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
     });
   }, []);
 
@@ -160,12 +146,16 @@ const AccessList = () => {
         })
         .filter((e) => {
           const provider = accessProvidersMap.get(e.provider);
-          switch (filters["usage"] as AccessUsageProp) {
-            case "both-dns-hosting":
+          switch (filters["usage"] as AccessUsages) {
+            case "dns":
+              return !e.reserve && provider?.usages?.includes(ACCESS_USAGES.DNS);
+            case "hosting":
+              return !e.reserve && provider?.usages?.includes(ACCESS_USAGES.HOSTING);
+            case "dns-hosting":
               return !e.reserve && (provider?.usages?.includes(ACCESS_USAGES.DNS) || provider?.usages?.includes(ACCESS_USAGES.HOSTING));
-            case "ca-only":
+            case "ca":
               return e.reserve === "ca" && provider?.usages?.includes(ACCESS_USAGES.CA);
-            case "notification-only":
+            case "notification":
               return e.reserve === "notification" && provider?.usages?.includes(ACCESS_USAGES.NOTIFICATION);
           }
         });
@@ -176,6 +166,22 @@ const AccessList = () => {
     },
     {
       refreshDeps: [accesses, filters, page, pageSize],
+      onBefore: () => {
+        setSearchParams((prev) => {
+          if (filters["keyword"]) {
+            prev.set("keyword", filters["keyword"] as string);
+          } else {
+            prev.delete("keyword");
+          }
+
+          prev.set("usage", filters["usage"] as string);
+
+          prev.set("page", page.toString());
+          prev.set("perPage", pageSize.toString());
+
+          return prev;
+        });
+      },
       onSuccess: (res) => {
         setTableData(res.items);
         setTableTotal(res.totalItems);
@@ -199,106 +205,145 @@ const AccessList = () => {
     fetchAccesses();
   };
 
-  const handleDeleteClick = async (data: AccessModel) => {
-    modalApi.confirm({
-      title: t("access.action.delete"),
-      content: t("access.action.delete.confirm"),
+  const handlePaginationChange = (page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
+  };
+
+  const handleCreateClick = () => {
+    navigate(`/accesses/new?usage=${filters["usage"]}`);
+  };
+
+  const [detailRecord, setDetailRecord] = useState<MaybeModelRecord<AccessModel>>();
+  const [detailMode, setDetailMode] = useState<AccessEditDrawerProps["mode"]>("create");
+  const [detailOpen, setDetailOpen] = useState<boolean>(false);
+
+  const handleRecordDetailClick = (access: AccessModel) => {
+    setDetailRecord(access);
+    setDetailMode("edit");
+    setDetailOpen(true);
+  };
+
+  const handleRecordDuplicateClick = (access: AccessModel) => {
+    setDetailRecord({ ...access, id: undefined, name: `${access.name}-copy` });
+    setDetailMode("create");
+    setDetailOpen(true);
+  };
+
+  const handleRecordDeleteClick = async (access: AccessModel) => {
+    modal.confirm({
+      title: <span className="text-error">{t("access.action.delete.modal.title")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("access.action.delete.modal.content", { name: access.name }) }} />,
+      icon: (
+        <span className="anticon" role="img">
+          <IconTrash className="text-error" size="1em" />
+        </span>
+      ),
+      okText: t("common.button.confirm"),
+      okButtonProps: { danger: true },
       onOk: async () => {
         // TODO: 有关联数据的不允许被删除
         try {
-          await deleteAccess(data);
+          await deleteAccess(access);
           refreshData();
         } catch (err) {
           console.error(err);
-          notificationApi.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
   };
 
   return (
-    <div className="p-4">
-      {ModelContextHolder}
-      {NotificationContextHolder}
+    <div className="px-6 py-4">
+      <div className="mx-auto max-w-320">
+        <h1>{t("access.page.title")}</h1>
+        <p className="text-base text-gray-500">{t("access.page.subtitle")}</p>
 
-      <PageHeader
-        title={t("access.page.title")}
-        extra={[
-          <AccessEditDrawer
-            key="create"
-            usage={filters["usage"] as AccessUsageProp}
-            scene="add"
-            trigger={
-              <Button type="primary" icon={<PlusOutlinedIcon />}>
-                {t("access.action.add")}
-              </Button>
-            }
-          />,
-        ]}
-      />
-
-      <Card
-        className="rounded-b-none"
-        styles={{
-          body: {
-            padding: 0,
-          },
-        }}
-        tabList={[
-          {
-            key: "both-dns-hosting",
-            label: t("access.props.usage.both_dns_hosting"),
-          },
-          {
-            key: "ca-only",
-            label: t("access.props.usage.ca_only"),
-          },
-          {
-            key: "notification-only",
-            label: t("access.props.usage.notification_only"),
-          },
-        ]}
-        activeTabKey={filters["usage"] as string}
-        onTabChange={(key) => handleTabChange(key)}
-      />
-
-      <Card className="rounded-t-none " size="small">
-        <div className="mb-4">
-          <Flex gap="small">
+        <div className="flex items-center justify-between gap-x-2 gap-y-3 not-md:flex-col-reverse not-md:items-start not-md:justify-normal">
+          <div className="flex w-full flex-1 items-center gap-x-2 md:max-w-200">
             <div className="flex-1">
-              <Input.Search allowClear defaultValue={filters["keyword"] as string} placeholder={t("access.search.placeholder")} onSearch={handleSearch} />
+              <Input.Search
+                className="text-sm placeholder:text-sm"
+                allowClear
+                defaultValue={filters["keyword"] as string}
+                placeholder={t("access.search.placeholder")}
+                size="large"
+                onSearch={handleSearch}
+              />
             </div>
             <div>
-              <Button icon={<ReloadOutlinedIcon spin={loading} />} onClick={handleReloadClick} />
+              <Button icon={<IconReload size="1.25em" />} size="large" onClick={handleReloadClick} />
             </div>
-          </Flex>
+          </div>
+          <div>
+            <Button className="text-sm" icon={<IconPlus size="1.25em" />} size="large" type="primary" onClick={handleCreateClick}>
+              {t("access.action.create.button")}
+            </Button>
+          </div>
         </div>
+
+        <Tabs
+          className="mt-2 -mb-2"
+          activeKey={filters["usage"] as string}
+          items={[
+            {
+              key: "dns-hosting",
+              label: t("access.props.usage.dns_hosting"),
+            },
+            {
+              key: "ca",
+              label: t("access.props.usage.ca"),
+            },
+            {
+              key: "notification",
+              label: t("access.props.usage.notification"),
+            },
+          ]}
+          size="large"
+          onChange={(key) => handleTabChange(key)}
+        />
 
         <Table<AccessModel>
           columns={tableColumns}
           dataSource={tableData}
           loading={!loadedAtOnce || loading}
           locale={{
-            emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("access.nodata")} />,
+            emptyText: loading ? (
+              <Skeleton />
+            ) : (
+              <Empty
+                title={t("access.nodata.title")}
+                description={t("access.nodata.description")}
+                icon={<IconFingerprint size={24} />}
+                extra={
+                  <Button icon={<IconCirclePlus size="1.25em" />} type="primary" onClick={handleCreateClick}>
+                    {t("access.action.create.button")}
+                  </Button>
+                }
+              />
+            ),
           }}
           pagination={{
             current: page,
             pageSize: pageSize,
             total: tableTotal,
             showSizeChanger: true,
-            onChange: (page: number, pageSize: number) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
-            onShowSizeChange: (page: number, pageSize: number) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
+            onChange: handlePaginationChange,
+            onShowSizeChange: handlePaginationChange,
           }}
+          rowClassName="cursor-pointer"
           rowKey={(record) => record.id}
           scroll={{ x: "max(100%, 960px)" }}
+          onRow={(record) => ({
+            onClick: () => {
+              handleRecordDetailClick(record);
+            },
+          })}
         />
-      </Card>
+
+        <AccessEditDrawer data={detailRecord} open={detailOpen} mode={detailMode} usage={filters["usage"] as AccessUsages} onOpenChange={setDetailOpen} />
+      </div>
     </div>
   );
 };

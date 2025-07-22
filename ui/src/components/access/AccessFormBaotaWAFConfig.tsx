@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForBaotaWAF } from "@/domain/access";
 
 type AccessFormBaotaWAFConfigFieldValues = Nullish<AccessConfigForBaotaWAF>;
 
-export type AccessFormBaotaWAFConfigProps = {
+export interface AccessFormBaotaWAFConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormBaotaWAFConfigFieldValues;
   onValuesChange?: (values: AccessFormBaotaWAFConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormBaotaWAFConfigFieldValues => {
   return {

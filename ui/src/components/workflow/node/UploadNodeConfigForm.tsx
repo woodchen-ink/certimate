@@ -2,7 +2,7 @@ import { forwardRef, memo, useImperativeHandle } from "react";
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { validateCertificate, validatePrivateKey } from "@/api/certificates";
 import TextFileInput from "@/components/TextFileInput";
@@ -12,19 +12,19 @@ import { getErrMsg } from "@/utils/error";
 
 type UploadNodeConfigFormFieldValues = Partial<WorkflowNodeConfigForUpload>;
 
-export type UploadNodeConfigFormProps = {
+export interface UploadNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: UploadNodeConfigFormFieldValues;
   onValuesChange?: (values: UploadNodeConfigFormFieldValues) => void;
-};
+}
 
-export type UploadNodeConfigFormInstance = {
+export interface UploadNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<UploadNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<UploadNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<UploadNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const initFormModel = (): UploadNodeConfigFormFieldValues => {
   return defaultNodeConfigForUpload();

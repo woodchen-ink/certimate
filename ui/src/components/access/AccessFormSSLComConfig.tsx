@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForSSLCom } from "@/domain/access";
 
 type AccessFormSSLComConfigFieldValues = Nullish<AccessConfigForSSLCom>;
 
-export type AccessFormSSLComConfigProps = {
+export interface AccessFormSSLComConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormSSLComConfigFieldValues;
   onValuesChange?: (values: AccessFormSSLComConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormSSLComConfigFieldValues => {
   return {

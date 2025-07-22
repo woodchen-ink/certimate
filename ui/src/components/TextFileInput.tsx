@@ -1,10 +1,9 @@
 ﻿import { type ChangeEvent, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { UploadOutlined as UploadOutlinedIcon } from "@ant-design/icons";
-import { Button, type ButtonProps, Input, Space, type UploadProps } from "antd";
+import { IconFileImport } from "@tabler/icons-react";
+import { Button, type ButtonProps, Input, type UploadProps } from "antd";
 import { type TextAreaProps } from "antd/es/input/TextArea";
 
-import { mergeCls } from "@/utils/css";
 import { readFileContent } from "@/utils/file";
 
 export interface TextFileInputProps extends Omit<TextAreaProps, "onChange"> {
@@ -34,17 +33,19 @@ const TextFileInput = ({ className, style, accept, disabled, readOnly, uploadTex
   };
 
   return (
-    <Space className={mergeCls("w-full", className)} style={style} direction="vertical" size="small">
-      <Input.TextArea {...props} disabled={disabled} readOnly={readOnly} onChange={(e) => onChange?.(e.target.value)} />
-      {!readOnly && (
-        <>
-          <Button {...uploadButtonProps} block disabled={disabled} icon={<UploadOutlinedIcon />} onClick={handleButtonClick}>
-            {uploadText ?? t("common.text.import_from_file")}
-          </Button>
-          <input ref={fileInputRef} type="file" style={{ display: "none" }} accept={accept} onChange={handleFileChange} />
-        </>
-      )}
-    </Space>
+    <div className={className} style={style}>
+      <div className="flex flex-col items-center gap-2">
+        <Input.TextArea {...props} disabled={disabled} readOnly={readOnly} onChange={(e) => onChange?.(e.target.value)} />
+        {!readOnly && (
+          <>
+            <Button {...uploadButtonProps} block disabled={disabled} icon={<IconFileImport size="1.25em" />} onClick={handleButtonClick}>
+              {uploadText ?? t("common.text.import_from_file")}
+            </Button>
+            <input ref={fileInputRef} type="file" style={{ display: "none" }} accept={accept} onChange={handleFileChange} />
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 

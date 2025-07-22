@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type ApplyNodeConfigFormTencentCloudEOConfigFieldValues = Nullish<{
   zoneId: string;
 }>;
 
-export type ApplyNodeConfigFormTencentCloudEOConfigProps = {
+export interface ApplyNodeConfigFormTencentCloudEOConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: ApplyNodeConfigFormTencentCloudEOConfigFieldValues;
   onValuesChange?: (values: ApplyNodeConfigFormTencentCloudEOConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): ApplyNodeConfigFormTencentCloudEOConfigFieldValues => {
   return {};

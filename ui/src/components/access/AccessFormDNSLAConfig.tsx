@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForDNSLA } from "@/domain/access";
 
 type AccessFormDNSLAConfigFieldValues = Nullish<AccessConfigForDNSLA>;
 
-export type AccessFormDNSLAConfigProps = {
+export interface AccessFormDNSLAConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDNSLAConfigFieldValues;
   onValuesChange?: (values: AccessFormDNSLAConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDNSLAConfigFieldValues => {
   return {

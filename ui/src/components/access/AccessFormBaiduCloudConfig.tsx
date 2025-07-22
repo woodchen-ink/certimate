@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForBaiduCloud } from "@/domain/access";
 
 type AccessFormBaiduCloudConfigFieldValues = Nullish<AccessConfigForBaiduCloud>;
 
-export type AccessFormBaiduCloudConfigProps = {
+export interface AccessFormBaiduCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormBaiduCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormBaiduCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormBaiduCloudConfigFieldValues => {
   return {

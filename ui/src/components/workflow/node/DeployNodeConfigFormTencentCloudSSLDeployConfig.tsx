@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Alert, AutoComplete, Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import MultipleSplitValueInput from "@/components/MultipleSplitValueInput";
 
@@ -12,13 +12,13 @@ type DeployNodeConfigFormTencentCloudSSLDeployConfigFieldValues = Nullish<{
   resourceIds: string;
 }>;
 
-export type DeployNodeConfigFormTencentCloudSSLDeployConfigProps = {
+export interface DeployNodeConfigFormTencentCloudSSLDeployConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormTencentCloudSSLDeployConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormTencentCloudSSLDeployConfigFieldValues) => void;
-};
+}
 
 const MULTIPLE_INPUT_SEPARATOR = ";";
 
@@ -110,7 +110,7 @@ const DeployNodeConfigFormTencentCloudSSLDeployConfig = ({
           modalTitle={t("workflow_node.deploy.form.tencentcloud_ssl_deploy_resource_ids.multiple_input_modal.title")}
           placeholder={t("workflow_node.deploy.form.tencentcloud_ssl_deploy_resource_ids.placeholder")}
           placeholderInModal={t("workflow_node.deploy.form.tencentcloud_ssl_deploy_resource_ids.multiple_input_modal.placeholder")}
-          splitOptions={{ trim: true, removeEmpty: true }}
+          splitOptions={{ removeEmpty: true, trimSpace: true }}
         />
       </Form.Item>
     </Form>

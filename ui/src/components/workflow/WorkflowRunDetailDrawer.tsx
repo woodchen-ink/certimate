@@ -7,13 +7,13 @@ import { useTriggerElement } from "@/hooks";
 
 import WorkflowRunDetail from "./WorkflowRunDetail";
 
-export type WorkflowRunDetailDrawerProps = {
+export interface WorkflowRunDetailDrawerProps {
   data?: WorkflowRunModel;
   loading?: boolean;
   open?: boolean;
   trigger?: React.ReactNode;
   onOpenChange?: (open: boolean) => void;
-};
+}
 
 const WorkflowRunDetailDrawer = ({ data, loading, trigger, ...props }: WorkflowRunDetailDrawerProps) => {
   const [open, setOpen] = useControllableValue<boolean>(props, {

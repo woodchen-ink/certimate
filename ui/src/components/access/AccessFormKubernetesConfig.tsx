@@ -1,20 +1,20 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import TextFileInput from "@/components/TextFileInput";
 import { type AccessConfigForKubernetes } from "@/domain/access";
 
 type AccessFormKubernetesConfigFieldValues = Nullish<AccessConfigForKubernetes>;
 
-export type AccessFormKubernetesConfigProps = {
+export interface AccessFormKubernetesConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormKubernetesConfigFieldValues;
   onValuesChange?: (values: AccessFormKubernetesConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormKubernetesConfigFieldValues => {
   return {};

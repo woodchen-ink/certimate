@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type DeployNodeConfigFormKubernetesSecretConfigFieldValues = Nullish<{
   namespace: string;
@@ -11,13 +11,13 @@ type DeployNodeConfigFormKubernetesSecretConfigFieldValues = Nullish<{
   secretDataKeyForKey: string;
 }>;
 
-export type DeployNodeConfigFormKubernetesSecretConfigProps = {
+export interface DeployNodeConfigFormKubernetesSecretConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormKubernetesSecretConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormKubernetesSecretConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormKubernetesSecretConfigFieldValues => {
   return {

@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CloseOutlined as CloseOutlinedIcon, PlusOutlined } from "@ant-design/icons";
+import { IconCircleMinus, IconCirclePlus } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
 import { Button, Form, Input, Radio, Select, theme } from "antd";
 
@@ -10,7 +10,7 @@ import { ExprType } from "@/domain/workflow";
 import { useAntdFormName, useZustandShallowSelector } from "@/hooks";
 import { useWorkflowStore } from "@/stores/workflow";
 
-export type ConditionNodeConfigFormExpressionEditorProps = {
+export interface ConditionNodeConfigFormExpressionEditorProps {
   className?: string;
   style?: React.CSSProperties;
   defaultValue?: Expr;
@@ -18,11 +18,11 @@ export type ConditionNodeConfigFormExpressionEditorProps = {
   nodeId: string;
   value?: Expr;
   onChange?: (value: Expr) => void;
-};
+}
 
-export type ConditionNodeConfigFormExpressionEditorInstance = {
+export interface ConditionNodeConfigFormExpressionEditorInstance {
   validate: () => Promise<void>;
-};
+}
 
 // 表单内部使用的扁平结构
 type ConditionItem = {
@@ -269,11 +269,7 @@ const ConditionNodeConfigFormExpressionEditor = forwardRef<ConditionNodeConfigFo
         onValuesChange={handleFormChange}
       >
         <Show when={formModel.conditions?.length > 1}>
-          <Form.Item
-            className="mb-2"
-            name="logicalOperator"
-            rules={[{ required: true, message: t("workflow_node.condition.form.expression.logical_operator.errmsg") }]}
-          >
+          <Form.Item name="logicalOperator" rules={[{ required: true, message: t("workflow_node.condition.form.expression.logical_operator.errmsg") }]}>
             <Radio.Group block>
               <Radio.Button value="and">{t("workflow_node.condition.form.expression.logical_operator.option.and.label")}</Radio.Button>
               <Radio.Button value="or">{t("workflow_node.condition.form.expression.logical_operator.option.or.label")}</Radio.Button>
@@ -372,20 +368,12 @@ const ConditionNodeConfigFormExpressionEditor = forwardRef<ConditionNodeConfigFo
                     }}
                   </Form.Item>
 
-                  <Button
-                    className="my-1"
-                    color="default"
-                    disabled={disabled}
-                    icon={<CloseOutlinedIcon />}
-                    size="small"
-                    type="text"
-                    onClick={() => remove(index)}
-                  />
+                  <Button color="default" disabled={disabled} icon={<IconCircleMinus size="1.25em" />} type="text" onClick={() => remove(index)} />
                 </div>
               ))}
 
               <Form.Item>
-                <Button type="dashed" block icon={<PlusOutlined />} onClick={() => add({})}>
+                <Button type="dashed" block icon={<IconCirclePlus size="1.25em" />} onClick={() => add({})}>
                   {t("workflow_node.condition.form.expression.add_condition.button")}
                 </Button>
               </Form.Item>

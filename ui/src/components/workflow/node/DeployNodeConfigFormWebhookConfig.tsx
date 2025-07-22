@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Alert, Form, type FormInstance } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import CodeInput from "@/components/CodeInput";
 
@@ -9,13 +9,13 @@ type DeployNodeConfigFormWebhookConfigFieldValues = Nullish<{
   webhookData: string;
 }>;
 
-export type DeployNodeConfigFormWebhookConfigProps = {
+export interface DeployNodeConfigFormWebhookConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormWebhookConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormWebhookConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormWebhookConfigFieldValues => {
   return {};

@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForLarkBot } from "@/domain/access";
 
 type AccessFormLarkBotConfigFieldValues = Nullish<AccessConfigForLarkBot>;
 
-export type AccessFormLarkBotConfigProps = {
+export interface AccessFormLarkBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormLarkBotConfigFieldValues;
   onValuesChange?: (values: AccessFormLarkBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormLarkBotConfigFieldValues => {
   return {

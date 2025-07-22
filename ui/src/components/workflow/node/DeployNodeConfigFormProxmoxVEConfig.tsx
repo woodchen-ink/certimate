@@ -1,20 +1,20 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type DeployNodeConfigFormProxmoxVEConfigFieldValues = Nullish<{
   nodeName: string;
   autoRestart?: boolean;
 }>;
 
-export type DeployNodeConfigFormProxmoxVEConfigProps = {
+export interface DeployNodeConfigFormProxmoxVEConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormProxmoxVEConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormProxmoxVEConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormProxmoxVEConfigFieldValues => {
   return {

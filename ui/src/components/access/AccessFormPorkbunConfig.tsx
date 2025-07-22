@@ -1,19 +1,19 @@
 import { useTranslation } from "react-i18next";
 import { Form, type FormInstance, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { type AccessConfigForPorkbun } from "@/domain/access";
 
 type AccessFormPorkbunConfigFieldValues = Nullish<AccessConfigForPorkbun>;
 
-export type AccessFormPorkbunConfigProps = {
+export interface AccessFormPorkbunConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormPorkbunConfigFieldValues;
   onValuesChange?: (values: AccessFormPorkbunConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormPorkbunConfigFieldValues => {
   return {

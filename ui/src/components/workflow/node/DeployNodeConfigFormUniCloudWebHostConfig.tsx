@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Alert, Form, type FormInstance, Input, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { validDomainName } from "@/utils/validators";
 
@@ -11,13 +11,13 @@ type DeployNodeConfigFormUniCloudWebHostConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormUniCloudWebHostConfigProps = {
+export interface DeployNodeConfigFormUniCloudWebHostConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormUniCloudWebHostConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormUniCloudWebHostConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormUniCloudWebHostConfigFieldValues => {
   return {

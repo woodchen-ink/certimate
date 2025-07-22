@@ -10,13 +10,13 @@ type DeployNodeConfigFormWangsuCDNConfigFieldValues = Nullish<{
   domains: string;
 }>;
 
-export type DeployNodeConfigFormWangsuCDNConfigProps = {
+export interface DeployNodeConfigFormWangsuCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormWangsuCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormWangsuCDNConfigFieldValues) => void;
-};
+}
 
 const MULTIPLE_INPUT_SEPARATOR = ";";
 
@@ -71,7 +71,7 @@ const DeployNodeConfigFormWangsuCDNConfig = ({
           modalTitle={t("workflow_node.deploy.form.wangsu_cdn_domains.multiple_input_modal.title")}
           placeholder={t("workflow_node.deploy.form.wangsu_cdn_domains.placeholder")}
           placeholderInModal={t("workflow_node.deploy.form.wangsu_cdn_domains.multiple_input_modal.placeholder")}
-          splitOptions={{ trim: true, removeEmpty: true }}
+          splitOptions={{ removeEmpty: true, trimSpace: true }}
         />
       </Form.Item>
     </Form>

@@ -10,13 +10,13 @@ type DeployNodeConfigFormKongConfigFieldValues = Nullish<{
   certificateId?: string;
 }>;
 
-export type DeployNodeConfigFormKongConfigProps = {
+export interface DeployNodeConfigFormKongConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormKongConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormKongConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 

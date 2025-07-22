@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { IconCircleArrowDown, IconCircleArrowUp, IconCircleMinus, IconCirclePlus } from "@tabler/icons-react";
-import { Button, Collapse, Form, type FormInstance, Input, InputNumber, Select, Space } from "antd";
+import { Button, Collapse, Form, type FormInstance, Input, InputNumber, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
@@ -11,13 +11,13 @@ import { validDomainName, validIPv4Address, validIPv6Address, validPortNumber } 
 
 type AccessFormSSHConfigFieldValues = Nullish<AccessConfigForSSH>;
 
-export type AccessFormSSHConfigProps = {
+export interface AccessFormSSHConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormSSHConfigFieldValues;
   onValuesChange?: (values: AccessFormSSHConfigFieldValues) => void;
-};
+}
 
 const AUTH_METHOD_NONE = "none" as const;
 const AUTH_METHOD_PASSWORD = "password" as const;
@@ -171,7 +171,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
       <Form.Item name="jumpServers" label={t("access.form.ssh_jump_servers.label")} rules={[formRule]}>
         <Form.List name="jumpServers">
           {(fields, { add, remove, move }) => (
-            <Space className="w-full" direction="vertical" size="small">
+            <div className="flex flex-col gap-2">
               {fields?.length > 0 ? (
                 <Collapse
                   items={fields.map((field, index) => {
@@ -288,7 +288,7 @@ const AccessFormSSHConfig = ({ form: formInst, formName, disabled, initialValues
               <Button className="w-full" type="dashed" icon={<IconCirclePlus size="1.25em" />} onClick={() => add(initFormModel())}>
                 {t("access.form.ssh_jump_servers.add")}
               </Button>
-            </Space>
+            </div>
           )}
         </Form.List>
       </Form.Item>

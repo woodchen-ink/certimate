@@ -7,13 +7,13 @@ import { type AccessConfigForBaotaPanel } from "@/domain/access";
 
 type AccessFormBaotaPanelConfigFieldValues = Nullish<AccessConfigForBaotaPanel>;
 
-export type AccessFormBaotaPanelConfigProps = {
+export interface AccessFormBaotaPanelConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormBaotaPanelConfigFieldValues;
   onValuesChange?: (values: AccessFormBaotaPanelConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormBaotaPanelConfigFieldValues => {
   return {

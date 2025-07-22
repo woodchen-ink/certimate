@@ -14,13 +14,13 @@ type DeployNodeConfigFormAliyunALBConfigFieldValues = Nullish<{
   domain?: string;
 }>;
 
-export type DeployNodeConfigFormAliyunALBConfigProps = {
+export interface DeployNodeConfigFormAliyunALBConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAliyunALBConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAliyunALBConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;

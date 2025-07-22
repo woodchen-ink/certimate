@@ -11,13 +11,13 @@ type DeployNodeConfigFormTencentCloudVODConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormTencentCloudVODConfigProps = {
+export interface DeployNodeConfigFormTencentCloudVODConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormTencentCloudVODConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormTencentCloudVODConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormTencentCloudVODConfigFieldValues => {
   return {};

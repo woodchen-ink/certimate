@@ -7,13 +7,13 @@ type DeployNodeConfigFormAliyunCASConfigFieldValues = Nullish<{
   region: string;
 }>;
 
-export type DeployNodeConfigFormAliyunCASConfigProps = {
+export interface DeployNodeConfigFormAliyunCASConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAliyunCASConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAliyunCASConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormAliyunCASConfigFieldValues => {
   return {};

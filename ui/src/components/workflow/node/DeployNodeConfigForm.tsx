@@ -111,20 +111,20 @@ import DeployNodeConfigFormWebhookConfig from "./DeployNodeConfigFormWebhookConf
 
 type DeployNodeConfigFormFieldValues = Partial<WorkflowNodeConfigForDeploy>;
 
-export type DeployNodeConfigFormProps = {
+export interface DeployNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormFieldValues;
   nodeId: string;
   onValuesChange?: (values: DeployNodeConfigFormFieldValues) => void;
-};
+}
 
-export type DeployNodeConfigFormInstance = {
+export interface DeployNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<DeployNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<DeployNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<DeployNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormFieldValues => {
   return defaultNodeConfigForDeploy();
@@ -496,7 +496,7 @@ const DeployNodeConfigForm = forwardRef<DeployNodeConfigFormInstance, DeployNode
                           <IconPlus size="1.25em" />
                         </Button>
                       }
-                      usage="both-dns-hosting"
+                      usage="hosting"
                       afterSubmit={(record) => {
                         const provider = accessProvidersMap.get(record.provider);
                         if (provider?.usages?.includes(ACCESS_USAGES.HOSTING)) {

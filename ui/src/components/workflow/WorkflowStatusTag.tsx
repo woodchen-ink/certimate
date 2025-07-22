@@ -5,11 +5,11 @@ import { WORKFLOW_RUN_STATUSES } from "@/domain/workflowRun";
 
 import WorkflowStatusIcon from "./WorkflowStatusIcon";
 
-export type WorkflowStatusTagProps = {
+export interface WorkflowStatusTagProps {
   className?: string;
   style?: React.CSSProperties;
   status: string;
-};
+}
 
 const WorkflowStatusTag = ({ className, style, status }: WorkflowStatusTagProps) => {
   const { t } = useTranslation();

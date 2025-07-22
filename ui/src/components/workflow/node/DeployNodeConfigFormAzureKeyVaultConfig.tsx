@@ -8,13 +8,13 @@ type DeployNodeConfigFormAzureKeyVaultConfigFieldValues = Nullish<{
   certificateName?: string;
 }>;
 
-export type DeployNodeConfigFormAzureKeyVaultConfigProps = {
+export interface DeployNodeConfigFormAzureKeyVaultConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAzureKeyVaultConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAzureKeyVaultConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormAzureKeyVaultConfigFieldValues => {
   return {};

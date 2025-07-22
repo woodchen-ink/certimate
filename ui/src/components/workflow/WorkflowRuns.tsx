@@ -20,11 +20,11 @@ import {
 import { getErrMsg } from "@/utils/error";
 import WorkflowRunDetailDrawer from "./WorkflowRunDetailDrawer";
 
-export type WorkflowRunsProps = {
+export interface WorkflowRunsProps {
   className?: string;
   style?: React.CSSProperties;
   workflowId: string;
-};
+}
 
 const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
   const { t } = useTranslation();

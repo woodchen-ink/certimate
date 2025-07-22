@@ -9,13 +9,13 @@ type DeployNodeConfigFormCTCCCloudLVDNConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormCTCCCloudLVDNConfigProps = {
+export interface DeployNodeConfigFormCTCCCloudLVDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormCTCCCloudLVDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormCTCCCloudLVDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormCTCCCloudLVDNConfigFieldValues => {
   return {};

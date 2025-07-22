@@ -12,19 +12,19 @@ import { getNextCronExecutions, validCronExpression } from "@/utils/cron";
 
 type StartNodeConfigFormFieldValues = Partial<WorkflowNodeConfigForStart>;
 
-export type StartNodeConfigFormProps = {
+export interface StartNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: StartNodeConfigFormFieldValues;
   onValuesChange?: (values: StartNodeConfigFormFieldValues) => void;
-};
+}
 
-export type StartNodeConfigFormInstance = {
+export interface StartNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<StartNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<StartNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<StartNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const initFormModel = (): StartNodeConfigFormFieldValues => {
   return defaultNodeConfigForStart();

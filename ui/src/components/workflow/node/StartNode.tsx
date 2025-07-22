@@ -10,7 +10,7 @@ import { useWorkflowStore } from "@/stores/workflow";
 import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import StartNodeConfigForm, { type StartNodeConfigFormInstance } from "./StartNodeConfigForm";
 
-export type StartNodeProps = SharedNodeProps;
+export interface StartNodeProps extends SharedNodeProps {}
 
 const StartNode = ({ node, disabled }: StartNodeProps) => {
   if (node.type !== WorkflowNodeType.Start) {

@@ -7,13 +7,13 @@ type NotifyNodeConfigFormMattermostConfigFieldValues = Nullish<{
   channelId?: string;
 }>;
 
-export type NotifyNodeConfigFormMattermostConfigProps = {
+export interface NotifyNodeConfigFormMattermostConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: NotifyNodeConfigFormMattermostConfigFieldValues;
   onValuesChange?: (values: NotifyNodeConfigFormMattermostConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): NotifyNodeConfigFormMattermostConfigFieldValues => {
   return {};

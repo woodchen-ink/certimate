@@ -3,14 +3,14 @@ import { Typography, theme } from "antd";
 
 import Show from "./Show";
 
-export type EmptyProps = {
+export interface EmptyProps {
   className?: string;
   style?: React.CSSProperties;
   title?: React.ReactNode;
   description?: React.ReactNode;
   extra?: React.ReactNode;
   icon?: React.ReactNode;
-};
+}
 
 const Empty = (props: EmptyProps) => {
   const { t } = useTranslation();

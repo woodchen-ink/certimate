@@ -7,13 +7,13 @@ import { type AccessConfigForBaiduCloud } from "@/domain/access";
 
 type AccessFormBaiduCloudConfigFieldValues = Nullish<AccessConfigForBaiduCloud>;
 
-export type AccessFormBaiduCloudConfigProps = {
+export interface AccessFormBaiduCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormBaiduCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormBaiduCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormBaiduCloudConfigFieldValues => {
   return {

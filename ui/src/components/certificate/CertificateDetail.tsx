@@ -8,11 +8,11 @@ import { saveAs } from "file-saver";
 import { archive as archiveCertificate } from "@/api/certificates";
 import { CERTIFICATE_FORMATS, type CertificateFormatType, type CertificateModel } from "@/domain/certificate";
 
-export type CertificateDetailProps = {
+export interface CertificateDetailProps {
   className?: string;
   style?: React.CSSProperties;
   data: CertificateModel;
-};
+}
 
 const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
   const { t } = useTranslation();

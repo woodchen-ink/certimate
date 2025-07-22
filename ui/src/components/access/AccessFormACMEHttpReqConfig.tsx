@@ -7,13 +7,13 @@ import { type AccessConfigForACMEHttpReq } from "@/domain/access";
 
 type AccessFormACMEHttpReqConfigFieldValues = Nullish<AccessConfigForACMEHttpReq>;
 
-export type AccessFormACMEHttpReqConfigProps = {
+export interface AccessFormACMEHttpReqConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormACMEHttpReqConfigFieldValues;
   onValuesChange?: (values: AccessFormACMEHttpReqConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormACMEHttpReqConfigFieldValues => {
   return {

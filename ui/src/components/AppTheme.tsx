@@ -1,5 +1,4 @@
-﻿import { memo } from "react";
-import { useTranslation } from "react-i18next";
+﻿import { useTranslation } from "react-i18next";
 import { IconMoon, type IconProps, IconSun, IconSunMoon } from "@tabler/icons-react";
 
 import { Dropdown, type DropdownProps, Typography } from "antd";
@@ -35,10 +34,10 @@ export const useAppThemeMenuItems = () => {
   return items;
 };
 
-export type AppThemeDropdownProps = {
+export interface AppThemeDropdownProps {
   children?: React.ReactNode;
   trigger?: DropdownProps["trigger"];
-};
+}
 
 const AppThemeDropdown = (props: AppThemeDropdownProps) => {
   const { children, trigger = ["click"] } = props;
@@ -52,7 +51,7 @@ const AppThemeDropdown = (props: AppThemeDropdownProps) => {
   );
 };
 
-export type AppThemeIconProps = IconProps;
+export interface AppThemeIconProps extends IconProps {}
 
 const AppThemeIcon = (props: AppThemeIconProps) => {
   const { theme } = useBrowserTheme();
@@ -60,11 +59,11 @@ const AppThemeIcon = (props: AppThemeIconProps) => {
   return theme === "dark" ? <IconMoon {...props} /> : <IconSun {...props} />;
 };
 
-export type AppThemeLinkButtonProps = {
+export interface AppThemeLinkButtonProps {
   className?: string;
   style?: React.CSSProperties;
   showIcon?: boolean;
-};
+}
 
 const AppThemeLinkButton = (props: AppThemeLinkButtonProps) => {
   const { className, style, showIcon = true } = props;
@@ -86,7 +85,7 @@ const AppThemeLinkButton = (props: AppThemeLinkButtonProps) => {
 };
 
 export default {
-  Dropdown: memo(AppThemeDropdown),
-  Icon: memo(AppThemeIcon),
-  LinkButton: memo(AppThemeLinkButton),
+  Dropdown: AppThemeDropdown,
+  Icon: AppThemeIcon,
+  LinkButton: AppThemeLinkButton,
 };

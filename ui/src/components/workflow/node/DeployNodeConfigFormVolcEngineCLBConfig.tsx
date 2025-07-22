@@ -12,13 +12,13 @@ type DeployNodeConfigFormVolcEngineCLBConfigFieldValues = Nullish<{
   listenerId?: string;
 }>;
 
-export type DeployNodeConfigFormVolcEngineCLBConfigProps = {
+export interface DeployNodeConfigFormVolcEngineCLBConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormVolcEngineCLBConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormVolcEngineCLBConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;

@@ -4,13 +4,13 @@ import { theme } from "antd";
 import { WORKFLOW_RUN_STATUSES } from "@/domain/workflowRun";
 import { mergeCls } from "@/utils/css";
 
-export type WorkflowStatusIconProps = {
+export interface WorkflowStatusIconProps {
   className?: string;
   style?: React.CSSProperties;
   color?: string | true;
   size?: number | string;
   status: string;
-};
+}
 
 const WorkflowStatusIcon = ({ className, style, color, status, ...props }: WorkflowStatusIconProps) => {
   const { size = "1em" } = props;

@@ -9,13 +9,13 @@ type DeployNodeConfigFormBytePlusCDNConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormBytePlusCDNConfigProps = {
+export interface DeployNodeConfigFormBytePlusCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormBytePlusCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormBytePlusCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormBytePlusCDNConfigFieldValues => {
   return {};

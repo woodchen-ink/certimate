@@ -7,13 +7,13 @@ import { type AccessConfigForQiniu } from "@/domain/access";
 
 type AccessFormQiniuConfigFieldValues = Nullish<AccessConfigForQiniu>;
 
-export type AccessFormQiniuConfigProps = {
+export interface AccessFormQiniuConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormQiniuConfigFieldValues;
   onValuesChange?: (values: AccessFormQiniuConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormQiniuConfigFieldValues => {
   return {

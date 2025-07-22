@@ -8,7 +8,7 @@ import { useWorkflowStore } from "@/stores/workflow";
 import { type SharedNodeProps } from "./_SharedNode";
 import AddNode from "./AddNode";
 
-export type MonitorNodeProps = SharedNodeProps;
+export interface MonitorNodeProps extends SharedNodeProps {}
 
 const UnknownNode = ({ node, disabled }: MonitorNodeProps) => {
   const { removeNode } = useWorkflowStore(useZustandShallowSelector(["removeNode"]));

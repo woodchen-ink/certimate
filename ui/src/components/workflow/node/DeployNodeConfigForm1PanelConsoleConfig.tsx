@@ -7,13 +7,13 @@ type DeployNodeConfigForm1PanelConsoleConfigFieldValues = Nullish<{
   autoRestart?: boolean;
 }>;
 
-export type DeployNodeConfigForm1PanelConsoleConfigProps = {
+export interface DeployNodeConfigForm1PanelConsoleConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigForm1PanelConsoleConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigForm1PanelConsoleConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigForm1PanelConsoleConfigFieldValues => {
   return {

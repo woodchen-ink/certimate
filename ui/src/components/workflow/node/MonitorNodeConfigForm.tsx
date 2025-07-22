@@ -10,19 +10,19 @@ import { validDomainName, validIPv4Address, validIPv6Address, validPortNumber } 
 
 type MonitorNodeConfigFormFieldValues = Partial<WorkflowNodeConfigForMonitor>;
 
-export type MonitorNodeConfigFormProps = {
+export interface MonitorNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: MonitorNodeConfigFormFieldValues;
   onValuesChange?: (values: MonitorNodeConfigFormFieldValues) => void;
-};
+}
 
-export type MonitorNodeConfigFormInstance = {
+export interface MonitorNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<MonitorNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<MonitorNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<MonitorNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const initFormModel = (): MonitorNodeConfigFormFieldValues => {
   return defaultNodeConfigForMonitor();

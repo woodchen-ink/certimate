@@ -7,13 +7,13 @@ import { type AccessConfigForPowerDNS } from "@/domain/access";
 
 type AccessFormPowerDNSConfigFieldValues = Nullish<AccessConfigForPowerDNS>;
 
-export type AccessFormPowerDNSConfigProps = {
+export interface AccessFormPowerDNSConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormPowerDNSConfigFieldValues;
   onValuesChange?: (values: AccessFormPowerDNSConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormPowerDNSConfigFieldValues => {
   return {

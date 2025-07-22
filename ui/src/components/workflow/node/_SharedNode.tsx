@@ -2,7 +2,7 @@ import { memo, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { IconCopy, IconDotsVertical, IconLabel, IconTrashX } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
-import { App, Button, Card, Drawer, Dropdown, Input, type InputRef, type MenuProps, Popover, Space } from "antd";
+import { App, Button, Card, Drawer, Dropdown, Flex, Input, type InputRef, type MenuProps, Popover } from "antd";
 import { produce } from "immer";
 import { isEqual } from "radash";
 
@@ -12,10 +12,10 @@ import { useWorkflowStore } from "@/stores/workflow";
 
 import AddNode from "./AddNode";
 
-export type SharedNodeProps = {
+export interface SharedNodeProps {
   node: WorkflowNode;
   disabled?: boolean;
-};
+}
 
 // #region Title
 type SharedNodeTitleProps = SharedNodeProps & {
@@ -360,12 +360,12 @@ const SharedNodeConfigDrawer = ({
       }
       footer={
         !!footer && (
-          <Space className="w-full justify-end">
+          <Flex justify="end" gap="small">
             <Button onClick={handleCancelClick}>{t("common.button.cancel")}</Button>
             <Button disabled={disabled} loading={pending} type="primary" onClick={handleConfirmClick}>
               {t("common.button.save")}
             </Button>
-          </Space>
+          </Flex>
         )
       }
       loading={loading}
@@ -382,8 +382,8 @@ const SharedNodeConfigDrawer = ({
 // #endregion
 
 export default {
-  Title: memo(SharedNodeTitle),
-  Menu: memo(SharedNodeMenu),
-  Block: memo(SharedNodeBlock),
-  ConfigDrawer: memo(SharedNodeConfigDrawer),
+  Title: SharedNodeTitle,
+  Menu: SharedNodeMenu,
+  Block: SharedNodeBlock,
+  ConfigDrawer: SharedNodeConfigDrawer,
 };

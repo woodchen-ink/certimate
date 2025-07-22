@@ -8,13 +8,13 @@ import { validEmailAddress, validPortNumber } from "@/utils/validators";
 
 type AccessFormEmailConfigFieldValues = Nullish<AccessConfigForEmail>;
 
-export type AccessFormEmailConfigProps = {
+export interface AccessFormEmailConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormEmailConfigFieldValues;
   onValuesChange?: (values: AccessFormEmailConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormEmailConfigFieldValues => {
   return {

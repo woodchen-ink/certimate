@@ -6,13 +6,13 @@ import { type AccessConfigForConstellix } from "@/domain/access";
 
 type AccessFormConstellixConfigFieldValues = Nullish<AccessConfigForConstellix>;
 
-export type AccessFormConstellixConfigProps = {
+export interface AccessFormConstellixConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormConstellixConfigFieldValues;
   onValuesChange?: (values: AccessFormConstellixConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormConstellixConfigFieldValues => {
   return {

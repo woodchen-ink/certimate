@@ -11,13 +11,13 @@ type DeployNodeConfigFormCdnflyConfigFieldValues = Nullish<{
   certificateId?: string | number;
 }>;
 
-export type DeployNodeConfigFormCdnflyConfigProps = {
+export interface DeployNodeConfigFormCdnflyConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormCdnflyConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormCdnflyConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_SITE = "site" as const;
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;

@@ -14,7 +14,7 @@
   "certificate.props.subject_alt_names": "名称",
   "certificate.props.validity": "有效期限",
   "certificate.props.validity.left_days": "{{left}} / {{total}} 天",
-  "certificate.props.validity.less_than_a_day": "不足 1 天",
+  "certificate.props.validity.less_than_a_day": "≤1 / {{total}} 天",
   "certificate.props.validity.expired": "已过期",
   "certificate.props.validity.expiration": "{{date}} 过期",
   "certificate.props.validity.filter.all": "全部",

@@ -7,13 +7,13 @@ import { type AccessConfigForAzure } from "@/domain/access";
 
 type AccessFormAzureConfigFieldValues = Nullish<AccessConfigForAzure>;
 
-export type AccessFormAzureConfigProps = {
+export interface AccessFormAzureConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormAzureConfigFieldValues;
   onValuesChange?: (values: AccessFormAzureConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormAzureConfigFieldValues => {
   return {

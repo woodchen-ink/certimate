@@ -7,13 +7,13 @@ import { type AccessConfigForWestcn } from "@/domain/access";
 
 type AccessFormWestcnConfigFieldValues = Nullish<AccessConfigForWestcn>;
 
-export type AccessFormWestcnConfigProps = {
+export interface AccessFormWestcnConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormWestcnConfigFieldValues;
   onValuesChange?: (values: AccessFormWestcnConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormWestcnConfigFieldValues => {
   return {

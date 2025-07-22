@@ -11,13 +11,13 @@ type DeployNodeConfigFormTencentCloudCOSConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormTencentCloudCOSConfigProps = {
+export interface DeployNodeConfigFormTencentCloudCOSConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormTencentCloudCOSConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormTencentCloudCOSConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormTencentCloudCOSConfigFieldValues => {
   return {};

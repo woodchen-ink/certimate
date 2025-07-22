@@ -7,13 +7,13 @@ import { type AccessConfigForWeComBot } from "@/domain/access";
 
 type AccessFormWeComBotConfigFieldValues = Nullish<AccessConfigForWeComBot>;
 
-export type AccessFormWeComBotConfigProps = {
+export interface AccessFormWeComBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormWeComBotConfigFieldValues;
   onValuesChange?: (values: AccessFormWeComBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormWeComBotConfigFieldValues => {
   return {

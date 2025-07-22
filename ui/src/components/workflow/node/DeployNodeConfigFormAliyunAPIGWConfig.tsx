@@ -14,13 +14,13 @@ type DeployNodeConfigFormAliyunAPIGWConfigFieldValues = Nullish<{
   domain?: string;
 }>;
 
-export type DeployNodeConfigFormAliyunAPIGWConfigProps = {
+export interface DeployNodeConfigFormAliyunAPIGWConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAliyunAPIGWConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAliyunAPIGWConfigFieldValues) => void;
-};
+}
 
 const SERVICE_TYPE_CLOUDNATIVE = "cloudnative" as const;
 const SERVICE_TYPE_TRADITIONAL = "traditional" as const;

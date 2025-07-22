@@ -7,13 +7,13 @@ import { type AccessConfigForDeSEC } from "@/domain/access";
 
 type AccessFormDeSECConfigFieldValues = Nullish<AccessConfigForDeSEC>;
 
-export type AccessFormDeSECConfigProps = {
+export interface AccessFormDeSECConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDeSECConfigFieldValues;
   onValuesChange?: (values: AccessFormDeSECConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDeSECConfigFieldValues => {
   return {

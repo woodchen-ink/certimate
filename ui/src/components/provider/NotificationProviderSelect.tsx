@@ -1,15 +1,13 @@
-import { memo, useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, Select, type SelectProps, Typography, theme } from "antd";
 
 import { type NotificationProvider, notificationProvidersMap } from "@/domain/provider";
 
-export type NotificationProviderSelectProps = Omit<
-  SelectProps,
-  "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"
-> & {
+export interface NotificationProviderSelectProps
+  extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
   filter?: (record: NotificationProvider) => boolean;
-};
+}
 
 const NotificationProviderSelect = ({ filter, ...props }: NotificationProviderSelectProps) => {
   const { t } = useTranslation();
@@ -67,4 +65,4 @@ const NotificationProviderSelect = ({ filter, ...props }: NotificationProviderSe
   );
 };
 
-export default memo(NotificationProviderSelect);
+export default NotificationProviderSelect;

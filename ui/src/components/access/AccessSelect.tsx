@@ -6,12 +6,10 @@ import { accessProvidersMap } from "@/domain/provider";
 import { useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
 
-export type AccessTypeSelectProps = Omit<
-  SelectProps,
-  "filterOption" | "filterSort" | "labelRender" | "loading" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"
-> & {
+export interface AccessTypeSelectProps
+  extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "loading" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
   filter?: (record: AccessModel) => boolean;
-};
+}
 
 const AccessSelect = ({ filter, ...props }: AccessTypeSelectProps) => {
   const { token: themeToken } = theme.useToken();
@@ -38,7 +36,7 @@ const AccessSelect = ({ filter, ...props }: AccessTypeSelectProps) => {
     const access = accesses.find((e) => e.id === key);
     if (!access) {
       return (
-        <div className="flex items-center gap-2 overflow-hidden truncate">
+        <div className="flex items-center gap-2 truncate overflow-hidden">
           <Avatar shape="square" size="small" />
           <Typography.Text ellipsis>{key}</Typography.Text>
         </div>
@@ -47,7 +45,7 @@ const AccessSelect = ({ filter, ...props }: AccessTypeSelectProps) => {
 
     const provider = accessProvidersMap.get(access.provider);
     return (
-      <div className="flex items-center gap-2 overflow-hidden truncate">
+      <div className="flex items-center gap-2 truncate overflow-hidden">
         <Avatar shape="square" src={provider?.icon} size="small" />
         <Typography.Text ellipsis>{access.name}</Typography.Text>
       </div>

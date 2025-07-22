@@ -13,13 +13,13 @@ type DeployNodeConfigFormHuaweiCloudELBConfigFieldValues = Nullish<{
   listenerId?: string;
 }>;
 
-export type DeployNodeConfigFormHuaweiCloudELBConfigProps = {
+export interface DeployNodeConfigFormHuaweiCloudELBConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormHuaweiCloudELBConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormHuaweiCloudELBConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;

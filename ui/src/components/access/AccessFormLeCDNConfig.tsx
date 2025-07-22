@@ -7,13 +7,13 @@ import { type AccessConfigForLeCDN } from "@/domain/access";
 
 type AccessFormLeCDNConfigFieldValues = Nullish<AccessConfigForLeCDN>;
 
-export type AccessFormLeCDNConfigProps = {
+export interface AccessFormLeCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormLeCDNConfigFieldValues;
   onValuesChange?: (values: AccessFormLeCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormLeCDNConfigFieldValues => {
   return {

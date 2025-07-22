@@ -12,13 +12,13 @@ type DeployNodeConfigFormTencentCloudGAAPConfigFieldValues = Nullish<{
   listenerId?: string;
 }>;
 
-export type DeployNodeConfigFormTencentCloudGAAPConfigProps = {
+export interface DeployNodeConfigFormTencentCloudGAAPConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormTencentCloudGAAPConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormTencentCloudGAAPConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_LISTENER = "listener" as const;
 

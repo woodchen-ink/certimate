@@ -12,13 +12,13 @@ type DeployNodeConfigFormBaotaPanelSiteConfigFieldValues = Nullish<{
   siteNames?: string;
 }>;
 
-export type DeployNodeConfigFormBaotaPanelSiteConfigProps = {
+export interface DeployNodeConfigFormBaotaPanelSiteConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormBaotaPanelSiteConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormBaotaPanelSiteConfigFieldValues) => void;
-};
+}
 
 const SITE_TYPE_PHP = "php";
 const SITE_TYPE_OTHER = "other";
@@ -112,7 +112,7 @@ const DeployNodeConfigFormBaotaPanelSiteConfig = ({
             modalTitle={t("workflow_node.deploy.form.baotapanel_site_names.multiple_input_modal.title")}
             placeholder={t("workflow_node.deploy.form.baotapanel_site_names.placeholder")}
             placeholderInModal={t("workflow_node.deploy.form.baotapanel_site_names.multiple_input_modal.placeholder")}
-            splitOptions={{ trim: true, removeEmpty: true }}
+            splitOptions={{ removeEmpty: true, trimSpace: true }}
           />
         </Form.Item>
       </Show>

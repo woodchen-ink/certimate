@@ -2,10 +2,10 @@
 import { useTranslation } from "react-i18next";
 import { IconCircleArrowDown, IconCircleArrowUp, IconCircleMinus, IconCirclePlus } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
-import { Button, Input, type InputProps, type InputRef, Space } from "antd";
+import { Button, Input, type InputProps, type InputRef } from "antd";
 import { produce } from "immer";
 
-export type MultipleInputProps = Omit<InputProps, "count" | "defaultValue" | "showCount" | "value" | "onChange" | "onPressEnter" | "onClear"> & {
+export interface MultipleInputProps extends Omit<InputProps, "count" | "defaultValue" | "showCount" | "value" | "onChange" | "onPressEnter" | "onClear"> {
   allowClear?: boolean;
   defaultValue?: string[];
   maxCount?: number;
@@ -17,7 +17,7 @@ export type MultipleInputProps = Omit<InputProps, "count" | "defaultValue" | "sh
   onValueCreate?: (index: number) => void;
   onValueRemove?: (index: number) => void;
   onValueSort?: (oldIndex: number, newIndex: number) => void;
-};
+}
 
 const MultipleInput = ({
   allowClear = false,
@@ -124,7 +124,7 @@ const MultipleInput = ({
       {t("common.button.add")}
     </Button>
   ) : (
-    <Space className="w-full" direction="vertical" size="small">
+    <div className="flex flex-col gap-2">
       {Array.from(value).map((element, index) => {
         const allowUp = index > 0;
         const allowDown = index < value.length - 1;
@@ -154,7 +154,7 @@ const MultipleInput = ({
           />
         );
       })}
-    </Space>
+    </div>
   );
 };
 

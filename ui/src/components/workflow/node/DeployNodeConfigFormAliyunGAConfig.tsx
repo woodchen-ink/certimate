@@ -13,13 +13,13 @@ type DeployNodeConfigFormAliyunGAConfigFieldValues = Nullish<{
   domain?: string;
 }>;
 
-export type DeployNodeConfigFormAliyunGAConfigProps = {
+export interface DeployNodeConfigFormAliyunGAConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAliyunGAConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAliyunGAConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_ACCELERATOR = "accelerator" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;

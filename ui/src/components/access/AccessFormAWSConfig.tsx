@@ -7,13 +7,13 @@ import { type AccessConfigForAWS } from "@/domain/access";
 
 type AccessFormAWSConfigFieldValues = Nullish<AccessConfigForAWS>;
 
-export type AccessFormAWSConfigProps = {
+export interface AccessFormAWSConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormAWSConfigFieldValues;
   onValuesChange?: (values: AccessFormAWSConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormAWSConfigFieldValues => {
   return {

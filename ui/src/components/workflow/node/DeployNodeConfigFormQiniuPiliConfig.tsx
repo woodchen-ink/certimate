@@ -10,13 +10,13 @@ type DeployNodeConfigFormQiniuPiliConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormQiniuPiliConfigProps = {
+export interface DeployNodeConfigFormQiniuPiliConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormQiniuPiliConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormQiniuPiliConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormQiniuPiliConfigFieldValues => {
   return {};

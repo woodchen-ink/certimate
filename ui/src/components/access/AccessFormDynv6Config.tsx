@@ -7,13 +7,13 @@ import { type AccessConfigForDynv6 } from "@/domain/access";
 
 type AccessFormDynv6ConfigFieldValues = Nullish<AccessConfigForDynv6>;
 
-export type AccessFormDynv6ConfigProps = {
+export interface AccessFormDynv6ConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDynv6ConfigFieldValues;
   onValuesChange?: (values: AccessFormDynv6ConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDynv6ConfigFieldValues => {
   return {

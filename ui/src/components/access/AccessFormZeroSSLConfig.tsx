@@ -7,13 +7,13 @@ import { type AccessConfigForZeroSSL } from "@/domain/access";
 
 type AccessFormZeroSSLConfigFieldValues = Nullish<AccessConfigForZeroSSL>;
 
-export type AccessFormZeroSSLConfigProps = {
+export interface AccessFormZeroSSLConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormZeroSSLConfigFieldValues;
   onValuesChange?: (values: AccessFormZeroSSLConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormZeroSSLConfigFieldValues => {
   return {

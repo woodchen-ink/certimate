@@ -51,7 +51,7 @@
   "settings.sslprovider.form.sslcom_eab_hmac_key.tooltip": "这是什么？请参阅 <a href=\"https://www.ssl.com/how-to/generate-acme-credentials-for-reseller-customers/#ftoc-heading-6\" target=\"_blank\">https://www.ssl.com/how-to/generate-acme-credentials-for-reseller-customers/</a>",
 
   "settings.persistence.tab": "数据持久化",
-  "settings.persistence.title": "设置定期清理数据",
+  "settings.persistence.title": "定期清理数据",
   "settings.persistence.form.workflow_runs_max_days.label": "工作流执行历史保留天数",
   "settings.persistence.form.workflow_runs_max_days.placeholder": "请输入执行历史保留天数",
   "settings.persistence.form.workflow_runs_max_days.unit": "天",

@@ -7,13 +7,13 @@ import { type AccessConfigForHetzner } from "@/domain/access";
 
 type AccessFormHetznerConfigFieldValues = Nullish<AccessConfigForHetzner>;
 
-export type AccessFormHetznerConfigProps = {
+export interface AccessFormHetznerConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormHetznerConfigFieldValues;
   onValuesChange?: (values: AccessFormHetznerConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormHetznerConfigFieldValues => {
   return {

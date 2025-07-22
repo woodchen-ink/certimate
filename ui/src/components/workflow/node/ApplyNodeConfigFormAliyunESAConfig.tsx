@@ -7,13 +7,13 @@ type ApplyNodeConfigFormAliyunESAConfigFieldValues = Nullish<{
   region: string;
 }>;
 
-export type ApplyNodeConfigFormAliyunESAConfigProps = {
+export interface ApplyNodeConfigFormAliyunESAConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: ApplyNodeConfigFormAliyunESAConfigFieldValues;
   onValuesChange?: (values: ApplyNodeConfigFormAliyunESAConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): ApplyNodeConfigFormAliyunESAConfigFieldValues => {
   return {};

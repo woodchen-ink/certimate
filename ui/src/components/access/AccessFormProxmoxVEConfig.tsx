@@ -7,13 +7,13 @@ import { type AccessConfigForProxmoxVE } from "@/domain/access";
 
 type AccessFormProxmoxVEConfigFieldValues = Nullish<AccessConfigForProxmoxVE>;
 
-export type AccessFormProxmoxVEConfigProps = {
+export interface AccessFormProxmoxVEConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormProxmoxVEConfigFieldValues;
   onValuesChange?: (values: AccessFormProxmoxVEConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormProxmoxVEConfigFieldValues => {
   return {

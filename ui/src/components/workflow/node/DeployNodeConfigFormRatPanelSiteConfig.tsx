@@ -7,13 +7,13 @@ type DeployNodeConfigFormRatPanelSiteConfigFieldValues = Nullish<{
   siteName: string;
 }>;
 
-export type DeployNodeConfigFormRatPanelSiteConfigProps = {
+export interface DeployNodeConfigFormRatPanelSiteConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormRatPanelSiteConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormRatPanelSiteConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormRatPanelSiteConfigFieldValues => {
   return {

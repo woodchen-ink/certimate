@@ -5,11 +5,11 @@ import { Button, Card, Typography } from "antd";
 import WorkflowElements from "@/components/workflow/WorkflowElements";
 import { mergeCls } from "@/utils/css";
 
-export type WorkflowElementsProps = {
+export interface WorkflowElementsProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
-};
+}
 
 const WorkflowElementsContainer = ({ className, style, disabled }: WorkflowElementsProps) => {
   const [scale, setScale] = useState(1);

@@ -23,13 +23,13 @@ type DeployNodeConfigFormLocalConfigFieldValues = Nullish<{
   postCommand?: string;
 }>;
 
-export type DeployNodeConfigFormLocalConfigProps = {
+export interface DeployNodeConfigFormLocalConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormLocalConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormLocalConfigFieldValues) => void;
-};
+}
 
 const FORMAT_PEM = CERTIFICATE_FORMATS.PEM;
 const FORMAT_PFX = CERTIFICATE_FORMATS.PFX;

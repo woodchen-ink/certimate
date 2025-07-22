@@ -7,13 +7,13 @@ type DeployNodeConfigFormEdgioApplicationsConfigFieldValues = Nullish<{
   environmentId: string;
 }>;
 
-export type DeployNodeConfigFormEdgioApplicationsConfigProps = {
+export interface DeployNodeConfigFormEdgioApplicationsConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormEdgioApplicationsConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormEdgioApplicationsConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormEdgioApplicationsConfigFieldValues => {
   return {};

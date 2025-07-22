@@ -7,13 +7,13 @@ import { type AccessConfigForFlexCDN } from "@/domain/access";
 
 type AccessFormFlexCDNConfigFieldValues = Nullish<AccessConfigForFlexCDN>;
 
-export type AccessFormFlexCDNConfigProps = {
+export interface AccessFormFlexCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormFlexCDNConfigFieldValues;
   onValuesChange?: (values: AccessFormFlexCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormFlexCDNConfigFieldValues => {
   return {

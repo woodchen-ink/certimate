@@ -1,6 +1,6 @@
 ﻿import { useTranslation } from "react-i18next";
 import { useControllableValue } from "ahooks";
-import { Button, Drawer, type DrawerProps, Form, type FormProps, type ModalProps, Space } from "antd";
+import { Button, Drawer, type DrawerProps, Flex, Form, type FormProps, type ModalProps } from "antd";
 
 import { useAntdForm, useTriggerElement } from "@/hooks";
 
@@ -109,14 +109,14 @@ const DrawerForm = <T extends NonNullable<unknown> = any>({
       <Drawer
         {...mergedDrawerProps}
         footer={
-          <Space className="w-full justify-end">
+          <Flex justify="end" gap="small">
             <Button {...cancelButtonProps} onClick={handleCancelClick}>
               {cancelText ?? t("common.button.cancel")}
             </Button>
             <Button {...okButtonProps} type="primary" loading={formPending} onClick={handleOkClick}>
               {okText ?? t("common.button.ok")}
             </Button>
-          </Space>
+          </Flex>
         }
         forceRender
         open={open}

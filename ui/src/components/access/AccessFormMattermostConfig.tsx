@@ -7,13 +7,13 @@ import { type AccessConfigForMattermost } from "@/domain/access";
 
 type AccessFormMattermostConfigFieldValues = Nullish<AccessConfigForMattermost>;
 
-export type AccessFormMattermostConfigProps = {
+export interface AccessFormMattermostConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormMattermostConfigFieldValues;
   onValuesChange?: (values: AccessFormMattermostConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormMattermostConfigFieldValues => {
   return {

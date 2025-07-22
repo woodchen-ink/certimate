@@ -28,19 +28,19 @@ import ApplyNodeConfigFormTencentCloudEOConfig from "./ApplyNodeConfigFormTencen
 
 type ApplyNodeConfigFormFieldValues = Partial<WorkflowNodeConfigForApply>;
 
-export type ApplyNodeConfigFormProps = {
+export interface ApplyNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: ApplyNodeConfigFormFieldValues;
   onValuesChange?: (values: ApplyNodeConfigFormFieldValues) => void;
-};
+}
 
-export type ApplyNodeConfigFormInstance = {
+export interface ApplyNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<ApplyNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<ApplyNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<ApplyNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const MULTIPLE_INPUT_SEPARATOR = ";";
 
@@ -274,7 +274,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
               modalTitle={t("workflow_node.apply.form.domains.multiple_input_modal.title")}
               placeholder={t("workflow_node.apply.form.domains.placeholder")}
               placeholderInModal={t("workflow_node.apply.form.domains.multiple_input_modal.placeholder")}
-              splitOptions={{ trim: true, removeEmpty: true }}
+              splitOptions={{ removeEmpty: true, trimSpace: true }}
             />
           </Form.Item>
 
@@ -333,7 +333,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                         <IconPlus size="1.25em" />
                       </Button>
                     }
-                    usage="both-dns-hosting"
+                    usage="dns"
                     afterSubmit={(record) => {
                       const provider = accessProvidersMap.get(record.provider);
                       if (provider?.usages?.includes(ACCESS_USAGES.DNS)) {
@@ -415,7 +415,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                         <IconChevronRight size="1.25em" />
                       </Button>
                     }
-                    usage="ca-only"
+                    usage="ca"
                     afterSubmit={(record) => {
                       const provider = accessProvidersMap.get(record.provider);
                       if (provider?.usages?.includes(ACCESS_USAGES.CA)) {
@@ -483,7 +483,7 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
               modalTitle={t("workflow_node.apply.form.nameservers.multiple_input_modal.title")}
               placeholder={t("workflow_node.apply.form.nameservers.placeholder")}
               placeholderInModal={t("workflow_node.apply.form.nameservers.multiple_input_modal.placeholder")}
-              splitOptions={{ trim: true, removeEmpty: true }}
+              splitOptions={{ removeEmpty: true, trimSpace: true }}
             />
           </Form.Item>
 

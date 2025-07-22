@@ -7,13 +7,13 @@ import { type AccessConfigForNS1 } from "@/domain/access";
 
 type AccessFormNS1ConfigFieldValues = Nullish<AccessConfigForNS1>;
 
-export type AccessFormNS1ConfigProps = {
+export interface AccessFormNS1ConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormNS1ConfigFieldValues;
   onValuesChange?: (values: AccessFormNS1ConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormNS1ConfigFieldValues => {
   return {

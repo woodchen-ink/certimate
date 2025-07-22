@@ -7,13 +7,13 @@ type NotifyNodeConfigFormTelegramBotConfigFieldValues = Nullish<{
   chatId?: string | number;
 }>;
 
-export type NotifyNodeConfigFormTelegramBotConfigProps = {
+export interface NotifyNodeConfigFormTelegramBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: NotifyNodeConfigFormTelegramBotConfigFieldValues;
   onValuesChange?: (values: NotifyNodeConfigFormTelegramBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): NotifyNodeConfigFormTelegramBotConfigFieldValues => {
   return {};

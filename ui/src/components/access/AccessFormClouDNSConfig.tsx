@@ -7,13 +7,13 @@ import { type AccessConfigForClouDNS } from "@/domain/access";
 
 type AccessFormClouDNSConfigFieldValues = Nullish<AccessConfigForClouDNS>;
 
-export type AccessFormClouDNSConfigProps = {
+export interface AccessFormClouDNSConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormClouDNSConfigFieldValues;
   onValuesChange?: (values: AccessFormClouDNSConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormClouDNSConfigFieldValues => {
   return {

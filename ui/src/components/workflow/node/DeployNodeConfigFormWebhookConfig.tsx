@@ -9,13 +9,13 @@ type DeployNodeConfigFormWebhookConfigFieldValues = Nullish<{
   webhookData: string;
 }>;
 
-export type DeployNodeConfigFormWebhookConfigProps = {
+export interface DeployNodeConfigFormWebhookConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormWebhookConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormWebhookConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormWebhookConfigFieldValues => {
   return {};

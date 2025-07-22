@@ -7,13 +7,13 @@ import { type AccessConfigForJDCloud } from "@/domain/access";
 
 type AccessFormJDCloudConfigFieldValues = Nullish<AccessConfigForJDCloud>;
 
-export type AccessFormJDCloudConfigProps = {
+export interface AccessFormJDCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormJDCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormJDCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormJDCloudConfigFieldValues => {
   return {

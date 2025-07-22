@@ -7,13 +7,13 @@ import { type AccessConfigForAPISIX } from "@/domain/access";
 
 type AccessFormAPISIXConfigFieldValues = Nullish<AccessConfigForAPISIX>;
 
-export type AccessFormAPISIXConfigProps = {
+export interface AccessFormAPISIXConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormAPISIXConfigFieldValues;
   onValuesChange?: (values: AccessFormAPISIXConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormAPISIXConfigFieldValues => {
   return {

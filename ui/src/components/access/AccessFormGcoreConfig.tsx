@@ -7,13 +7,13 @@ import { type AccessConfigForGcore } from "@/domain/access";
 
 type AccessFormGcoreConfigFieldValues = Nullish<AccessConfigForGcore>;
 
-export type AccessFormGcoreConfigProps = {
+export interface AccessFormGcoreConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormGcoreConfigFieldValues;
   onValuesChange?: (values: AccessFormGcoreConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormGcoreConfigFieldValues => {
   return {

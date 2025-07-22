@@ -65,15 +65,12 @@ const CertificateList = () => {
                   <span className="mr-2 inline-block size-2 rounded-full bg-success leading-2">&nbsp;</span>
                   {t("certificate.props.validity.left_days", { left: leftDays, total })}
                 </Typography.Text>
-              ) : leftDays >= 1 ? (
-                <Typography.Text ellipsis type="warning">
-                  <span className="mr-2 inline-block size-2 rounded-full bg-warning leading-2">&nbsp;</span>
-                  {t("certificate.props.validity.left_days", { left: leftDays, total })}
-                </Typography.Text>
               ) : (
                 <Typography.Text ellipsis type="warning">
                   <span className="mr-2 inline-block size-2 rounded-full bg-warning leading-2">&nbsp;</span>
-                  {t("certificate.props.validity.less_than_a_day")}
+                  {leftDays >= 1
+                    ? t("certificate.props.validity.left_days", { left: leftDays, total })
+                    : t("certificate.props.validity.less_than_a_day", { total })}
                 </Typography.Text>
               )
             ) : (

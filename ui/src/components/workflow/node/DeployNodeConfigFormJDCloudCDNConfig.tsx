@@ -9,13 +9,13 @@ type DeployNodeConfigFormJDCloudCDNConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormJDCloudCDNConfigProps = {
+export interface DeployNodeConfigFormJDCloudCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormJDCloudCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormJDCloudCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormJDCloudCDNConfigFieldValues => {
   return {};

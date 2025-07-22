@@ -7,13 +7,13 @@ import { type AccessConfigForACMECA } from "@/domain/access";
 
 type AccessFormACMECAConfigFieldValues = Nullish<AccessConfigForACMECA>;
 
-export type AccessFormACMECAConfigProps = {
+export interface AccessFormACMECAConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormACMECAConfigFieldValues;
   onValuesChange?: (values: AccessFormACMECAConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormACMECAConfigFieldValues => {
   return {

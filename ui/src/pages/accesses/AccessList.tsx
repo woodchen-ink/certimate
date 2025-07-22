@@ -30,7 +30,7 @@ const AccessList = () => {
 
   const [filters, setFilters] = useState<Record<string, unknown>>(() => {
     return {
-      usage: "both-dns-hosting" satisfies AccessUsageProp,
+      usage: "dns-hosting" satisfies AccessUsageProp,
       keyword: searchParams.get("keyword"),
     };
   });
@@ -51,7 +51,7 @@ const AccessList = () => {
       render: (_, record) => {
         return (
           <div className="flex max-w-full items-center gap-4 overflow-hidden">
-            <Avatar shape="square" src={accessProvidersMap.get(record.provider)?.icon} size={28} />
+            <Avatar shape="square" size={28} src={accessProvidersMap.get(record.provider)?.icon} />
             <div className="flex max-w-full flex-col gap-1 truncate">
               <Typography.Text ellipsis>{record.name || "\u00A0"}</Typography.Text>
               <Typography.Text ellipsis type="secondary">
@@ -144,11 +144,11 @@ const AccessList = () => {
         .filter((e) => {
           const provider = accessProvidersMap.get(e.provider);
           switch (filters["usage"] as AccessUsageProp) {
-            case "both-dns-hosting":
+            case "dns-hosting":
               return !e.reserve && (provider?.usages?.includes(ACCESS_USAGES.DNS) || provider?.usages?.includes(ACCESS_USAGES.HOSTING));
-            case "ca-only":
+            case "ca":
               return e.reserve === "ca" && provider?.usages?.includes(ACCESS_USAGES.CA);
-            case "notification-only":
+            case "notification":
               return e.reserve === "notification" && provider?.usages?.includes(ACCESS_USAGES.NOTIFICATION);
           }
         });
@@ -262,16 +262,16 @@ const AccessList = () => {
           activeKey={filters["usage"] as string}
           items={[
             {
-              key: "both-dns-hosting",
-              label: t("access.props.usage.both_dns_hosting"),
+              key: "dns-hosting",
+              label: t("access.props.usage.dns_hosting"),
             },
             {
-              key: "ca-only",
-              label: t("access.props.usage.ca_only"),
+              key: "ca",
+              label: t("access.props.usage.ca"),
             },
             {
-              key: "notification-only",
-              label: t("access.props.usage.notification_only"),
+              key: "notification",
+              label: t("access.props.usage.notification"),
             },
           ]}
           size="large"

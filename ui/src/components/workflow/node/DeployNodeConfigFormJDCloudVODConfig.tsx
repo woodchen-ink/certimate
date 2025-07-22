@@ -9,13 +9,13 @@ type DeployNodeConfigFormJDCloudVODConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormJDCloudVODConfigProps = {
+export interface DeployNodeConfigFormJDCloudVODConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormJDCloudVODConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormJDCloudVODConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormJDCloudVODConfigFieldValues => {
   return {};

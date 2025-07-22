@@ -51,7 +51,7 @@
   "settings.sslprovider.form.sslcom_eab_hmac_key.tooltip": "For more information, see <a href=\"https://www.ssl.com/how-to/generate-acme-credentials-for-reseller-customers/#ftoc-heading-6\" target=\"_blank\">https://www.ssl.com/how-to/generate-acme-credentials-for-reseller-customers/</a>",
 
   "settings.persistence.tab": "Persistence",
-  "settings.persistence.title": "Setup data retention",
+  "settings.persistence.title": "Data retention",
   "settings.persistence.form.workflow_runs_max_days.label": "Max days retention of workflow history runs",
   "settings.persistence.form.workflow_runs_max_days.placeholder": "Please enter the maximum retention days of workflow history runs",
   "settings.persistence.form.workflow_runs_max_days.unit": "days",

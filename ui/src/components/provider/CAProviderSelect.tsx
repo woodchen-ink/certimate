@@ -1,15 +1,13 @@
-import { memo, useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, Select, type SelectProps, Typography, theme } from "antd";
 
 import { type CAProvider, caProvidersMap } from "@/domain/provider";
 
-export type CAProviderSelectProps = Omit<
-  SelectProps,
-  "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"
-> & {
+export interface CAProviderSelectProps
+  extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
   filter?: (record: CAProvider) => boolean;
-};
+}
 
 const CAProviderSelect = ({ filter, ...props }: CAProviderSelectProps) => {
   const { t } = useTranslation();
@@ -86,4 +84,4 @@ const CAProviderSelect = ({ filter, ...props }: CAProviderSelectProps) => {
   );
 };
 
-export default memo(CAProviderSelect);
+export default CAProviderSelect;

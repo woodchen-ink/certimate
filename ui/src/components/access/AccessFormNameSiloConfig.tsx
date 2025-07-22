@@ -7,13 +7,13 @@ import { type AccessConfigForNameSilo } from "@/domain/access";
 
 type AccessFormNameSiloConfigFieldValues = Nullish<AccessConfigForNameSilo>;
 
-export type AccessFormNameSiloConfigProps = {
+export interface AccessFormNameSiloConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormNameSiloConfigFieldValues;
   onValuesChange?: (values: AccessFormNameSiloConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormNameSiloConfigFieldValues => {
   return {

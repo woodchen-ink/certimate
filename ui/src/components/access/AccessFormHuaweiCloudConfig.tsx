@@ -7,13 +7,13 @@ import { type AccessConfigForHuaweiCloud } from "@/domain/access";
 
 type AccessFormHuaweiCloudConfigFieldValues = Nullish<AccessConfigForHuaweiCloud>;
 
-export type AccessFormHuaweiCloudConfigProps = {
+export interface AccessFormHuaweiCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormHuaweiCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormHuaweiCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormHuaweiCloudConfigFieldValues => {
   return {

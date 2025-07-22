@@ -1,15 +1,13 @@
-import { memo, useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, Select, type SelectProps, Typography, theme } from "antd";
 
 import { type DeploymentProvider, deploymentProvidersMap } from "@/domain/provider";
 
-export type DeploymentProviderSelectProps = Omit<
-  SelectProps,
-  "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"
-> & {
+export interface DeploymentProviderSelectProps
+  extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
   filter?: (record: DeploymentProvider) => boolean;
-};
+}
 
 const DeploymentProviderSelect = ({ filter, ...props }: DeploymentProviderSelectProps) => {
   const { t } = useTranslation();
@@ -67,4 +65,4 @@ const DeploymentProviderSelect = ({ filter, ...props }: DeploymentProviderSelect
   );
 };
 
-export default memo(DeploymentProviderSelect);
+export default DeploymentProviderSelect;

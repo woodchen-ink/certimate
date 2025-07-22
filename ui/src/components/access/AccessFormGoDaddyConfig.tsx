@@ -7,13 +7,13 @@ import { type AccessConfigForGoDaddy } from "@/domain/access";
 
 type AccessFormGoDaddyConfigFieldValues = Nullish<AccessConfigForGoDaddy>;
 
-export type AccessFormGoDaddyConfigProps = {
+export interface AccessFormGoDaddyConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormGoDaddyConfigFieldValues;
   onValuesChange?: (values: AccessFormGoDaddyConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormGoDaddyConfigFieldValues => {
   return {

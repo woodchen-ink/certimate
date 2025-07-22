@@ -7,13 +7,13 @@ import { type AccessConfigForGname } from "@/domain/access";
 
 type AccessFormGnameConfigFieldValues = Nullish<AccessConfigForGname>;
 
-export type AccessFormGnameConfigProps = {
+export interface AccessFormGnameConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormGnameConfigFieldValues;
   onValuesChange?: (values: AccessFormGnameConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormGnameConfigFieldValues => {
   return {

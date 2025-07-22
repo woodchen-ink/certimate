@@ -11,7 +11,7 @@ import { useWorkflowStore } from "@/stores/workflow";
 import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import NotifyNodeConfigForm, { type NotifyNodeConfigFormInstance } from "./NotifyNodeConfigForm";
 
-export type NotifyNodeProps = SharedNodeProps;
+export interface NotifyNodeProps extends SharedNodeProps {}
 
 const NotifyNode = ({ node, disabled }: NotifyNodeProps) => {
   if (node.type !== WorkflowNodeType.Notify) {

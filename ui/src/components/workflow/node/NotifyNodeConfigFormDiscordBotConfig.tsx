@@ -7,13 +7,13 @@ type NotifyNodeConfigFormDiscordBotConfigFieldValues = Nullish<{
   channelId?: string;
 }>;
 
-export type NotifyNodeConfigFormDiscordBotConfigProps = {
+export interface NotifyNodeConfigFormDiscordBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: NotifyNodeConfigFormDiscordBotConfigFieldValues;
   onValuesChange?: (values: NotifyNodeConfigFormDiscordBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): NotifyNodeConfigFormDiscordBotConfigFieldValues => {
   return {};

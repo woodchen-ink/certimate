@@ -10,13 +10,13 @@ type DeployNodeConfigFormBaotaWAFSiteConfigFieldValues = Nullish<{
   sitePort: number;
 }>;
 
-export type DeployNodeConfigFormBaotaWAFSiteConfigProps = {
+export interface DeployNodeConfigFormBaotaWAFSiteConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormBaotaWAFSiteConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormBaotaWAFSiteConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormBaotaWAFSiteConfigFieldValues => {
   return {

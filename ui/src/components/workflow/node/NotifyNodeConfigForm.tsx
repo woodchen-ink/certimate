@@ -23,19 +23,19 @@ import NotifyNodeConfigFormWebhookConfig from "./NotifyNodeConfigFormWebhookConf
 
 type NotifyNodeConfigFormFieldValues = Partial<WorkflowNodeConfigForNotify>;
 
-export type NotifyNodeConfigFormProps = {
+export interface NotifyNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: NotifyNodeConfigFormFieldValues;
   onValuesChange?: (values: NotifyNodeConfigFormFieldValues) => void;
-};
+}
 
-export type NotifyNodeConfigFormInstance = {
+export interface NotifyNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<NotifyNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<NotifyNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<NotifyNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const initFormModel = (): NotifyNodeConfigFormFieldValues => {
   return defaultNodeConfigForNotify();
@@ -206,7 +206,7 @@ const NotifyNodeConfigForm = forwardRef<NotifyNodeConfigFormInstance, NotifyNode
                       <IconPlus size="1.25em" />
                     </Button>
                   }
-                  usage="notification-only"
+                  usage="notification"
                   afterSubmit={(record) => {
                     const provider = accessProvidersMap.get(record.provider);
                     if (provider?.usages?.includes(ACCESS_USAGES.NOTIFICATION)) {

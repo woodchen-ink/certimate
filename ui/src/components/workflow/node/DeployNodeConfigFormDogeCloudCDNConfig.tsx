@@ -9,13 +9,13 @@ type DeployNodeConfigFormDogeCloudCDNConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormDogeCloudCDNConfigProps = {
+export interface DeployNodeConfigFormDogeCloudCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormDogeCloudCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormDogeCloudCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormDogeCloudCDNConfigFieldValues => {
   return {};

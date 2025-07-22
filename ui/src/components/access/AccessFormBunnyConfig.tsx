@@ -7,13 +7,13 @@ import { type AccessConfigForBunny } from "@/domain/access";
 
 type AccessFormBunnyConfigFieldValues = Nullish<AccessConfigForBunny>;
 
-export type AccessFormBunnyConfigProps = {
+export interface AccessFormBunnyConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormBunnyConfigFieldValues;
   onValuesChange?: (values: AccessFormBunnyConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormBunnyConfigFieldValues => {
   return {

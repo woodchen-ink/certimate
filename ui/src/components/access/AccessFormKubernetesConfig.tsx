@@ -8,13 +8,13 @@ import { type AccessConfigForKubernetes } from "@/domain/access";
 
 type AccessFormKubernetesConfigFieldValues = Nullish<AccessConfigForKubernetes>;
 
-export type AccessFormKubernetesConfigProps = {
+export interface AccessFormKubernetesConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormKubernetesConfigFieldValues;
   onValuesChange?: (values: AccessFormKubernetesConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormKubernetesConfigFieldValues => {
   return {};

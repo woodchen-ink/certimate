@@ -14,13 +14,13 @@ type DeployNodeConfigFormHuaweiCloudWAFConfigFieldValues = Nullish<{
   listenerId?: string;
 }>;
 
-export type DeployNodeConfigFormHuaweiCloudWAFConfigProps = {
+export interface DeployNodeConfigFormHuaweiCloudWAFConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormHuaweiCloudWAFConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormHuaweiCloudWAFConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 const RESOURCE_TYPE_CLOUDSERVER = "cloudserver" as const;

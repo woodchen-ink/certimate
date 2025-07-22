@@ -12,13 +12,13 @@ type DeployNodeConfigFormAliyunWAFConfigFieldValues = Nullish<{
   domain?: string;
 }>;
 
-export type DeployNodeConfigFormAliyunWAFConfigProps = {
+export interface DeployNodeConfigFormAliyunWAFConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAliyunWAFConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAliyunWAFConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormAliyunWAFConfigFieldValues => {
   return {

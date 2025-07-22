@@ -7,13 +7,13 @@ import { type AccessConfigForCloudflare } from "@/domain/access";
 
 type AccessFormCloudflareConfigFieldValues = Nullish<AccessConfigForCloudflare>;
 
-export type AccessFormCloudflareConfigProps = {
+export interface AccessFormCloudflareConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormCloudflareConfigFieldValues;
   onValuesChange?: (values: AccessFormCloudflareConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormCloudflareConfigFieldValues => {
   return {

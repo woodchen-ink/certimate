@@ -10,13 +10,13 @@ type DeployNodeConfigFormGoEdgeConfigFieldValues = Nullish<{
   certificateId?: string | number;
 }>;
 
-export type DeployNodeConfigFormGoEdgeConfigProps = {
+export interface DeployNodeConfigFormGoEdgeConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormGoEdgeConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormGoEdgeConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 

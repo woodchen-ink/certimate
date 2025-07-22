@@ -12,13 +12,13 @@ type DeployNodeConfigFormWangsuCDNProConfigFieldValues = Nullish<{
   webhookId?: string;
 }>;
 
-export type DeployNodeConfigFormWangsuCDNProConfigProps = {
+export interface DeployNodeConfigFormWangsuCDNProConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormWangsuCDNProConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormWangsuCDNProConfigFieldValues) => void;
-};
+}
 
 const ENVIRONMENT_PRODUCTION = "production" as const;
 const ENVIRONMENT_STAGING = "stating" as const;

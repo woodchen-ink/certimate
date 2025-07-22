@@ -7,13 +7,13 @@ import { type AccessConfigForDuckDNS } from "@/domain/access";
 
 type AccessFormDuckDNSConfigFieldValues = Nullish<AccessConfigForDuckDNS>;
 
-export type AccessFormDuckDNSConfigProps = {
+export interface AccessFormDuckDNSConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDuckDNSConfigFieldValues;
   onValuesChange?: (values: AccessFormDuckDNSConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDuckDNSConfigFieldValues => {
   return {

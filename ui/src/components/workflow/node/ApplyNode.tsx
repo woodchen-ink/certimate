@@ -11,7 +11,7 @@ import { useWorkflowStore } from "@/stores/workflow";
 import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import ApplyNodeConfigForm, { type ApplyNodeConfigFormInstance } from "./ApplyNodeConfigForm";
 
-export type ApplyNodeProps = SharedNodeProps;
+export interface ApplyNodeProps extends SharedNodeProps {}
 
 const ApplyNode = ({ node, disabled }: ApplyNodeProps) => {
   if (node.type !== WorkflowNodeType.Apply) {

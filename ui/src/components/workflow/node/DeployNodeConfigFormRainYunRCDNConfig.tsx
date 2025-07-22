@@ -10,13 +10,13 @@ type DeployNodeConfigFormRainYunRCDNConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormRainYunRCDNConfigProps = {
+export interface DeployNodeConfigFormRainYunRCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormRainYunRCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormRainYunRCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormRainYunRCDNConfigFieldValues => {
   return {

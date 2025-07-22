@@ -10,13 +10,13 @@ type DeployNodeConfigFormAPISIXConfigFieldValues = Nullish<{
   certificateId?: string;
 }>;
 
-export type DeployNodeConfigFormAPISIXConfigProps = {
+export interface DeployNodeConfigFormAPISIXConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAPISIXConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAPISIXConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 

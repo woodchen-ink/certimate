@@ -1,15 +1,14 @@
-import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { IconBook } from "@tabler/icons-react";
 import { Typography } from "antd";
 
 import { APP_DOCUMENT_URL } from "@/domain/app";
 
-export type AppDocumentLinkButtonProps = {
+export interface AppDocumentLinkButtonProps {
   className?: string;
   style?: React.CSSProperties;
   showIcon?: boolean;
-};
+}
 
 const AppDocumentLinkButton = (props: AppDocumentLinkButtonProps) => {
   const { className, style, showIcon = true } = props;
@@ -35,5 +34,5 @@ const AppDocumentLinkButton = (props: AppDocumentLinkButtonProps) => {
 };
 
 export default {
-  LinkButton: memo(AppDocumentLinkButton),
+  LinkButton: AppDocumentLinkButton,
 };

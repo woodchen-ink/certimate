@@ -10,14 +10,14 @@ import { type AccessConfigForWebhook } from "@/domain/access";
 
 type AccessFormWebhookConfigFieldValues = Nullish<AccessConfigForWebhook>;
 
-export type AccessFormWebhookConfigProps = {
+export interface AccessFormWebhookConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormWebhookConfigFieldValues;
   usage?: "deployment" | "notification" | "none";
   onValuesChange?: (values: AccessFormWebhookConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormWebhookConfigFieldValues => {
   return {

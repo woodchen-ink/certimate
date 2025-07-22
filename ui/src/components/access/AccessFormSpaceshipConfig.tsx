@@ -7,13 +7,13 @@ import { type AccessConfigForSpaceship } from "@/domain/access";
 
 type AccessFormSpaceshipConfigFieldValues = Nullish<AccessConfigForSpaceship>;
 
-export type AccessFormSpaceshipConfigProps = {
+export interface AccessFormSpaceshipConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormSpaceshipConfigFieldValues;
   onValuesChange?: (values: AccessFormSpaceshipConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormSpaceshipConfigFieldValues => {
   return {

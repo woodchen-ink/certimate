@@ -10,13 +10,13 @@ type DeployNodeConfigFormBaishanCDNConfigFieldValues = Nullish<{
   certificateId?: string | number;
 }>;
 
-export type DeployNodeConfigFormBaishanCDNConfigProps = {
+export interface DeployNodeConfigFormBaishanCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormBaishanCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormBaishanCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormBaishanCDNConfigFieldValues => {
   return {};

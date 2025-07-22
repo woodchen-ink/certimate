@@ -10,13 +10,13 @@ type DeployNodeConfigFormSafeLineConfigFieldValues = Nullish<{
   certificateId?: string | number;
 }>;
 
-export type DeployNodeConfigFormSafeLineConfigProps = {
+export interface DeployNodeConfigFormSafeLineConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormSafeLineConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormSafeLineConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 

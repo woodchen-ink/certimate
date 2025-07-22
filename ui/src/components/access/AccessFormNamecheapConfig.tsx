@@ -7,13 +7,13 @@ import { type AccessConfigForNamecheap } from "@/domain/access";
 
 type AccessFormNamecheapConfigFieldValues = Nullish<AccessConfigForNamecheap>;
 
-export type AccessFormNamecheapConfigProps = {
+export interface AccessFormNamecheapConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormNamecheapConfigFieldValues;
   onValuesChange?: (values: AccessFormNamecheapConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormNamecheapConfigFieldValues => {
   return {

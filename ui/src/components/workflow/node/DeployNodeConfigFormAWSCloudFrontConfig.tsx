@@ -9,13 +9,13 @@ type DeployNodeConfigFormAWSCloudFrontConfigFieldValues = Nullish<{
   certificateSource: string;
 }>;
 
-export type DeployNodeConfigFormAWSCloudFrontConfigProps = {
+export interface DeployNodeConfigFormAWSCloudFrontConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAWSCloudFrontConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAWSCloudFrontConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormAWSCloudFrontConfigFieldValues => {
   return {

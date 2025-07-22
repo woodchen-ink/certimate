@@ -9,13 +9,13 @@ type DeployNodeConfigFormUpyunFileConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormUpyunFileConfigProps = {
+export interface DeployNodeConfigFormUpyunFileConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormUpyunFileConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormUpyunFileConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormUpyunFileConfigFieldValues => {
   return {};

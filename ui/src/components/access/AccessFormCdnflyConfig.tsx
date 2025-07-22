@@ -7,13 +7,13 @@ import { type AccessConfigForCdnfly } from "@/domain/access";
 
 type AccessFormCdnflyConfigFieldValues = Nullish<AccessConfigForCdnfly>;
 
-export type AccessFormCdnflyConfigProps = {
+export interface AccessFormCdnflyConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormCdnflyConfigFieldValues;
   onValuesChange?: (values: AccessFormCdnflyConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormCdnflyConfigFieldValues => {
   return {

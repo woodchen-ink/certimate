@@ -1,7 +1,7 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useControllableValue } from "ahooks";
-import { App, Button, Drawer, Space } from "antd";
+import { App, Button, Drawer, Flex } from "antd";
 
 import { type AccessModel } from "@/domain/access";
 import { useTriggerElement, useZustandShallowSelector } from "@/hooks";
@@ -10,7 +10,7 @@ import { getErrMsg } from "@/utils/error";
 
 import AccessForm, { type AccessFormInstance, type AccessFormProps } from "./AccessForm";
 
-export type AccessEditDrawerProps = {
+export interface AccessEditDrawerProps {
   action: AccessFormProps["action"];
   data?: AccessFormProps["initialValues"];
   loading?: boolean;
@@ -19,7 +19,7 @@ export type AccessEditDrawerProps = {
   usage?: AccessFormProps["usage"];
   onOpenChange?: (open: boolean) => void;
   afterSubmit?: (record: AccessModel) => void;
-};
+}
 
 const AccessEditDrawer = ({ action, data, loading, trigger, usage, afterSubmit, ...props }: AccessEditDrawerProps) => {
   const { t } = useTranslation();
@@ -38,6 +38,11 @@ const AccessEditDrawer = ({ action, data, loading, trigger, usage, afterSubmit, 
 
   const formRef = useRef<AccessFormInstance>(null);
   const [formPending, setFormPending] = useState(false);
+
+  const [footerShow, setFooterShow] = useState(!!data?.provider);
+  useEffect(() => {
+    setFooterShow(!!data?.provider);
+  }, [data?.provider]);
 
   const handleOkClick = async () => {
     setFormPending(true);
@@ -84,6 +89,10 @@ const AccessEditDrawer = ({ action, data, loading, trigger, usage, afterSubmit, 
     setOpen(false);
   };
 
+  const handleFormValuesChange: AccessFormProps["onValuesChange"] = (values) => {
+    setFooterShow(!!values.provider);
+  };
+
   return (
     <>
       {triggerEl}
@@ -93,12 +102,16 @@ const AccessEditDrawer = ({ action, data, loading, trigger, usage, afterSubmit, 
         closable={!formPending}
         destroyOnHidden
         footer={
-          <Space className="w-full justify-end">
-            <Button onClick={handleCancelClick}>{t("common.button.cancel")}</Button>
-            <Button loading={formPending} type="primary" onClick={handleOkClick}>
-              {action === "edit" ? t("common.button.save") : t("common.button.submit")}
-            </Button>
-          </Space>
+          footerShow ? (
+            <Flex justify="end" gap="small">
+              <Button onClick={handleCancelClick}>{t("common.button.cancel")}</Button>
+              <Button loading={formPending} type="primary" onClick={handleOkClick}>
+                {action === "edit" ? t("common.button.save") : t("common.button.submit")}
+              </Button>
+            </Flex>
+          ) : (
+            false
+          )
         }
         loading={loading}
         maskClosable={!formPending}
@@ -107,7 +120,7 @@ const AccessEditDrawer = ({ action, data, loading, trigger, usage, afterSubmit, 
         width={720}
         onClose={() => setOpen(false)}
       >
-        <AccessForm ref={formRef} initialValues={data} action={action === "create" ? "create" : "edit"} usage={usage} />
+        <AccessForm ref={formRef} initialValues={data} action={action === "create" ? "create" : "edit"} usage={usage} onValuesChange={handleFormValuesChange} />
       </Drawer>
     </>
   );

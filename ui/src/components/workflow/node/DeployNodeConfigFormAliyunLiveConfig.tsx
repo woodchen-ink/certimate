@@ -10,13 +10,13 @@ type DeployNodeConfigFormAliyunLiveConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormAliyunLiveConfigProps = {
+export interface DeployNodeConfigFormAliyunLiveConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAliyunLiveConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAliyunLiveConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormAliyunLiveConfigFieldValues => {
   return {};

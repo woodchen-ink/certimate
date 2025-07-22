@@ -7,13 +7,13 @@ import { type AccessConfigForDigitalOcean } from "@/domain/access";
 
 type AccessFormDigitalOceanConfigFieldValues = Nullish<AccessConfigForDigitalOcean>;
 
-export type AccessFormDigitalOceanConfigProps = {
+export interface AccessFormDigitalOceanConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDigitalOceanConfigFieldValues;
   onValuesChange?: (values: AccessFormDigitalOceanConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDigitalOceanConfigFieldValues => {
   return {

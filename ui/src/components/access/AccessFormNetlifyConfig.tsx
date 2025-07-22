@@ -7,13 +7,13 @@ import { type AccessConfigForNetlify } from "@/domain/access";
 
 type AccessFormNetlifyConfigFieldValues = Nullish<AccessConfigForNetlify>;
 
-export type AccessFormNetlifyConfigProps = {
+export interface AccessFormNetlifyConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormNetlifyConfigFieldValues;
   onValuesChange?: (values: AccessFormNetlifyConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormNetlifyConfigFieldValues => {
   return {

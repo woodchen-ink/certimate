@@ -10,7 +10,7 @@ import { useWorkflowStore } from "@/stores/workflow";
 import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import MonitorNodeConfigForm, { type MonitorNodeConfigFormInstance } from "./MonitorNodeConfigForm";
 
-export type MonitorNodeProps = SharedNodeProps;
+export interface MonitorNodeProps extends SharedNodeProps {}
 
 const MonitorNode = ({ node, disabled }: MonitorNodeProps) => {
   if (node.type !== WorkflowNodeType.Monitor) {

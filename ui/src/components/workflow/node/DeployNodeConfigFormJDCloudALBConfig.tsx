@@ -14,13 +14,13 @@ type DeployNodeConfigFormJDCloudALBConfigFieldValues = Nullish<{
   domain?: string;
 }>;
 
-export type DeployNodeConfigFormJDCloudALBConfigProps = {
+export interface DeployNodeConfigFormJDCloudALBConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormJDCloudALBConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormJDCloudALBConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;

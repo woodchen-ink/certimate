@@ -7,13 +7,13 @@ import { type AccessConfigForVercel } from "@/domain/access";
 
 type AccessFormVercelConfigFieldValues = Nullish<AccessConfigForVercel>;
 
-export type AccessFormVercelConfigProps = {
+export interface AccessFormVercelConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormVercelConfigFieldValues;
   onValuesChange?: (values: AccessFormVercelConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormVercelConfigFieldValues => {
   return {

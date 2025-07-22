@@ -10,13 +10,13 @@ type DeployNodeConfigFormFlexCDNConfigFieldValues = Nullish<{
   certificateId?: string | number;
 }>;
 
-export type DeployNodeConfigFormFlexCDNConfigProps = {
+export interface DeployNodeConfigFormFlexCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormFlexCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormFlexCDNConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 

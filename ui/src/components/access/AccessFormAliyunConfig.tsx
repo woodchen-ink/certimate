@@ -7,13 +7,13 @@ import { type AccessConfigForAliyun } from "@/domain/access";
 
 type AccessFormAliyunConfigFieldValues = Nullish<AccessConfigForAliyun>;
 
-export type AccessFormAliyunConfigProps = {
+export interface AccessFormAliyunConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormAliyunConfigFieldValues;
   onValuesChange?: (values: AccessFormAliyunConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormAliyunConfigFieldValues => {
   return {

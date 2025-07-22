@@ -15,12 +15,12 @@ import StartNode from "./node/StartNode";
 import UnknownNode from "./node/UnknownNode";
 import UploadNode from "./node/UploadNode";
 
-export type WorkflowElementProps = {
+export interface WorkflowElementProps {
   node: WorkflowNode;
   disabled?: boolean;
   branchId?: string;
   branchIndex?: number;
-};
+}
 
 const WorkflowElement = ({ node, disabled, branchId, branchIndex }: WorkflowElementProps) => {
   const nodeEl = useMemo(() => {

@@ -12,13 +12,13 @@ type DeployNodeConfigFormAliyunNLBConfigFieldValues = Nullish<{
   listenerId?: string;
 }>;
 
-export type DeployNodeConfigFormAliyunNLBConfigProps = {
+export interface DeployNodeConfigFormAliyunNLBConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAliyunNLBConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAliyunNLBConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;

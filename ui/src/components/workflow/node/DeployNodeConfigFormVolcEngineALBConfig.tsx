@@ -14,13 +14,13 @@ type DeployNodeConfigFormVolcEngineALBConfigFieldValues = Nullish<{
   domain?: string;
 }>;
 
-export type DeployNodeConfigFormVolcEngineALBConfigProps = {
+export interface DeployNodeConfigFormVolcEngineALBConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormVolcEngineALBConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormVolcEngineALBConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;

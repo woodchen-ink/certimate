@@ -6,13 +6,13 @@ import { type CertificateModel } from "@/domain/certificate";
 import { useTriggerElement } from "@/hooks";
 import CertificateDetail from "./CertificateDetail";
 
-export type CertificateDetailDrawerProps = {
+export interface CertificateDetailDrawerProps {
   data?: CertificateModel;
   loading?: boolean;
   open?: boolean;
   trigger?: React.ReactNode;
   onOpenChange?: (open: boolean) => void;
-};
+}
 
 const CertificateDetailDrawer = ({ data, loading, trigger, ...props }: CertificateDetailDrawerProps) => {
   const [open, setOpen] = useControllableValue<boolean>(props, {

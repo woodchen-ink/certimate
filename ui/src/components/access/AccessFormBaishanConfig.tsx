@@ -7,13 +7,13 @@ import { type AccessConfigForBaishan } from "@/domain/access";
 
 type AccessFormBaishanConfigFieldValues = Nullish<AccessConfigForBaishan>;
 
-export type AccessFormBaishanConfigProps = {
+export interface AccessFormBaishanConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormBaishanConfigFieldValues;
   onValuesChange?: (values: AccessFormBaishanConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormBaishanConfigFieldValues => {
   return {

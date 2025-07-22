@@ -10,7 +10,7 @@ import { ExprType } from "@/domain/workflow";
 import { useAntdFormName, useZustandShallowSelector } from "@/hooks";
 import { useWorkflowStore } from "@/stores/workflow";
 
-export type ConditionNodeConfigFormExpressionEditorProps = {
+export interface ConditionNodeConfigFormExpressionEditorProps {
   className?: string;
   style?: React.CSSProperties;
   defaultValue?: Expr;
@@ -18,11 +18,11 @@ export type ConditionNodeConfigFormExpressionEditorProps = {
   nodeId: string;
   value?: Expr;
   onChange?: (value: Expr) => void;
-};
+}
 
-export type ConditionNodeConfigFormExpressionEditorInstance = {
+export interface ConditionNodeConfigFormExpressionEditorInstance {
   validate: () => Promise<void>;
-};
+}
 
 // 表单内部使用的扁平结构
 type ConditionItem = {

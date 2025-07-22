@@ -12,10 +12,10 @@ import { useAntdForm } from "@/hooks";
 import { get as getSettings, save as saveSettings } from "@/repository/settings";
 import { getErrMsg } from "@/utils/error";
 
-export type NotifyTemplateFormProps = {
+export interface NotifyTemplateFormProps {
   className?: string;
   style?: React.CSSProperties;
-};
+}
 
 const NotifyTemplateForm = ({ className, style }: NotifyTemplateFormProps) => {
   const { t } = useTranslation();

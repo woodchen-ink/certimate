@@ -7,13 +7,13 @@ import { type AccessConfigForWangsu } from "@/domain/access";
 
 type AccessFormWangsuConfigFieldValues = Nullish<AccessConfigForWangsu>;
 
-export type AccessFormWangsuConfigProps = {
+export interface AccessFormWangsuConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormWangsuConfigFieldValues;
   onValuesChange?: (values: AccessFormWangsuConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormWangsuConfigFieldValues => {
   return {

@@ -12,13 +12,13 @@ type DeployNodeConfigFormCTCCCloudELBConfigFieldValues = Nullish<{
   listenerId?: string;
 }>;
 
-export type DeployNodeConfigFormCTCCCloudELBConfigProps = {
+export interface DeployNodeConfigFormCTCCCloudELBConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormCTCCCloudELBConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormCTCCCloudELBConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;

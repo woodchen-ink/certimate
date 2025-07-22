@@ -1,5 +1,4 @@
-﻿import { memo } from "react";
-import { useTranslation } from "react-i18next";
+﻿import { useTranslation } from "react-i18next";
 import { IconLanguage, type IconProps } from "@tabler/icons-react";
 import { Dropdown, type DropdownProps, Typography } from "antd";
 
@@ -26,10 +25,10 @@ export const useAppLocaleMenuItems = () => {
   return items;
 };
 
-export type AppLocaleDropdownProps = {
+export interface AppLocaleDropdownProps {
   children?: React.ReactNode;
   trigger?: DropdownProps["trigger"];
-};
+}
 
 const AppLocaleDropdown = (props: AppLocaleDropdownProps) => {
   const { children, trigger = ["click"] } = props;
@@ -43,7 +42,7 @@ const AppLocaleDropdown = (props: AppLocaleDropdownProps) => {
   );
 };
 
-export type AppLocaleIconProps = IconProps;
+export interface AppLocaleIconProps extends IconProps {}
 
 const AppLocaleIcon = (props: AppLocaleIconProps) => {
   const { i18n } = useTranslation();
@@ -57,11 +56,11 @@ const AppLocaleIcon = (props: AppLocaleIconProps) => {
   );
 };
 
-export type AppLocaleLinkButtonProps = {
+export interface AppLocaleLinkButtonProps {
   className?: string;
   style?: React.CSSProperties;
   showIcon?: boolean;
-};
+}
 
 const AppLocaleLinkButton = (props: AppLocaleLinkButtonProps) => {
   const { className, style, showIcon = true } = props;
@@ -82,7 +81,7 @@ const AppLocaleLinkButton = (props: AppLocaleLinkButtonProps) => {
 };
 
 export default {
-  Dropdown: memo(AppLocaleDropdown),
-  Icon: memo(AppLocaleIcon),
-  LinkButton: memo(AppLocaleLinkButton),
+  Dropdown: AppLocaleDropdown,
+  Icon: AppLocaleIcon,
+  LinkButton: AppLocaleLinkButton,
 };

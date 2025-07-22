@@ -7,13 +7,13 @@ import { type AccessConfigForSSLCom } from "@/domain/access";
 
 type AccessFormSSLComConfigFieldValues = Nullish<AccessConfigForSSLCom>;
 
-export type AccessFormSSLComConfigProps = {
+export interface AccessFormSSLComConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormSSLComConfigFieldValues;
   onValuesChange?: (values: AccessFormSSLComConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormSSLComConfigFieldValues => {
   return {

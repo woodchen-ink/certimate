@@ -7,13 +7,13 @@ type DeployNodeConfigFormTencentCloudSSLConfigFieldValues = Nullish<{
   endpoint?: string;
 }>;
 
-export type DeployNodeConfigFormTencentCloudSSLConfigProps = {
+export interface DeployNodeConfigFormTencentCloudSSLConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormTencentCloudSSLConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormTencentCloudSSLConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormTencentCloudSSLConfigFieldValues => {
   return {};

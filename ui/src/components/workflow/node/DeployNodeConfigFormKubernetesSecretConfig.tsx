@@ -11,13 +11,13 @@ type DeployNodeConfigFormKubernetesSecretConfigFieldValues = Nullish<{
   secretDataKeyForKey: string;
 }>;
 
-export type DeployNodeConfigFormKubernetesSecretConfigProps = {
+export interface DeployNodeConfigFormKubernetesSecretConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormKubernetesSecretConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormKubernetesSecretConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormKubernetesSecretConfigFieldValues => {
   return {

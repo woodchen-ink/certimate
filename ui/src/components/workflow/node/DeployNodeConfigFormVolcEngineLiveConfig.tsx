@@ -9,13 +9,13 @@ type DeployNodeConfigFormVolcEngineLiveConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormVolcEngineLiveConfigProps = {
+export interface DeployNodeConfigFormVolcEngineLiveConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormVolcEngineLiveConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormVolcEngineLiveConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormVolcEngineLiveConfigFieldValues => {
   return {};

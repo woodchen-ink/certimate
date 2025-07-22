@@ -1,21 +1,26 @@
-﻿import { memo, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Avatar, Card, Col, Empty, Flex, Input, type InputRef, Row, Tabs, Tooltip, Typography } from "antd";
+import { useSize } from "ahooks";
+import { Avatar, Card, Empty, Flex, Input, type InputRef, Tabs, Tooltip, Typography } from "antd";
 
 import Show from "@/components/Show";
 import { DEPLOYMENT_CATEGORIES, type DeploymentProvider, deploymentProvidersMap } from "@/domain/provider";
+import { mergeCls } from "@/utils/css";
 
-export type DeploymentProviderPickerProps = {
+export interface DeploymentProviderPickerProps {
   className?: string;
   style?: React.CSSProperties;
   autoFocus?: boolean;
   filter?: (record: DeploymentProvider) => boolean;
   placeholder?: string;
   onSelect?: (value: string) => void;
-};
+}
 
 const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeholder, onSelect }: DeploymentProviderPickerProps) => {
   const { t } = useTranslation();
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const wrapperSize = useSize(wrapperRef);
 
   const [category, setCategory] = useState<string>(DEPLOYMENT_CATEGORIES.ALL);
 
@@ -52,13 +57,21 @@ const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeho
         return true;
       });
   }, [filter, category, keyword]);
+  const providerCols = useMemo(() => {
+    if (!wrapperSize) {
+      return 1;
+    }
+
+    const cols = Math.floor(wrapperSize.width / 320);
+    return Math.min(9, Math.max(1, cols));
+  }, [wrapperSize]);
 
   const handleProviderTypeSelect = (value: string) => {
     onSelect?.(value);
   };
 
   return (
-    <div className={className} style={style}>
+    <div className={className} style={style} ref={wrapperRef}>
       <Input.Search ref={keywordInputRef} placeholder={placeholder ?? t("common.text.search")} onChange={(e) => setKeyword(e.target.value.trim())} />
 
       <div className="mt-4">
@@ -91,10 +104,10 @@ const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeho
 
           <div className="flex-1">
             <Show when={providers.length > 0} fallback={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}>
-              <Row gutter={[16, 16]}>
-                {providers.map((provider, index) => {
+              <div className={mergeCls("grid w-full gap-2", `grid-cols-${providerCols}`)}>
+                {providers.map((provider) => {
                   return (
-                    <Col key={index} xs={24} md={12} span={12}>
+                    <div key={provider.type}>
                       <Card
                         className="h-16 w-full overflow-hidden shadow-xs"
                         styles={{ body: { height: "100%", padding: "0.5rem 1rem" } }}
@@ -104,16 +117,20 @@ const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeho
                         }}
                       >
                         <Tooltip title={t(provider.name)} mouseEnterDelay={1}>
-                          <Flex className="size-full overflow-hidden" align="center" gap={8}>
-                            <Avatar shape="square" src={provider.icon} size="small" />
-                            <Typography.Text className="line-clamp-2 flex-1">{t(provider.name)}</Typography.Text>
-                          </Flex>
+                          <div className="flex size-full items-center gap-4 overflow-hidden">
+                            <Avatar className="bg-stone-100" icon={<img src={provider.icon} />} shape="square" size={28} />
+                            <div className="flex-1 overflow-hidden">
+                              <div className="mb-1 line-clamp-2 max-w-full">
+                                <Typography.Text>{t(provider.name) || "\u00A0"}</Typography.Text>
+                              </div>
+                            </div>
+                          </div>
                         </Tooltip>
                       </Card>
-                    </Col>
+                    </div>
                   );
                 })}
-              </Row>
+              </div>
             </Show>
           </div>
         </Flex>
@@ -122,4 +139,4 @@ const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeho
   );
 };
 
-export default memo(DeploymentProviderPicker);
+export default DeploymentProviderPicker;

@@ -8,13 +8,13 @@ type DeployNodeConfigFormProxmoxVEConfigFieldValues = Nullish<{
   autoRestart?: boolean;
 }>;
 
-export type DeployNodeConfigFormProxmoxVEConfigProps = {
+export interface DeployNodeConfigFormProxmoxVEConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormProxmoxVEConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormProxmoxVEConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormProxmoxVEConfigFieldValues => {
   return {

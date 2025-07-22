@@ -7,13 +7,13 @@ import { type AccessConfigFor1Panel } from "@/domain/access";
 
 type AccessForm1PanelConfigFieldValues = Nullish<AccessConfigFor1Panel>;
 
-export type AccessForm1PanelConfigProps = {
+export interface AccessForm1PanelConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessForm1PanelConfigFieldValues;
   onValuesChange?: (values: AccessForm1PanelConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessForm1PanelConfigFieldValues => {
   return {

@@ -7,13 +7,13 @@ import { type AccessConfigForTencentCloud } from "@/domain/access";
 
 type AccessFormTencentCloudConfigFieldValues = Nullish<AccessConfigForTencentCloud>;
 
-export type AccessFormTencentCloudConfigProps = {
+export interface AccessFormTencentCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormTencentCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormTencentCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormTencentCloudConfigFieldValues => {
   return {

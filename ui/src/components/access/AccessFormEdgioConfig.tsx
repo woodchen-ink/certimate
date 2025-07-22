@@ -7,13 +7,13 @@ import { type AccessConfigForEdgio } from "@/domain/access";
 
 type AccessFormEdgioConfigFieldValues = Nullish<AccessConfigForEdgio>;
 
-export type AccessFormEdgioConfigProps = {
+export interface AccessFormEdgioConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormEdgioConfigFieldValues;
   onValuesChange?: (values: AccessFormEdgioConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormEdgioConfigFieldValues => {
   return {

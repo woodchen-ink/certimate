@@ -7,13 +7,13 @@ import { type AccessConfigForNetcup } from "@/domain/access";
 
 type AccessFormNetcupConfigFieldValues = Nullish<AccessConfigForNetcup>;
 
-export type AccessFormNetcupConfigProps = {
+export interface AccessFormNetcupConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormNetcupConfigFieldValues;
   onValuesChange?: (values: AccessFormNetcupConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormNetcupConfigFieldValues => {
   return {

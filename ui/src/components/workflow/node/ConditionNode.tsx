@@ -10,10 +10,10 @@ import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import AddNode from "./AddNode";
 import ConditionNodeConfigForm, { type ConditionNodeConfigFormFieldValues, type ConditionNodeConfigFormInstance } from "./ConditionNodeConfigForm";
 
-export type ConditionNodeProps = SharedNodeProps & {
+export interface ConditionNodeProps extends SharedNodeProps {
   branchId: string;
   branchIndex: number;
-};
+}
 
 const ConditionNode = ({ node, disabled, branchId, branchIndex }: ConditionNodeProps) => {
   const { updateNode } = useWorkflowStore(useZustandShallowSelector(["updateNode"]));

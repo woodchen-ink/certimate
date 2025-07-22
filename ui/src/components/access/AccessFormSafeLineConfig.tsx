@@ -7,13 +7,13 @@ import { type AccessConfigForSafeLine } from "@/domain/access";
 
 type AccessFormSafeLineConfigFieldValues = Nullish<AccessConfigForSafeLine>;
 
-export type AccessFormSafeLineConfigProps = {
+export interface AccessFormSafeLineConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormSafeLineConfigFieldValues;
   onValuesChange?: (values: AccessFormSafeLineConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormSafeLineConfigFieldValues => {
   return {

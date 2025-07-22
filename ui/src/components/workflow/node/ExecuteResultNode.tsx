@@ -6,10 +6,10 @@ import { WorkflowNodeType } from "@/domain/workflow";
 import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import AddNode from "./AddNode";
 
-export type ConditionNodeProps = SharedNodeProps & {
+export interface ConditionNodeProps extends SharedNodeProps {
   branchId: string;
   branchIndex: number;
-};
+}
 
 const ExecuteResultNode = ({ node, disabled, branchId, branchIndex }: ConditionNodeProps) => {
   const { token: themeToken } = theme.useToken();

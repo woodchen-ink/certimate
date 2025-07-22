@@ -5,13 +5,13 @@ import { Button, type ButtonProps, message, notification } from "antd";
 import { notifyTest } from "@/api/notify";
 import { getErrMsg } from "@/utils/error";
 
-export type NotifyTestButtonProps = {
+export interface NotifyTestButtonProps {
   className?: string;
   style?: React.CSSProperties;
   channel: string;
   disabled?: boolean;
   size?: ButtonProps["size"];
-};
+}
 
 const NotifyTestButton = ({ className, style, channel, disabled, size }: NotifyTestButtonProps) => {
   const { t } = useTranslation();

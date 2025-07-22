@@ -8,13 +8,13 @@ type DeployNodeConfigFormAWSACMConfigFieldValues = Nullish<{
   certificateArn?: string;
 }>;
 
-export type DeployNodeConfigFormAWSACMConfigProps = {
+export interface DeployNodeConfigFormAWSACMConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAWSACMConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAWSACMConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormAWSACMConfigFieldValues => {
   return {};

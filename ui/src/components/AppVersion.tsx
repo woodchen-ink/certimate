@@ -1,13 +1,12 @@
-import { memo } from "react";
 import { Badge, Typography } from "antd";
 
 import { APP_DOWNLOAD_URL, APP_VERSION } from "@/domain/app";
 import { useVersionChecker } from "@/hooks";
 
-export type AppVersionLinkButtonProps = {
+export interface AppVersionLinkButtonProps {
   className?: string;
   style?: React.CSSProperties;
-};
+}
 
 const AppVersionLinkButton = ({ className, style }: AppVersionLinkButtonProps) => {
   return (
@@ -19,11 +18,11 @@ const AppVersionLinkButton = ({ className, style }: AppVersionLinkButtonProps) =
   );
 };
 
-export type AppVersionBadgeProps = {
+export interface AppVersionBadgeProps {
   className?: string;
   style?: React.CSSProperties;
   children?: React.ReactNode;
-};
+}
 
 const AppVersionBadge = ({ className, style, children }: AppVersionBadgeProps) => {
   const { hasNewVersion } = useVersionChecker();
@@ -41,6 +40,6 @@ const AppVersionBadge = ({ className, style, children }: AppVersionBadgeProps) =
 };
 
 export default {
-  LinkButton: memo(AppVersionLinkButton),
-  Badge: memo(AppVersionBadge),
+  LinkButton: AppVersionLinkButton,
+  Badge: AppVersionBadge,
 };

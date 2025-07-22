@@ -9,13 +9,13 @@ type DeployNodeConfigFormBunnyCDNConfigFieldValues = Nullish<{
   hostname: string;
 }>;
 
-export type DeployNodeConfigFormBunnyCDNConfigProps = {
+export interface DeployNodeConfigFormBunnyCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormBunnyCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormBunnyCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormBunnyCDNConfigFieldValues => {
   return {};

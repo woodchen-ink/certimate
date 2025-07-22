@@ -7,13 +7,13 @@ import { type AccessConfigForDiscordBot } from "@/domain/access";
 
 type AccessFormDiscordBotConfigFieldValues = Nullish<AccessConfigForDiscordBot>;
 
-export type AccessFormDiscordBotConfigProps = {
+export interface AccessFormDiscordBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDiscordBotConfigFieldValues;
   onValuesChange?: (values: AccessFormDiscordBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDiscordBotConfigFieldValues => {
   return {

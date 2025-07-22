@@ -7,13 +7,13 @@ import { type AccessConfigForRainYun } from "@/domain/access";
 
 type AccessFormRainYunConfigFieldValues = Nullish<AccessConfigForRainYun>;
 
-export type AccessFormRainYunConfigProps = {
+export interface AccessFormRainYunConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormRainYunConfigFieldValues;
   onValuesChange?: (values: AccessFormRainYunConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormRainYunConfigFieldValues => {
   return {

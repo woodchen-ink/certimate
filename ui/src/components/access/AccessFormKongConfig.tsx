@@ -7,13 +7,13 @@ import { type AccessConfigForKong } from "@/domain/access";
 
 type AccessFormKongConfigFieldValues = Nullish<AccessConfigForKong>;
 
-export type AccessFormKongConfigProps = {
+export interface AccessFormKongConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormKongConfigFieldValues;
   onValuesChange?: (values: AccessFormKongConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormKongConfigFieldValues => {
   return {

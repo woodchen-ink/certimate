@@ -7,13 +7,13 @@ type ApplyNodeConfigFormTencentCloudEOConfigFieldValues = Nullish<{
   zoneId: string;
 }>;
 
-export type ApplyNodeConfigFormTencentCloudEOConfigProps = {
+export interface ApplyNodeConfigFormTencentCloudEOConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: ApplyNodeConfigFormTencentCloudEOConfigFieldValues;
   onValuesChange?: (values: ApplyNodeConfigFormTencentCloudEOConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): ApplyNodeConfigFormTencentCloudEOConfigFieldValues => {
   return {};

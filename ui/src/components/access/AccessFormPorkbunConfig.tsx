@@ -7,13 +7,13 @@ import { type AccessConfigForPorkbun } from "@/domain/access";
 
 type AccessFormPorkbunConfigFieldValues = Nullish<AccessConfigForPorkbun>;
 
-export type AccessFormPorkbunConfigProps = {
+export interface AccessFormPorkbunConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormPorkbunConfigFieldValues;
   onValuesChange?: (values: AccessFormPorkbunConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormPorkbunConfigFieldValues => {
   return {

@@ -7,13 +7,13 @@ import { type AccessConfigForDNSLA } from "@/domain/access";
 
 type AccessFormDNSLAConfigFieldValues = Nullish<AccessConfigForDNSLA>;
 
-export type AccessFormDNSLAConfigProps = {
+export interface AccessFormDNSLAConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDNSLAConfigFieldValues;
   onValuesChange?: (values: AccessFormDNSLAConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDNSLAConfigFieldValues => {
   return {

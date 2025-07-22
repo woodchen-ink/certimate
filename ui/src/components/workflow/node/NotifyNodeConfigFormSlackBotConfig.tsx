@@ -7,13 +7,13 @@ type NotifyNodeConfigFormSlackBotConfigFieldValues = Nullish<{
   channelId?: string;
 }>;
 
-export type NotifyNodeConfigFormSlackBotConfigProps = {
+export interface NotifyNodeConfigFormSlackBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: NotifyNodeConfigFormSlackBotConfigFieldValues;
   onValuesChange?: (values: NotifyNodeConfigFormSlackBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): NotifyNodeConfigFormSlackBotConfigFieldValues => {
   return {};

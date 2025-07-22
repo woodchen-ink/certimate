@@ -9,24 +9,24 @@ import { useAntdForm } from "@/hooks";
 
 import ConditionNodeConfigFormExpressionEditor, { type ConditionNodeConfigFormExpressionEditorInstance } from "./ConditionNodeConfigFormExpressionEditor";
 
-export type ConditionNodeConfigFormFieldValues = {
+export interface ConditionNodeConfigFormFieldValues {
   expression?: Expr | undefined;
-};
+}
 
-export type ConditionNodeConfigFormProps = {
+export interface ConditionNodeConfigFormProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
   initialValues?: Partial<WorkflowNodeConfigForCondition>;
   nodeId: string;
   onValuesChange?: (values: WorkflowNodeConfigForCondition) => void;
-};
+}
 
-export type ConditionNodeConfigFormInstance = {
+export interface ConditionNodeConfigFormInstance {
   getFieldsValue: () => ReturnType<FormInstance<ConditionNodeConfigFormFieldValues>["getFieldsValue"]>;
   resetFields: FormInstance<ConditionNodeConfigFormFieldValues>["resetFields"];
   validateFields: FormInstance<ConditionNodeConfigFormFieldValues>["validateFields"];
-};
+}
 
 const initFormModel = (): ConditionNodeConfigFormFieldValues => {
   return defaultNodeConfigForCondition();

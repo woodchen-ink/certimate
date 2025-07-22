@@ -15,13 +15,13 @@ type DeployNodeConfigFormTencentCloudCLBConfigFieldValues = Nullish<{
   domain?: string;
 }>;
 
-export type DeployNodeConfigFormTencentCloudCLBConfigProps = {
+export interface DeployNodeConfigFormTencentCloudCLBConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormTencentCloudCLBConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormTencentCloudCLBConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;

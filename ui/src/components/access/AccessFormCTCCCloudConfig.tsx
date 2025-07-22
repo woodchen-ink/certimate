@@ -6,13 +6,13 @@ import { type AccessConfigForCTCCCloud } from "@/domain/access";
 
 type AccessFormCTCCCloudConfigFieldValues = Nullish<AccessConfigForCTCCCloud>;
 
-export type AccessFormCTCCCloudConfigProps = {
+export interface AccessFormCTCCCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormCTCCCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormCTCCCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormCTCCCloudConfigFieldValues => {
   return {

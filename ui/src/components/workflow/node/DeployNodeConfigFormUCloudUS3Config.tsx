@@ -11,13 +11,13 @@ type DeployNodeConfigFormUCloudUS3ConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormUCloudUS3ConfigProps = {
+export interface DeployNodeConfigFormUCloudUS3ConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormUCloudUS3ConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormUCloudUS3ConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormUCloudUS3ConfigFieldValues => {
   return {};

@@ -7,13 +7,13 @@ import { type AccessConfigForTelegramBot } from "@/domain/access";
 
 type AccessFormTelegramBotConfigFieldValues = Nullish<AccessConfigForTelegramBot>;
 
-export type AccessFormTelegramBotConfigProps = {
+export interface AccessFormTelegramBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormTelegramBotConfigFieldValues;
   onValuesChange?: (values: AccessFormTelegramBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormTelegramBotConfigFieldValues => {
   return {

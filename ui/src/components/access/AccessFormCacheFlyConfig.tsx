@@ -7,13 +7,13 @@ import { type AccessConfigForCacheFly } from "@/domain/access";
 
 type AccessFormCacheFlyConfigFieldValues = Nullish<AccessConfigForCacheFly>;
 
-export type AccessFormCacheFlyConfigProps = {
+export interface AccessFormCacheFlyConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormCacheFlyConfigFieldValues;
   onValuesChange?: (values: AccessFormCacheFlyConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormCacheFlyConfigFieldValues => {
   return {

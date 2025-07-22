@@ -19,11 +19,11 @@ import { getErrMsg } from "@/utils/error";
 
 import WorkflowStatusIcon from "./WorkflowStatusIcon";
 
-export type WorkflowRunDetailProps = {
+export interface WorkflowRunDetailProps {
   className?: string;
   style?: React.CSSProperties;
   data: WorkflowRunModel;
-};
+}
 
 const WorkflowRunDetail = ({ data, ...props }: WorkflowRunDetailProps) => {
   return (

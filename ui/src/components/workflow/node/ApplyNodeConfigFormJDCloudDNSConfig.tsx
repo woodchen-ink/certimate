@@ -7,13 +7,13 @@ type ApplyNodeConfigFormJDCloudDNSConfigFieldValues = Nullish<{
   regionId: string;
 }>;
 
-export type ApplyNodeConfigFormJDCloudDNSConfigProps = {
+export interface ApplyNodeConfigFormJDCloudDNSConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: ApplyNodeConfigFormJDCloudDNSConfigFieldValues;
   onValuesChange?: (values: ApplyNodeConfigFormJDCloudDNSConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): ApplyNodeConfigFormJDCloudDNSConfigFieldValues => {
   return {

@@ -42,18 +42,18 @@ const Dashboard = () => {
         <Divider />
 
         <Flex justify="stretch" vertical={!breakpoints.lg} gap={16}>
-          <Card className="max-lg:flex-1 lg:w-[360px]" title={t("dashboard.quick_actions")}>
-            <Space className="w-full" direction="vertical" size="large">
+          <Card className="transition-all max-lg:flex-1 lg:w-[280px] xl:w-[360px]" title={t("dashboard.quick_actions")}>
+            <div className="flex flex-col gap-4">
               <Button block type="primary" size="large" icon={<IconPlus size="1.25em" />} onClick={() => navigate("/workflows/new")}>
                 {t("dashboard.quick_actions.create_workflow")}
               </Button>
               <Button block size="large" icon={<IconUserShield size="1.25em" />} onClick={() => navigate("/settings/account")}>
-                {t("dashboard.quick_actions.change_login_password")}
+                {t("dashboard.quick_actions.change_password")}
               </Button>
               <Button block size="large" icon={<IconPlugConnected size="1.25em" />} onClick={() => navigate("/settings/ssl-provider")}>
                 {t("dashboard.quick_actions.configure_ca")}
               </Button>
-            </Space>
+            </div>
           </Card>
           <Card className="flex-1" title={t("dashboard.latest_workflow_runs")}>
             <WorkflowRunHistoryTable />

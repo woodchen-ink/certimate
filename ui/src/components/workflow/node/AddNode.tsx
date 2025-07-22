@@ -9,7 +9,7 @@ import { useWorkflowStore } from "@/stores/workflow";
 
 import { type SharedNodeProps } from "./_SharedNode";
 
-export type AddNodeProps = SharedNodeProps;
+export interface AddNodeProps extends SharedNodeProps {}
 
 const AddNode = ({ node, disabled }: AddNodeProps) => {
   const { t } = useTranslation();

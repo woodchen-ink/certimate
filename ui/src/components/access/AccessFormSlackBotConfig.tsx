@@ -7,13 +7,13 @@ import { type AccessConfigForSlackBot } from "@/domain/access";
 
 type AccessFormSlackBotConfigFieldValues = Nullish<AccessConfigForSlackBot>;
 
-export type AccessFormSlackBotConfigProps = {
+export interface AccessFormSlackBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormSlackBotConfigFieldValues;
   onValuesChange?: (values: AccessFormSlackBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormSlackBotConfigFieldValues => {
   return {

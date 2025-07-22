@@ -10,13 +10,13 @@ type DeployNodeConfigFormHuaweiCloudCDNConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormHuaweiCloudCDNConfigProps = {
+export interface DeployNodeConfigFormHuaweiCloudCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormHuaweiCloudCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormHuaweiCloudCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormHuaweiCloudCDNConfigFieldValues => {
   return {};

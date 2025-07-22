@@ -85,12 +85,19 @@ const RootApp = () => {
           screenXLMax: 96 * 16 - 1,
           screenXXL: 96 * 16,
           screenXXLMin: 96 * 16,
+          padding: 16,
+          paddingXS: 8,
+          paddingXXS: 6,
         },
         components: {
           Layout: {
             ...antdTheme?.components?.Layout,
             bodyBg: "transparent",
             siderBg: "transparent",
+          },
+          Dropdown: {
+            ...antdTheme?.components?.Dropdown,
+            paddingBlock: 9,
           },
         },
       }}

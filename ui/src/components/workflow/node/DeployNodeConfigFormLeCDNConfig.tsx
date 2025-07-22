@@ -11,13 +11,13 @@ type DeployNodeConfigFormLeCDNConfigFieldValues = Nullish<{
   clientId?: string | number;
 }>;
 
-export type DeployNodeConfigFormLeCDNConfigProps = {
+export interface DeployNodeConfigFormLeCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormLeCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormLeCDNConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 

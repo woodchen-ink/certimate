@@ -7,13 +7,13 @@ import { type AccessConfigForGoEdge } from "@/domain/access";
 
 type AccessFormGoEdgeConfigFieldValues = Nullish<AccessConfigForGoEdge>;
 
-export type AccessFormGoEdgeConfigProps = {
+export interface AccessFormGoEdgeConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormGoEdgeConfigFieldValues;
   onValuesChange?: (values: AccessFormGoEdgeConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormGoEdgeConfigFieldValues => {
   return {

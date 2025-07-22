@@ -25,13 +25,13 @@ type DeployNodeConfigFormSSHConfigFieldValues = Nullish<{
   useSCP?: boolean;
 }>;
 
-export type DeployNodeConfigFormSSHConfigProps = {
+export interface DeployNodeConfigFormSSHConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormSSHConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormSSHConfigFieldValues) => void;
-};
+}
 
 const FORMAT_PEM = CERTIFICATE_FORMATS.PEM;
 const FORMAT_PFX = CERTIFICATE_FORMATS.PFX;

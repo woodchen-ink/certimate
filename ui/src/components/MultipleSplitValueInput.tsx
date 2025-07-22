@@ -10,10 +10,10 @@ import MultipleInput from "./MultipleInput";
 
 type SplitOptions = {
   removeEmpty?: boolean;
-  trim?: boolean;
+  trimSpace?: boolean;
 };
 
-export type MultipleSplitValueInputProps = Omit<InputProps, "count" | "defaultValue" | "showCount" | "value" | "onChange"> & {
+export interface MultipleSplitValueInputProps extends Omit<InputProps, "count" | "defaultValue" | "showCount" | "value" | "onChange"> {
   defaultValue?: string;
   maxCount?: number;
   minCount?: number;
@@ -25,13 +25,14 @@ export type MultipleSplitValueInputProps = Omit<InputProps, "count" | "defaultVa
   splitOptions?: SplitOptions;
   value?: string[];
   onChange?: (value: string) => void;
-};
+}
 
 const DEFAULT_SEPARATOR = ";";
 
 const MultipleSplitValueInput = ({
   className,
   style,
+  size,
   separator: delimiter = DEFAULT_SEPARATOR,
   disabled,
   maxCount,
@@ -56,7 +57,7 @@ const MultipleSplitValueInput = ({
     initialValues: { value: value?.split(delimiter) },
     onSubmit: (values) => {
       const temp = values.value ?? [];
-      if (splitOptions.trim) {
+      if (splitOptions.trimSpace) {
         temp.map((e) => e.trim());
       }
       if (splitOptions.removeEmpty) {
@@ -81,27 +82,29 @@ const MultipleSplitValueInput = ({
   };
 
   return (
-    <Space.Compact className={className} style={{ width: "100%", ...style }}>
-      <Input {...props} disabled={disabled} placeholder={placeholder} value={value} onChange={handleChange} onClear={handleClear} />
-      <ModalForm
-        {...formProps}
-        layout="vertical"
-        form={formInst}
-        modalProps={{ destroyOnHidden: true }}
-        title={modalTitle}
-        trigger={
-          <Button disabled={disabled}>
-            <IconList size="1.25em" />
-          </Button>
-        }
-        validateTrigger="onSubmit"
-        width={modalWidth}
-      >
-        <Form.Item name="value" noStyle>
-          <MultipleInput minCount={minCount} maxCount={maxCount} placeholder={placeholderInModal ?? placeholder} showSortButton={showSortButton} />
-        </Form.Item>
-      </ModalForm>
-    </Space.Compact>
+    <div className={className} style={style}>
+      <Space.Compact className="w-full">
+        <Input {...props} disabled={disabled} placeholder={placeholder} size={size} value={value} onChange={handleChange} onClear={handleClear} />
+        <ModalForm
+          {...formProps}
+          layout="vertical"
+          form={formInst}
+          modalProps={{ destroyOnHidden: true }}
+          title={modalTitle}
+          trigger={
+            <Button className="px-2" disabled={disabled} size={size}>
+              <IconList size="1.25em" />
+            </Button>
+          }
+          validateTrigger="onSubmit"
+          width={modalWidth}
+        >
+          <Form.Item name="value" noStyle>
+            <MultipleInput minCount={minCount} maxCount={maxCount} placeholder={placeholderInModal ?? placeholder} showSortButton={showSortButton} />
+          </Form.Item>
+        </ModalForm>
+      </Space.Compact>
+    </div>
   );
 };
 

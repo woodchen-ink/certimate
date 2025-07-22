@@ -7,13 +7,13 @@ import { type AccessConfigForBaotaWAF } from "@/domain/access";
 
 type AccessFormBaotaWAFConfigFieldValues = Nullish<AccessConfigForBaotaWAF>;
 
-export type AccessFormBaotaWAFConfigProps = {
+export interface AccessFormBaotaWAFConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormBaotaWAFConfigFieldValues;
   onValuesChange?: (values: AccessFormBaotaWAFConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormBaotaWAFConfigFieldValues => {
   return {

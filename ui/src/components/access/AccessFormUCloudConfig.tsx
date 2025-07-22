@@ -7,13 +7,13 @@ import { type AccessConfigForUCloud } from "@/domain/access";
 
 type AccessFormUCloudConfigFieldValues = Nullish<AccessConfigForUCloud>;
 
-export type AccessFormUCloudConfigProps = {
+export interface AccessFormUCloudConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormUCloudConfigFieldValues;
   onValuesChange?: (values: AccessFormUCloudConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormUCloudConfigFieldValues => {
   return {

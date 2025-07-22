@@ -7,13 +7,13 @@ import { type AccessConfigForBytePlus } from "@/domain/access";
 
 type AccessFormBytePlusConfigFieldValues = Nullish<AccessConfigForBytePlus>;
 
-export type AccessFormBytePlusConfigProps = {
+export interface AccessFormBytePlusConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormBytePlusConfigFieldValues;
   onValuesChange?: (values: AccessFormBytePlusConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormBytePlusConfigFieldValues => {
   return {

@@ -7,13 +7,13 @@ import { type AccessConfigForRatPanel } from "@/domain/access";
 
 type AccessFormRatPanelConfigFieldValues = Nullish<AccessConfigForRatPanel>;
 
-export type AccessFormRatPanelConfigProps = {
+export interface AccessFormRatPanelConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormRatPanelConfigFieldValues;
   onValuesChange?: (values: AccessFormRatPanelConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormRatPanelConfigFieldValues => {
   return {

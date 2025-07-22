@@ -10,13 +10,13 @@ type NotifyNodeConfigFormEmailConfigFieldValues = Nullish<{
   receiverAddress?: string;
 }>;
 
-export type NotifyNodeConfigFormEmailConfigProps = {
+export interface NotifyNodeConfigFormEmailConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: NotifyNodeConfigFormEmailConfigFieldValues;
   onValuesChange?: (values: NotifyNodeConfigFormEmailConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): NotifyNodeConfigFormEmailConfigFieldValues => {
   return {};

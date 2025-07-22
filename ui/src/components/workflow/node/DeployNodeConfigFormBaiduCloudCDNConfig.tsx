@@ -9,13 +9,13 @@ type DeployNodeConfigFormBaiduCloudCDNConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormBaiduCloudCDNConfigProps = {
+export interface DeployNodeConfigFormBaiduCloudCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormBaiduCloudCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormBaiduCloudCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormBaiduCloudCDNConfigFieldValues => {
   return {};

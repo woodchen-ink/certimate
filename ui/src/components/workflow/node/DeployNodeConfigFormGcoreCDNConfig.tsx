@@ -8,13 +8,13 @@ type DeployNodeConfigFormGcoreCDNConfigFieldValues = Nullish<{
   certificateId?: string | number;
 }>;
 
-export type DeployNodeConfigFormGcoreCDNConfigProps = {
+export interface DeployNodeConfigFormGcoreCDNConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormGcoreCDNConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormGcoreCDNConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormGcoreCDNConfigFieldValues => {
   return {

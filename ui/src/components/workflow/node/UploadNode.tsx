@@ -10,7 +10,7 @@ import { useWorkflowStore } from "@/stores/workflow";
 import SharedNode, { type SharedNodeProps } from "./_SharedNode";
 import UploadNodeConfigForm, { type UploadNodeConfigFormInstance } from "./UploadNodeConfigForm";
 
-export type UploadNodeProps = SharedNodeProps;
+export interface UploadNodeProps extends SharedNodeProps {}
 
 const UploadNode = ({ node, disabled }: UploadNodeProps) => {
   if (node.type !== WorkflowNodeType.Upload) {

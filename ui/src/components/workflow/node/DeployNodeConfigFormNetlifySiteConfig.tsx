@@ -7,13 +7,13 @@ type DeployNodeConfigFormNetlifySiteConfigFieldValues = Nullish<{
   siteId: string;
 }>;
 
-export type DeployNodeConfigFormNetlifySiteConfigProps = {
+export interface DeployNodeConfigFormNetlifySiteConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormNetlifySiteConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormNetlifySiteConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormNetlifySiteConfigFieldValues => {
   return {

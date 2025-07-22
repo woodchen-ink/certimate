@@ -7,13 +7,13 @@ import { type AccessConfigForLarkBot } from "@/domain/access";
 
 type AccessFormLarkBotConfigFieldValues = Nullish<AccessConfigForLarkBot>;
 
-export type AccessFormLarkBotConfigProps = {
+export interface AccessFormLarkBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormLarkBotConfigFieldValues;
   onValuesChange?: (values: AccessFormLarkBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormLarkBotConfigFieldValues => {
   return {

@@ -8,13 +8,13 @@ type DeployNodeConfigFormAliyunESAConfigFieldValues = Nullish<{
   siteId: string | number;
 }>;
 
-export type DeployNodeConfigFormAliyunESAConfigProps = {
+export interface DeployNodeConfigFormAliyunESAConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAliyunESAConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAliyunESAConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormAliyunESAConfigFieldValues => {
   return {};

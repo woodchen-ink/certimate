@@ -11,13 +11,13 @@ type DeployNodeConfigFormAliyunCASDeployConfigFieldValues = Nullish<{
   contactIds?: string;
 }>;
 
-export type DeployNodeConfigFormAliyunCASDeployConfigProps = {
+export interface DeployNodeConfigFormAliyunCASDeployConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormAliyunCASDeployConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormAliyunCASDeployConfigFieldValues) => void;
-};
+}
 
 const MULTIPLE_INPUT_SEPARATOR = ";";
 
@@ -92,7 +92,7 @@ const DeployNodeConfigFormAliyunCASDeployConfig = ({
           modalTitle={t("workflow_node.deploy.form.aliyun_cas_deploy_resource_ids.multiple_input_modal.title")}
           placeholder={t("workflow_node.deploy.form.aliyun_cas_deploy_resource_ids.placeholder")}
           placeholderInModal={t("workflow_node.deploy.form.aliyun_cas_deploy_resource_ids.multiple_input_modal.placeholder")}
-          splitOptions={{ trim: true, removeEmpty: true }}
+          splitOptions={{ removeEmpty: true, trimSpace: true }}
         />
       </Form.Item>
 
@@ -106,7 +106,7 @@ const DeployNodeConfigFormAliyunCASDeployConfig = ({
           modalTitle={t("workflow_node.deploy.form.aliyun_cas_deploy_contact_ids.multiple_input_modal.title")}
           placeholder={t("workflow_node.deploy.form.aliyun_cas_deploy_contact_ids.placeholder")}
           placeholderInModal={t("workflow_node.deploy.form.aliyun_cas_deploy_contact_ids.multiple_input_modal.placeholder")}
-          splitOptions={{ trim: true, removeEmpty: true }}
+          splitOptions={{ removeEmpty: true, trimSpace: true }}
         />
       </Form.Item>
     </Form>

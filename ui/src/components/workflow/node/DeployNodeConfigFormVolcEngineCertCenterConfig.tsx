@@ -7,13 +7,13 @@ type DeployNodeConfigFormVolcEngineCertCenterConfigFieldValues = Nullish<{
   region: string;
 }>;
 
-export type DeployNodeConfigFormVolcEngineCertCenterConfigProps = {
+export interface DeployNodeConfigFormVolcEngineCertCenterConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormVolcEngineCertCenterConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormVolcEngineCertCenterConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormVolcEngineCertCenterConfigFieldValues => {
   return {};

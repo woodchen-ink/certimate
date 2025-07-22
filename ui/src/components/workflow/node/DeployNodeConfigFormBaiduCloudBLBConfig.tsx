@@ -14,13 +14,13 @@ type DeployNodeConfigFormBaiduCloudBLBConfigFieldValues = Nullish<{
   domain?: string;
 }>;
 
-export type DeployNodeConfigFormBaiduCloudBLBConfigProps = {
+export interface DeployNodeConfigFormBaiduCloudBLBConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormBaiduCloudBLBConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormBaiduCloudBLBConfigFieldValues) => void;
-};
+}
 
 const RESOURCE_TYPE_LOADBALANCER = "loadbalancer" as const;
 const RESOURCE_TYPE_LISTENER = "listener" as const;

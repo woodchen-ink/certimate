@@ -7,13 +7,13 @@ type DeployNodeConfigFormBaotaPanelConsoleConfigFieldValues = Nullish<{
   autoRestart?: boolean;
 }>;
 
-export type DeployNodeConfigFormBaotaPanelConsoleConfigProps = {
+export interface DeployNodeConfigFormBaotaPanelConsoleConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormBaotaPanelConsoleConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormBaotaPanelConsoleConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormBaotaPanelConsoleConfigFieldValues => {
   return {

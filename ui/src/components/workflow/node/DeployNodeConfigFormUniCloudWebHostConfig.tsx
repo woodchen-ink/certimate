@@ -11,13 +11,13 @@ type DeployNodeConfigFormUniCloudWebHostConfigFieldValues = Nullish<{
   domain: string;
 }>;
 
-export type DeployNodeConfigFormUniCloudWebHostConfigProps = {
+export interface DeployNodeConfigFormUniCloudWebHostConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: DeployNodeConfigFormUniCloudWebHostConfigFieldValues;
   onValuesChange?: (values: DeployNodeConfigFormUniCloudWebHostConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): DeployNodeConfigFormUniCloudWebHostConfigFieldValues => {
   return {

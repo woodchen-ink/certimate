@@ -7,13 +7,13 @@ import { type AccessConfigForUpyun } from "@/domain/access";
 
 type AccessFormUpyunConfigFieldValues = Nullish<AccessConfigForUpyun>;
 
-export type AccessFormUpyunConfigProps = {
+export interface AccessFormUpyunConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormUpyunConfigFieldValues;
   onValuesChange?: (values: AccessFormUpyunConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormUpyunConfigFieldValues => {
   return {

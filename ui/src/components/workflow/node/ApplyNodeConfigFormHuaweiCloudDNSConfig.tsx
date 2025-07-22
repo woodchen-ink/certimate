@@ -7,13 +7,13 @@ type ApplyNodeConfigFormHuaweiCloudDNSConfigFieldValues = Nullish<{
   region: string;
 }>;
 
-export type ApplyNodeConfigFormHuaweiCloudDNSConfigProps = {
+export interface ApplyNodeConfigFormHuaweiCloudDNSConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: ApplyNodeConfigFormHuaweiCloudDNSConfigFieldValues;
   onValuesChange?: (values: ApplyNodeConfigFormHuaweiCloudDNSConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): ApplyNodeConfigFormHuaweiCloudDNSConfigFieldValues => {
   return {

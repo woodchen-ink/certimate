@@ -7,13 +7,13 @@ import { type AccessConfigForDingTalkBot } from "@/domain/access";
 
 type AccessFormDingTalkBotConfigFieldValues = Nullish<AccessConfigForDingTalkBot>;
 
-export type AccessFormDingTalkBotConfigProps = {
+export interface AccessFormDingTalkBotConfigProps {
   form: FormInstance;
   formName: string;
   disabled?: boolean;
   initialValues?: AccessFormDingTalkBotConfigFieldValues;
   onValuesChange?: (values: AccessFormDingTalkBotConfigFieldValues) => void;
-};
+}
 
 const initFormModel = (): AccessFormDingTalkBotConfigFieldValues => {
   return {

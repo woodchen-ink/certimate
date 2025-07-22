@@ -10,16 +10,19 @@ import { ClientResponseError } from "pocketbase";
 import CertificateDetailDrawer from "@/components/certificate/CertificateDetailDrawer";
 import Empty from "@/components/Empty";
 import { type CertificateModel } from "@/domain/certificate";
+import { useAppSettings } from "@/hooks";
 import { list as listCertificates, type ListRequest as listCertificatesRequest, remove as removeCertificate } from "@/repository/certificate";
 import { getErrMsg } from "@/utils/error";
 
 const CertificateList = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { t } = useTranslation();
 
   const { modal, notification } = App.useApp();
+
+  const { appSettings: globalAppSettings } = useAppSettings();
 
   const [filters, setFilters] = useState<Record<string, unknown>>(() => {
     return {
@@ -31,7 +34,7 @@ const CertificateList = () => {
     return {};
   });
   const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
-  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 15);
+  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || globalAppSettings.defaultPerPage!);
 
   const tableColumns: TableProps<CertificateModel>["columns"] = [
     {
@@ -186,6 +189,26 @@ const CertificateList = () => {
     },
     {
       refreshDeps: [filters, sorter, page, pageSize],
+      onBefore: () => {
+        setSearchParams((prev) => {
+          if (filters["keyword"]) {
+            prev.set("keyword", filters["keyword"] as string);
+          } else {
+            prev.delete("keyword");
+          }
+
+          if (filters["state"]) {
+            prev.set("state", filters["state"] as string);
+          } else {
+            prev.delete("state");
+          }
+
+          prev.set("page", page.toString());
+          prev.set("perPage", pageSize.toString());
+
+          return prev;
+        });
+      },
       onSuccess: (res) => {
         setTableData(res.items);
         setTableTotal(res.totalItems);
@@ -212,6 +235,11 @@ const CertificateList = () => {
     if (loading) return;
 
     refreshData();
+  };
+
+  const handlePaginationChange = (page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
   };
 
   const [detailRecord, setDetailRecord] = useState<CertificateModel>();
@@ -320,14 +348,8 @@ const CertificateList = () => {
             pageSize: pageSize,
             total: tableTotal,
             showSizeChanger: true,
-            onChange: (page: number, pageSize: number) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
-            onShowSizeChange: (page: number, pageSize: number) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
+            onChange: handlePaginationChange,
+            onShowSizeChange: handlePaginationChange,
           }}
           rowClassName="cursor-pointer"
           rowKey={(record) => record.id}

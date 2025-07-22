@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Divider, Form, Radio, type RadioChangeEvent, Select, theme } from "antd";
+import { produce } from "immer";
 
 import { useAppLocaleMenuItems } from "@/components/AppLocale";
 import { useAppThemeMenuItems } from "@/components/AppTheme";
-import { useBrowserTheme } from "@/hooks";
+import { useAppSettings, useBrowserTheme } from "@/hooks";
 
 const SettingsAppearance = () => {
   const { t } = useTranslation();
@@ -12,16 +13,17 @@ const SettingsAppearance = () => {
   return (
     <>
       <h2>{t("settings.appearance.theme.title")}</h2>
-      <div className="md:max-w-160">
-        <SettingsAppearanceTheme />
-      </div>
+      <SettingsAppearanceTheme className="md:max-w-160" />
 
       <Divider />
 
       <h2>{t("settings.appearance.language.title")}</h2>
-      <div className="md:max-w-160">
-        <SettingsAppearanceLanguage />
-      </div>
+      <SettingsAppearanceLanguage className="md:max-w-160" />
+
+      <Divider />
+
+      <h2>{t("settings.appearance.pagination.title")}</h2>
+      <SettingsPaginationLanguage className="md:max-w-160" />
     </>
   );
 };
@@ -35,7 +37,7 @@ const SettingsAppearanceTheme = ({ className, style }: { className?: string; sty
   const themeItems = useAppThemeMenuItems();
   const [themeChanged, setThemeChanged] = useState(false);
 
-  const handleThemeChange = (e: RadioChangeEvent) => {
+  const handleChange = (e: RadioChangeEvent) => {
     if (e.target.value !== themeMode) {
       setThemeChanged(true);
       setThemeMode(e.target.value);
@@ -46,7 +48,7 @@ const SettingsAppearanceTheme = ({ className, style }: { className?: string; sty
     <div className={className} style={style}>
       <Form layout="vertical">
         <Form.Item extra={themeChanged ? t("settings.appearance.theme.form.value.extra") : undefined}>
-          <Radio.Group className="w-full" value={themeMode} onChange={handleThemeChange}>
+          <Radio.Group className="w-full" value={themeMode} onChange={handleChange}>
             <div className="flex w-full items-center gap-4 max-md:flex-wrap">
               {themeItems.map((item) => (
                 <div className="relative max-w-44 flex-1/3 max-md:flex-1/2 max-sm:flex-1" key={item.key}>
@@ -72,7 +74,7 @@ const SettingsAppearanceLanguage = ({ className, style }: { className?: string; 
   const localeItems = useAppLocaleMenuItems();
   const [localeChanged, setLocaleChanged] = useState(false);
 
-  const handleLocaleChange = (value: string) => {
+  const handleChange = (value: string) => {
     if (value !== i18n.language) {
       setLocaleChanged(true);
       i18n.changeLanguage(value);
@@ -90,7 +92,40 @@ const SettingsAppearanceLanguage = ({ className, style }: { className?: string; 
               label: item.label,
             }))}
             value={i18n.language}
-            onChange={handleLocaleChange}
+            onChange={handleChange}
+          />
+        </Form.Item>
+      </Form>
+    </div>
+  );
+};
+
+const SettingsPaginationLanguage = ({ className, style }: { className?: string; style?: React.CSSProperties }) => {
+  const { t } = useTranslation();
+
+  const { appSettings: globalAppSettings, setAppSettings: setGlobalAppSettings } = useAppSettings();
+
+  const handleChange = (value: number) => {
+    setGlobalAppSettings(
+      produce(globalAppSettings, (draft) => {
+        draft.defaultPerPage = value;
+      })
+    );
+  };
+
+  return (
+    <div className={className} style={style}>
+      <Form layout="vertical">
+        <Form.Item label={t("settings.appearance.pagination.form.default_per_page.label")}>
+          <Select
+            options={[10, 15, 20, 30, 50, 100].map((value) => ({
+              key: value,
+              value: value,
+              label: `${value} ${t("settings.appearance.pagination.form.default_per_page.unit")}`,
+            }))}
+            placeholder={t("settings.appearance.pagination.form.default_per_page.placeholder")}
+            defaultValue={globalAppSettings.defaultPerPage}
+            onChange={handleChange}
           />
         </Form.Item>
       </Form>

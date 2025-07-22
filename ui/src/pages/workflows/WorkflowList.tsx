@@ -10,16 +10,19 @@ import { ClientResponseError } from "pocketbase";
 import Empty from "@/components/Empty";
 import WorkflowStatusIcon from "@/components/workflow/WorkflowStatusIcon";
 import { WORKFLOW_TRIGGERS, type WorkflowModel, cloneNode, initWorkflow, isAllNodesValidated } from "@/domain/workflow";
+import { useAppSettings } from "@/hooks";
 import { list as listWorkflows, remove as removeWorkflow, save as saveWorkflow } from "@/repository/workflow";
 import { getErrMsg } from "@/utils/error";
 
 const WorkflowList = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { t } = useTranslation();
 
   const { message, modal, notification } = App.useApp();
+
+  const { appSettings: globalAppSettings } = useAppSettings();
 
   const [filters, setFilters] = useState<Record<string, unknown>>(() => {
     return {
@@ -31,7 +34,7 @@ const WorkflowList = () => {
     return {};
   });
   const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
-  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 15);
+  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || globalAppSettings.defaultPerPage!);
 
   const tableColumns: TableProps<WorkflowModel>["columns"] = [
     {
@@ -185,6 +188,26 @@ const WorkflowList = () => {
     },
     {
       refreshDeps: [filters, sorter, page, pageSize],
+      onBefore: () => {
+        setSearchParams((prev) => {
+          if (filters["keyword"]) {
+            prev.set("keyword", filters["keyword"] as string);
+          } else {
+            prev.delete("keyword");
+          }
+
+          if (filters["state"]) {
+            prev.set("state", filters["state"] as string);
+          } else {
+            prev.delete("state");
+          }
+
+          prev.set("page", page.toString());
+          prev.set("perPage", pageSize.toString());
+
+          return prev;
+        });
+      },
       onSuccess: (res) => {
         setTableData(res.items);
         setTableTotal(res.totalItems);
@@ -211,6 +234,11 @@ const WorkflowList = () => {
     if (loading) return;
 
     refreshData();
+  };
+
+  const handlePaginationChange = (page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
   };
 
   const handleCreateClick = () => {
@@ -380,14 +408,8 @@ const WorkflowList = () => {
             pageSize: pageSize,
             total: tableTotal,
             showSizeChanger: true,
-            onChange: (page: number, pageSize: number) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
-            onShowSizeChange: (page: number, pageSize: number) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
+            onChange: handlePaginationChange,
+            onShowSizeChange: handlePaginationChange,
           }}
           rowClassName="cursor-pointer"
           rowKey={(record) => record.id}

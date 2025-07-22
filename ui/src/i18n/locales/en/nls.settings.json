@@ -25,6 +25,10 @@
   "settings.appearance.theme.form.value.extra": "Reload the page for the change to take effect.",
   "settings.appearance.language.title": "Language",
   "settings.appearance.language.form.value.extra": "Reload the page for the change to take effect.",
+  "settings.appearance.pagination.title": "Pagination",
+  "settings.appearance.pagination.form.default_per_page.label": "Default items per page",
+  "settings.appearance.pagination.form.default_per_page.placeholder": "Please enter default items per page",
+  "settings.appearance.pagination.form.default_per_page.unit": "items per page",
 
   "settings.sslprovider.tab": "Certificate authority",
   "settings.sslprovider.ca.title": "System-wide CA",

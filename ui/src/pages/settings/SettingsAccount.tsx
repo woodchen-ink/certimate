@@ -15,16 +15,12 @@ const SettingsAccount = () => {
   return (
     <>
       <h2>{t("settings.account.username.title")}</h2>
-      <div className="md:max-w-160">
-        <SettingsAccountUsername />
-      </div>
+      <SettingsAccountUsername className="md:max-w-160" />
 
       <Divider />
 
       <h2>{t("settings.account.password.title")}</h2>
-      <div className="md:max-w-160">
-        <SettingsAccountPassword />
-      </div>
+      <SettingsAccountPassword className="md:max-w-160" />
 
       <Divider />
 

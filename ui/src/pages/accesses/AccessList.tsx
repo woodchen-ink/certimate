@@ -11,19 +11,21 @@ import AccessEditDrawer, { type AccessEditDrawerProps } from "@/components/acces
 import Empty from "@/components/Empty";
 import { type AccessModel } from "@/domain/access";
 import { ACCESS_USAGES, accessProvidersMap } from "@/domain/provider";
-import { useZustandShallowSelector } from "@/hooks";
+import { useAppSettings, useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
 import { getErrMsg } from "@/utils/error";
 
-type AccessUsageProp = AccessEditDrawerProps["usage"];
+type AccessUsages = AccessEditDrawerProps["usage"];
 
 const AccessList = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { t } = useTranslation();
 
   const { modal, notification } = App.useApp();
+
+  const { appSettings: globalAppSettings } = useAppSettings();
 
   const { accesses, loadedAtOnce, fetchAccesses, deleteAccess } = useAccessesStore(
     useZustandShallowSelector(["accesses", "loadedAtOnce", "fetchAccesses", "deleteAccess"])
@@ -31,12 +33,12 @@ const AccessList = () => {
 
   const [filters, setFilters] = useState<Record<string, unknown>>(() => {
     return {
-      usage: "dns-hosting" satisfies AccessUsageProp,
+      usage: searchParams.get("usage") || ("dns-hosting" satisfies AccessUsages),
       keyword: searchParams.get("keyword"),
     };
   });
   const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
-  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 15);
+  const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || globalAppSettings.defaultPerPage!);
 
   const tableColumns: TableProps<AccessModel>["columns"] = [
     {
@@ -144,7 +146,11 @@ const AccessList = () => {
         })
         .filter((e) => {
           const provider = accessProvidersMap.get(e.provider);
-          switch (filters["usage"] as AccessUsageProp) {
+          switch (filters["usage"] as AccessUsages) {
+            case "dns":
+              return !e.reserve && provider?.usages?.includes(ACCESS_USAGES.DNS);
+            case "hosting":
+              return !e.reserve && provider?.usages?.includes(ACCESS_USAGES.HOSTING);
             case "dns-hosting":
               return !e.reserve && (provider?.usages?.includes(ACCESS_USAGES.DNS) || provider?.usages?.includes(ACCESS_USAGES.HOSTING));
             case "ca":
@@ -160,6 +166,22 @@ const AccessList = () => {
     },
     {
       refreshDeps: [accesses, filters, page, pageSize],
+      onBefore: () => {
+        setSearchParams((prev) => {
+          if (filters["keyword"]) {
+            prev.set("keyword", filters["keyword"] as string);
+          } else {
+            prev.delete("keyword");
+          }
+
+          prev.set("usage", filters["usage"] as string);
+
+          prev.set("page", page.toString());
+          prev.set("perPage", pageSize.toString());
+
+          return prev;
+        });
+      },
       onSuccess: (res) => {
         setTableData(res.items);
         setTableTotal(res.totalItems);
@@ -181,6 +203,11 @@ const AccessList = () => {
     if (loading) return;
 
     fetchAccesses();
+  };
+
+  const handlePaginationChange = (page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
   };
 
   const handleCreateClick = () => {
@@ -302,14 +329,8 @@ const AccessList = () => {
             pageSize: pageSize,
             total: tableTotal,
             showSizeChanger: true,
-            onChange: (page: number, pageSize: number) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
-            onShowSizeChange: (page: number, pageSize: number) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
+            onChange: handlePaginationChange,
+            onShowSizeChange: handlePaginationChange,
           }}
           rowClassName="cursor-pointer"
           rowKey={(record) => record.id}
@@ -321,7 +342,7 @@ const AccessList = () => {
           })}
         />
 
-        <AccessEditDrawer data={detailRecord} open={detailOpen} mode={detailMode} usage={filters["usage"] as AccessUsageProp} onOpenChange={setDetailOpen} />
+        <AccessEditDrawer data={detailRecord} open={detailOpen} mode={detailMode} usage={filters["usage"] as AccessUsages} onOpenChange={setDetailOpen} />
       </div>
     </div>
   );

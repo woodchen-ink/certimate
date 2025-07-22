@@ -171,10 +171,10 @@ const CertificateList = () => {
     run: refreshData,
   } = useRequest(
     () => {
+      const { columnKey: sorterKey, order: sorterOrder } = sorter;
       let sort: string | undefined;
-      if (sorter.columnKey === "expiry") {
-        sort = sorter.order === "ascend" ? "expireAt" : sorter.order === "descend" ? "-expireAt" : "";
-      }
+      sort = sorterKey === "expiry" ? "expireAt" : "";
+      sort = sort && (sorterOrder === "ascend" ? `${sort}` : sorterOrder === "descend" ? `-${sort}` : undefined);
 
       return listCertificates({
         keyword: filters["keyword"] as string,

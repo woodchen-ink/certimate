@@ -27,6 +27,9 @@ const WorkflowList = () => {
       state: searchParams.get("state"),
     };
   });
+  const [sorter, setSorter] = useState<ArrayElement<Parameters<NonNullable<TableProps<WorkflowModel>["onChange"]>>[2]>>(() => {
+    return {};
+  });
   const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
   const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || 15);
 
@@ -94,6 +97,8 @@ const WorkflowList = () => {
     {
       key: "lastRun",
       title: t("workflow.props.last_run_at"),
+      sorter: true,
+      sortOrder: sorter.columnKey === "lastRun" ? sorter.order : undefined,
       render: (_, record) => {
         return (
           <Flex gap="small">
@@ -165,15 +170,21 @@ const WorkflowList = () => {
     run: refreshData,
   } = useRequest(
     () => {
+      const { columnKey: sorterKey, order: sorterOrder } = sorter;
+      let sort: string | undefined;
+      sort = sorterKey === "lastRun" ? "lastRunTime" : "";
+      sort = sort && (sorterOrder === "ascend" ? `${sort}` : sorterOrder === "descend" ? `-${sort}` : undefined);
+
       return listWorkflows({
         keyword: filters["keyword"] as string,
         enabled: (filters["state"] as string) === "enabled" ? true : (filters["state"] as string) === "disabled" ? false : undefined,
+        sort: sort,
         page: page,
         perPage: pageSize,
       });
     },
     {
-      refreshDeps: [filters, page, pageSize],
+      refreshDeps: [filters, sorter, page, pageSize],
       onSuccess: (res) => {
         setTableData(res.items);
         setTableTotal(res.totalItems);
@@ -381,6 +392,9 @@ const WorkflowList = () => {
           rowClassName="cursor-pointer"
           rowKey={(record) => record.id}
           scroll={{ x: "max(100%, 960px)" }}
+          onChange={(_, __, sorter) => {
+            setSorter(Array.isArray(sorter) ? sorter[0] : sorter);
+          }}
           onRow={(record) => ({
             onClick: () => {
               handleRecordDetailClick(record);

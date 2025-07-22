@@ -28,6 +28,7 @@ export const list = async (request: ListRequest) => {
 
   const page = request.page || 1;
   const perPage = request.perPage || 10;
+
   return pb.collection(COLLECTION_NAME_CERTIFICATE).getList<CertificateModel>(page, perPage, {
     expand: "workflowId",
     filter: filters.join(" && "),

@@ -20,7 +20,7 @@ const UnknownNode = ({ node, disabled }: MonitorNodeProps) => {
   return (
     <>
       <div className="relative w-[256px] overflow-hidden">
-        <Card className="shadow-md" styles={{ body: { padding: 0 } }} hoverable variant="borderless">
+        <Card className="shadow" styles={{ body: { padding: 0 } }} hoverable variant="borderless">
           <div className="cursor-pointer">
             <Alert
               type="error"

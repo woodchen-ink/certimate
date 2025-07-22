@@ -1,6 +1,6 @@
 ﻿{
   "access.page.title": "授权管理",
-  "access.page.subtitle": "授权中存储有用于访问特定第三方应用程序和服务的身份验证信息（如账号密码、API 密钥、OAuth 令牌等）。",
+  "access.page.subtitle": "授权中存储有用于访问特定第三方应用程序或服务的身份验证信息（如账号密码、API 密钥、OAuth 令牌等）。",
 
   "access.nodata.title": "暂无授权",
   "access.nodata.description": "新建一个授权并存储身份验证信息吧～",
@@ -26,6 +26,9 @@
   "access.props.usage.notification": "通知渠道",
   "access.props.created_at": "创建时间",
   "access.props.updated_at": "更新时间",
+
+  "access.new.title": "新建授权",
+  "access.new.subtitle": "使用此授权访问特定的第三方应用程序或服务。",
 
   "access.form.name.label": "名称",
   "access.form.name.placeholder": "请输入授权名称",

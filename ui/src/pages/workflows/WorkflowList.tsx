@@ -196,14 +196,14 @@ const WorkflowList = () => {
     setPage(1);
   };
 
-  const handleCreateClick = () => {
-    navigate("/workflows/new");
-  };
-
   const handleReloadClick = () => {
     if (loading) return;
 
     refreshData();
+  };
+
+  const handleCreateClick = () => {
+    navigate("/workflows/new");
   };
 
   const handleRecordDetailClick = (workflow: WorkflowModel) => {
@@ -303,7 +303,6 @@ const WorkflowList = () => {
           <div className="flex w-full flex-1 items-center gap-x-2 md:max-w-200">
             <div>
               <Segmented
-                className="shadow-xs"
                 options={[
                   { label: <span className="text-sm">{t("workflow.props.state.filter.all")}</span>, value: "" },
                   { label: <span className="text-sm">{t("workflow.props.state.filter.enabled")}</span>, value: "enabled" },

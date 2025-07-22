@@ -5,7 +5,7 @@ import { Button, Divider, Flex, Form, type FormInstance, Select, Switch, Tooltip
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
-import AccessEditModal from "@/components/access/AccessEditModal";
+import AccessEditDrawer from "@/components/access/AccessEditDrawer";
 import AccessSelect from "@/components/access/AccessSelect";
 import DeploymentProviderPicker from "@/components/provider/DeploymentProviderPicker.tsx";
 import DeploymentProviderSelect from "@/components/provider/DeploymentProviderSelect.tsx";
@@ -487,9 +487,9 @@ const DeployNodeConfigForm = forwardRef<DeployNodeConfigFormInstance, DeployNode
                     </Tooltip>
                   </div>
                   <div className="text-right">
-                    <AccessEditModal
+                    <AccessEditDrawer
                       data={{ provider: deploymentProvidersMap.get(fieldProvider!)?.provider }}
-                      action="create"
+                      mode="create"
                       trigger={
                         <Button size="small" type="link">
                           {t("workflow_node.deploy.form.provider_access.button")}

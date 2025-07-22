@@ -7,7 +7,7 @@ import { AutoComplete, Button, Divider, Flex, Form, type FormInstance, Input, In
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
-import AccessEditModal from "@/components/access/AccessEditModal";
+import AccessEditDrawer from "@/components/access/AccessEditDrawer";
 import AccessSelect from "@/components/access/AccessSelect";
 import MultipleSplitValueInput from "@/components/MultipleSplitValueInput";
 import ACMEDns01ProviderSelect from "@/components/provider/ACMEDns01ProviderSelect";
@@ -325,8 +325,8 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                   </Tooltip>
                 </div>
                 <div className="text-right">
-                  <AccessEditModal
-                    action="create"
+                  <AccessEditDrawer
+                    mode="create"
                     trigger={
                       <Button size="small" type="link">
                         {t("workflow_node.apply.form.provider_access.button")}
@@ -406,9 +406,9 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
                   <span>{t("workflow_node.apply.form.ca_provider_access.label")}</span>
                 </div>
                 <div className="text-right">
-                  <AccessEditModal
+                  <AccessEditDrawer
                     data={{ provider: caProvidersMap.get(fieldCAProvider!)?.provider }}
-                    action="create"
+                    mode="create"
                     trigger={
                       <Button size="small" type="link">
                         {t("workflow_node.apply.form.ca_provider_access.button")}

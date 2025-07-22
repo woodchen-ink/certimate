@@ -5,7 +5,7 @@ import { Button, Divider, Flex, Form, type FormInstance, Input, Switch, Typograp
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
-import AccessEditModal from "@/components/access/AccessEditModal";
+import AccessEditDrawer from "@/components/access/AccessEditDrawer";
 import AccessSelect from "@/components/access/AccessSelect";
 import NotificationProviderSelect from "@/components/provider/NotificationProviderSelect";
 import Show from "@/components/Show";
@@ -198,8 +198,8 @@ const NotifyNodeConfigForm = forwardRef<NotifyNodeConfigFormInstance, NotifyNode
                 <span>{t("workflow_node.notify.form.provider_access.label")}</span>
               </div>
               <div className="text-right">
-                <AccessEditModal
-                  action="create"
+                <AccessEditDrawer
+                  mode="create"
                   trigger={
                     <Button size="small" type="link">
                       {t("workflow_node.notify.form.provider_access.button")}

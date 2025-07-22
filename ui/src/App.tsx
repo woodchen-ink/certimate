@@ -10,7 +10,7 @@ import "dayjs/locale/zh-cn";
 
 import { useBrowserTheme } from "@/hooks";
 import { localeNames } from "@/i18n";
-import { router } from "@/router.tsx";
+import { router } from "@/routers";
 
 const antdLocalesMap: Record<string, Locale> = {
   [localeNames.ZH]: AntdLocaleZhCN,

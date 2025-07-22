@@ -28,6 +28,9 @@
   "access.props.created_at": "Created at",
   "access.props.updated_at": "Updated at",
 
+  "access.new.title": "Create Credential",
+  "access.new.subtitle": "Use this credential to connect with specific third-party apps and services.",
+
   "access.form.name.label": "Name",
   "access.form.name.placeholder": "Please enter credential name",
   "access.form.provider.label": "Provider",

@@ -1,20 +1,21 @@
-import { createHashRouter } from "react-router-dom";
+﻿import { createHashRouter } from "react-router-dom";
 
-import AccessList from "./pages/accesses/AccessList";
-import AuthLayout from "./pages/AuthLayout";
-import CertificateList from "./pages/certificates/CertificateList";
-import ConsoleLayout from "./pages/ConsoleLayout";
-import Dashboard from "./pages/dashboard/Dashboard";
-import ErrorLayout from "./pages/ErrorLayout";
-import Login from "./pages/login/Login";
-import Settings from "./pages/settings/Settings";
-import SettingsAccount from "./pages/settings/SettingsAccount";
-import SettingsAppearance from "./pages/settings/SettingsAppearance";
-import SettingsPersistence from "./pages/settings/SettingsPersistence";
-import SettingsSSLProvider from "./pages/settings/SettingsSSLProvider";
-import WorkflowDetail from "./pages/workflows/WorkflowDetail";
-import WorkflowList from "./pages/workflows/WorkflowList";
-import WorkflowNew from "./pages/workflows/WorkflowNew";
+import AccessList from "@/pages/accesses/AccessList";
+import AccessNew from "@/pages/accesses/AccessNew";
+import AuthLayout from "@/pages/AuthLayout";
+import CertificateList from "@/pages/certificates/CertificateList";
+import ConsoleLayout from "@/pages/ConsoleLayout";
+import Dashboard from "@/pages/dashboard/Dashboard";
+import ErrorLayout from "@/pages/ErrorLayout";
+import Login from "@/pages/login/Login";
+import Settings from "@/pages/settings/Settings";
+import SettingsAccount from "@/pages/settings/SettingsAccount";
+import SettingsAppearance from "@/pages/settings/SettingsAppearance";
+import SettingsPersistence from "@/pages/settings/SettingsPersistence";
+import SettingsSSLProvider from "@/pages/settings/SettingsSSLProvider";
+import WorkflowDetail from "@/pages/workflows/WorkflowDetail";
+import WorkflowList from "@/pages/workflows/WorkflowList";
+import WorkflowNew from "@/pages/workflows/WorkflowNew";
 
 export const router = createHashRouter([
   {
@@ -28,6 +29,10 @@ export const router = createHashRouter([
       {
         path: "/accesses",
         element: <AccessList />,
+      },
+      {
+        path: "/accesses/new",
+        element: <AccessNew />,
       },
       {
         path: "/certificates",

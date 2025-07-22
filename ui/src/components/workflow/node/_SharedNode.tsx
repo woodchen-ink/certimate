@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { IconCopy, IconDotsVertical, IconLabel, IconTrashX } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";

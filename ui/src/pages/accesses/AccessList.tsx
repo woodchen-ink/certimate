@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { IconCirclePlus, IconCopy, IconEdit, IconFingerprint, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { App, Avatar, Button, Input, Skeleton, Table, type TableProps, Tabs, Tooltip, Typography } from "antd";
@@ -18,6 +18,7 @@ import { getErrMsg } from "@/utils/error";
 type AccessUsageProp = AccessEditDrawerProps["usage"];
 
 const AccessList = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const { t } = useTranslation();
@@ -182,19 +183,23 @@ const AccessList = () => {
     fetchAccesses();
   };
 
+  const handleCreateClick = () => {
+    navigate(`/accesses/new?usage=${filters["usage"]}`);
+  };
+
   const [detailRecord, setDetailRecord] = useState<MaybeModelRecord<AccessModel>>();
-  const [detailAction, setDetailAction] = useState<AccessEditDrawerProps["action"]>("create");
+  const [detailMode, setDetailMode] = useState<AccessEditDrawerProps["mode"]>("create");
   const [detailOpen, setDetailOpen] = useState<boolean>(false);
 
   const handleRecordDetailClick = (access: AccessModel) => {
     setDetailRecord(access);
-    setDetailAction("edit");
+    setDetailMode("edit");
     setDetailOpen(true);
   };
 
   const handleRecordDuplicateClick = (access: AccessModel) => {
     setDetailRecord({ ...access, id: undefined, name: `${access.name}-copy` });
-    setDetailAction("create");
+    setDetailMode("create");
     setDetailOpen(true);
   };
 
@@ -245,15 +250,9 @@ const AccessList = () => {
             </div>
           </div>
           <div>
-            <AccessEditDrawer
-              action="create"
-              usage={filters["usage"] as AccessUsageProp}
-              trigger={
-                <Button className="text-sm" icon={<IconPlus size="1.25em" />} size="large" type="primary">
-                  {t("access.action.create.button")}
-                </Button>
-              }
-            />
+            <Button className="text-sm" icon={<IconPlus size="1.25em" />} size="large" type="primary" onClick={handleCreateClick}>
+              {t("access.action.create.button")}
+            </Button>
           </div>
         </div>
 
@@ -291,15 +290,9 @@ const AccessList = () => {
                 description={t("access.nodata.description")}
                 icon={<IconFingerprint size={24} />}
                 extra={
-                  <AccessEditDrawer
-                    action="create"
-                    usage={filters["usage"] as AccessUsageProp}
-                    trigger={
-                      <Button icon={<IconCirclePlus size="1.25em" />} type="primary">
-                        {t("access.action.create.button")}
-                      </Button>
-                    }
-                  />
+                  <Button icon={<IconCirclePlus size="1.25em" />} type="primary" onClick={handleCreateClick}>
+                    {t("access.action.create.button")}
+                  </Button>
                 }
               />
             ),
@@ -328,13 +321,7 @@ const AccessList = () => {
           })}
         />
 
-        <AccessEditDrawer
-          data={detailRecord}
-          open={detailOpen}
-          action={detailAction}
-          usage={filters["usage"] as AccessUsageProp}
-          onOpenChange={setDetailOpen}
-        />
+        <AccessEditDrawer data={detailRecord} open={detailOpen} mode={detailMode} usage={filters["usage"] as AccessUsageProp} onOpenChange={setDetailOpen} />
       </div>
     </div>
   );

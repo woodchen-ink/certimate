@@ -12,12 +12,15 @@ export interface AccessProviderPickerProps {
   style?: React.CSSProperties;
   autoFocus?: boolean;
   filter?: (record: AccessProvider) => boolean;
+  gap?: number | "small" | "middle" | "large";
   placeholder?: string;
   showOptionTags?: boolean | { [key in AccessUsageType]?: boolean };
   onSelect?: (value: string) => void;
 }
 
-const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder, showOptionTags, onSelect }: AccessProviderPickerProps) => {
+const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder, showOptionTags, onSelect, ...props }: AccessProviderPickerProps) => {
+  const { gap = "middle" } = props;
+
   const { t } = useTranslation();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -30,6 +33,22 @@ const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder
       setTimeout(() => keywordInputRef.current?.focus(), 1);
     }
   }, []);
+
+  const showOptionTagForDNS = useMemo(() => {
+    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.DNS] : !!showOptionTags;
+  }, [showOptionTags]);
+  const showOptionTagForHosting = useMemo(() => {
+    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.HOSTING] : !!showOptionTags;
+  }, [showOptionTags]);
+  const showOptionTagForCA = useMemo(() => {
+    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.CA] : !!showOptionTags;
+  }, [showOptionTags]);
+  const showOptionTagForNotification = useMemo(() => {
+    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.NOTIFICATION] : !!showOptionTags;
+  }, [showOptionTags]);
+  const showOptionTagAnyhow = useMemo(() => {
+    return showOptionTagForDNS || showOptionTagForHosting || showOptionTagForCA || showOptionTagForNotification;
+  }, [showOptionTagForDNS, showOptionTagForHosting, showOptionTagForCA, showOptionTagForNotification]);
 
   const providers = useMemo(() => {
     return Array.from(accessProvidersMap.values())
@@ -54,25 +73,9 @@ const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder
       return 1;
     }
 
-    const cols = Math.floor(wrapperSize.width / 200);
+    const cols = Math.floor(wrapperSize.width / (showOptionTagAnyhow ? 240 : 200));
     return Math.min(9, Math.max(1, cols));
-  }, [wrapperSize]);
-
-  const showOptionTagForDNS = useMemo(() => {
-    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.DNS] : !!showOptionTags;
-  }, [showOptionTags]);
-  const showOptionTagForHosting = useMemo(() => {
-    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.HOSTING] : !!showOptionTags;
-  }, [showOptionTags]);
-  const showOptionTagForCA = useMemo(() => {
-    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.CA] : !!showOptionTags;
-  }, [showOptionTags]);
-  const showOptionTagForNotification = useMemo(() => {
-    return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.NOTIFICATION] : !!showOptionTags;
-  }, [showOptionTags]);
-  const showOptionTagAnyhow = useMemo(() => {
-    return showOptionTagForDNS || showOptionTagForHosting || showOptionTagForCA || showOptionTagForNotification;
-  }, [showOptionTagForDNS, showOptionTagForHosting, showOptionTagForCA, showOptionTagForNotification]);
+  }, [wrapperSize, showOptionTagAnyhow]);
 
   const handleProviderTypeSelect = (value: string) => {
     onSelect?.(value);
@@ -84,12 +87,19 @@ const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder
 
       <div className="mt-4">
         <Show when={providers.length > 0} fallback={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}>
-          <div className={mergeCls("grid w-full gap-2", `grid-cols-${providerCols}`)}>
+          <div
+            className={mergeCls("grid w-full gap-2", `grid-cols-${providerCols}`, {
+              "gap-4": gap === "large",
+              "gap-2": gap === "middle",
+              "gap-1": gap === "small",
+              [`gap-${+gap || "2"}`]: typeof gap === "number",
+            })}
+          >
             {providers.map((provider) => {
               return (
                 <div key={provider.type}>
                   <Card
-                    className={mergeCls("h-20 w-full overflow-hidden shadow-xs", provider.builtin ? " cursor-not-allowed" : "")}
+                    className={mergeCls("h-20 w-full overflow-hidden shadow", provider.builtin ? " cursor-not-allowed" : "")}
                     styles={{ body: { height: "100%", padding: "0.5rem 1rem" } }}
                     hoverable
                     onClick={() => {

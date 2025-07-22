@@ -11,9 +11,9 @@ import { getErrMsg } from "@/utils/error";
 import AccessForm, { type AccessFormInstance, type AccessFormProps } from "./AccessForm";
 
 export interface AccessEditDrawerProps {
-  action: AccessFormProps["action"];
   data?: AccessFormProps["initialValues"];
   loading?: boolean;
+  mode: AccessFormProps["mode"];
   open?: boolean;
   trigger?: React.ReactNode;
   usage?: AccessFormProps["usage"];
@@ -21,7 +21,7 @@ export interface AccessEditDrawerProps {
   afterSubmit?: (record: AccessModel) => void;
 }
 
-const AccessEditDrawer = ({ action, data, loading, trigger, usage, afterSubmit, ...props }: AccessEditDrawerProps) => {
+const AccessEditDrawer = ({ mode, data, loading, trigger, usage, afterSubmit, ...props }: AccessEditDrawerProps) => {
   const { t } = useTranslation();
 
   const { notification } = App.useApp();
@@ -56,13 +56,13 @@ const AccessEditDrawer = ({ action, data, loading, trigger, usage, afterSubmit, 
     try {
       let values: AccessModel = formRef.current!.getFieldsValue();
 
-      if (action === "create") {
+      if (mode === "create") {
         if (data?.id) {
           throw "Invalid props: `data`";
         }
 
         values = await createAccess(values);
-      } else if (action === "edit") {
+      } else if (mode === "edit") {
         if (!data?.id) {
           throw "Invalid props: `data`";
         }
@@ -106,7 +106,7 @@ const AccessEditDrawer = ({ action, data, loading, trigger, usage, afterSubmit, 
             <Flex justify="end" gap="small">
               <Button onClick={handleCancelClick}>{t("common.button.cancel")}</Button>
               <Button loading={formPending} type="primary" onClick={handleOkClick}>
-                {action === "edit" ? t("common.button.save") : t("common.button.submit")}
+                {mode === "edit" ? t("common.button.save") : t("common.button.submit")}
               </Button>
             </Flex>
           ) : (
@@ -116,11 +116,11 @@ const AccessEditDrawer = ({ action, data, loading, trigger, usage, afterSubmit, 
         loading={loading}
         maskClosable={!formPending}
         open={open}
-        title={t(`access.action.${action}.modal.title`)}
+        title={t(`access.action.${mode}.modal.title`)}
         width={720}
         onClose={() => setOpen(false)}
       >
-        <AccessForm ref={formRef} initialValues={data} action={action === "create" ? "create" : "edit"} usage={usage} onValuesChange={handleFormValuesChange} />
+        <AccessForm ref={formRef} disabled={formPending} initialValues={data} mode={mode} usage={usage} onValuesChange={handleFormValuesChange} />
       </Drawer>
     </>
   );

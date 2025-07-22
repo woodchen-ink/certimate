@@ -115,12 +115,12 @@ const WorkflowNew = () => {
     <div className="px-6 py-4">
       <div className="mx-auto max-w-320">
         <h1>{t("workflow.new.title")}</h1>
-        <p className="mb-0 text-base text-gray-500">{t("workflow.new.subtitle")}</p>
+        <p className="text-base text-gray-500">{t("workflow.new.subtitle")}</p>
       </div>
 
       <div className="mx-auto max-w-320">
         <Typography.Text type="secondary">
-          <div className="mt-12 mb-8 text-center text-xl">{t("workflow.new.templates.title")}</div>
+          <div className="mb-4 text-xl">{t("workflow.new.templates.title")}</div>
         </Typography.Text>
 
         <Row className="justify-stretch" gutter={[16, 16]}>

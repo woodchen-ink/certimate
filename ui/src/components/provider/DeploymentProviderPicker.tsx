@@ -12,11 +12,14 @@ export interface DeploymentProviderPickerProps {
   style?: React.CSSProperties;
   autoFocus?: boolean;
   filter?: (record: DeploymentProvider) => boolean;
+  gap?: number | "small" | "middle" | "large";
   placeholder?: string;
   onSelect?: (value: string) => void;
 }
 
-const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeholder, onSelect }: DeploymentProviderPickerProps) => {
+const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeholder, onSelect, ...props }: DeploymentProviderPickerProps) => {
+  const { gap = "middle" } = props;
+
   const { t } = useTranslation();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -103,13 +106,20 @@ const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeho
           />
 
           <div className="flex-1">
-            <Show when={providers.length > 0} fallback={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}>
-              <div className={mergeCls("grid w-full gap-2", `grid-cols-${providerCols}`)}>
+            <Show when={providers.length > 0} fallback={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("common.text.nodata")} />}>
+              <div
+                className={mergeCls("grid w-full gap-2", `grid-cols-${providerCols}`, {
+                  "gap-4": gap === "large",
+                  "gap-2": gap === "middle",
+                  "gap-1": gap === "small",
+                  [`gap-${+gap || "2"}`]: typeof gap === "number",
+                })}
+              >
                 {providers.map((provider) => {
                   return (
                     <div key={provider.type}>
                       <Card
-                        className="h-16 w-full overflow-hidden shadow-xs"
+                        className="h-16 w-full overflow-hidden shadow"
                         styles={{ body: { height: "100%", padding: "0.5rem 1rem" } }}
                         hoverable
                         onClick={() => {
@@ -120,7 +130,7 @@ const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeho
                           <div className="flex size-full items-center gap-4 overflow-hidden">
                             <Avatar className="bg-stone-100" icon={<img src={provider.icon} />} shape="square" size={28} />
                             <div className="flex-1 overflow-hidden">
-                              <div className="mb-1 line-clamp-2 max-w-full">
+                              <div className="line-clamp-2 max-w-full">
                                 <Typography.Text>{t(provider.name) || "\u00A0"}</Typography.Text>
                               </div>
                             </div>

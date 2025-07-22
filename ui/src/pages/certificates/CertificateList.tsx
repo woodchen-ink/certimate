@@ -258,7 +258,6 @@ const CertificateList = () => {
           <div className="flex w-full flex-1 items-center gap-x-2 md:max-w-200">
             <div>
               <Segmented
-                className="shadow-xs"
                 options={[
                   { label: <span className="text-sm">{t("certificate.props.validity.filter.all")}</span>, value: "" },
                   { label: <span className="text-sm">{t("certificate.props.validity.filter.expire_soon")}</span>, value: "expireSoon" },

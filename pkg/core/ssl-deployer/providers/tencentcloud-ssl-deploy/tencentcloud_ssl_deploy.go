@@ -126,7 +126,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 
 		var runningCount, succeededCount, failedCount, totalCount int64
 		if describeHostDeployRecordDetailResp.Response.TotalCount == nil {
-			return nil, errors.New("unexpected deployment job status")
+			return nil, errors.New("unexpected tencentcloud deployment job status")
 		} else {
 			if describeHostDeployRecordDetailResp.Response.RunningTotalCount != nil {
 				runningCount = *describeHostDeployRecordDetailResp.Response.RunningTotalCount
@@ -142,11 +142,14 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 			}
 
 			if succeededCount+failedCount == totalCount {
+				if failedCount > 0 {
+					return nil, fmt.Errorf("tencentcloud deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
+				}
 				break
 			}
 		}
 
-		d.logger.Info(fmt.Sprintf("waiting for deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount))
+		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount))
 		time.Sleep(time.Second * 5)
 	}
 

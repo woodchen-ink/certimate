@@ -25,7 +25,7 @@ type SSLDeployerProviderConfig struct {
 	EnterpriseProjectId string `json:"enterpriseProjectId,omitempty"`
 	// 华为云区域。
 	Region string `json:"region"`
-	// 加速域名（不支持泛域名）。
+	// 加速域名（支持泛域名）。
 	Domain string `json:"domain"`
 }
 
@@ -121,9 +121,9 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		},
 	}
 	updateDomainMultiCertificatesResp, err := d.sdkClient.UpdateDomainMultiCertificates(updateDomainMultiCertificatesReq)
-	d.logger.Debug("sdk request 'cdn.UploadDomainMultiCertificates'", slog.Any("request", updateDomainMultiCertificatesReq), slog.Any("response", updateDomainMultiCertificatesResp))
+	d.logger.Debug("sdk request 'cdn.UpdateDomainMultiCertificates'", slog.Any("request", updateDomainMultiCertificatesReq), slog.Any("response", updateDomainMultiCertificatesResp))
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute sdk request 'cdn.UploadDomainMultiCertificates': %w", err)
+		return nil, fmt.Errorf("failed to execute sdk request 'cdn.UpdateDomainMultiCertificates': %w", err)
 	}
 
 	return &core.SSLDeployResult{}, nil

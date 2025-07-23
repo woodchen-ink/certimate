@@ -94,12 +94,12 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	// 根据部署资源类型决定部署方式
 	switch d.config.ResourceType {
 	case RESOURCE_TYPE_ACCELERATOR:
-		if err := d.deployToAccelerator(ctx, upres.ExtendedData["certIdentifier"].(string)); err != nil {
+		if err := d.deployToAccelerator(ctx, upres.ExtendedData["CertIdentifier"].(string)); err != nil {
 			return nil, err
 		}
 
 	case RESOURCE_TYPE_LISTENER:
-		if err := d.deployToListener(ctx, upres.ExtendedData["certIdentifier"].(string)); err != nil {
+		if err := d.deployToListener(ctx, upres.ExtendedData["CertIdentifier"].(string)); err != nil {
 			return nil, err
 		}
 

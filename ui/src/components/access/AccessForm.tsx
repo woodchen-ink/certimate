@@ -135,6 +135,8 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
         return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.CA);
       case "notification":
         return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.NOTIFICATION);
+      default:
+        console.warn(`[certimate] unsupported provider usage: '${usage}'`);
     }
 
     return undefined;

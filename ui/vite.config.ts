@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => {
       })?.toString();
     } catch (error) {
       const err = error as SpawnSyncReturns<Buffer>;
-      console.warn("[Warn] failed to get version number through git", err?.stderr?.toString());
+      console.warn("failed to get version number through git", err?.stderr?.toString());
     }
   }
 

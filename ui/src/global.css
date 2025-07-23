@@ -7,6 +7,8 @@
 @import "antd/dist/reset.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
+@source inline("gap-{0,{1..96}}");
+@source inline("grid-cols-{0,{1..12}}");
 
 @theme {
   --color-background: var(---twColorBackground);

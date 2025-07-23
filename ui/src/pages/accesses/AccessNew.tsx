@@ -41,9 +41,11 @@ const AccessNew = () => {
         return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.CA);
       case "notification":
         return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.NOTIFICATION);
+      default:
+        console.warn(`[certimate] unsupported provider usage: '${providerUsage}'`);
     }
 
-    return undefined;
+    return () => false;
   }, [providerUsage]);
 
   const handleProviderPick = (value: string) => {

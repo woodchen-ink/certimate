@@ -281,8 +281,7 @@ const WorkflowRunHistoryTable = () => {
     }
   );
 
-  const [detailRecord, setDetailRecord] = useState<WorkflowRunModel>();
-  const [detailOpen, setDetailOpen] = useState<boolean>(false);
+  const { setData: setDetailRecord, setOpen: setDetailOpen, ...detailDrawerProps } = WorkflowRunDetailDrawer.useProps();
 
   const handleRecordDetailClick = (workflowRun: WorkflowRunModel) => {
     setDetailRecord(workflowRun);
@@ -310,7 +309,7 @@ const WorkflowRunHistoryTable = () => {
         })}
       />
 
-      <WorkflowRunDetailDrawer data={detailRecord} open={detailOpen} onOpenChange={setDetailOpen} />
+      <WorkflowRunDetailDrawer {...detailDrawerProps} />
     </>
   );
 };

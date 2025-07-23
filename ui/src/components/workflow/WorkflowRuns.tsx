@@ -206,8 +206,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
     };
   }, [tableData]);
 
-  const [detailRecord, setDetailRecord] = useState<WorkflowRunModel>();
-  const [detailOpen, setDetailOpen] = useState<boolean>(false);
+  const { setData: setDetailRecord, setOpen: setDetailOpen, ...detailDrawerProps } = WorkflowRunDetailDrawer.useProps();
 
   const handleRecordDetailClick = (workflowRun: WorkflowRunModel) => {
     setDetailRecord(workflowRun);
@@ -234,14 +233,8 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
 
   const handleRecordDeleteClick = (workflowRun: WorkflowRunModel) => {
     modal.confirm({
-      title: <span className="text-error">{t("workflow_run.action.modal.title")}</span>,
-      content: (
-        <span
-          dangerouslySetInnerHTML={{
-            __html: t("workflow_run.action.delete.modal.content", { name: dayjs(workflowRun.startedAt).format("YYYY-MM-DD HH:mm:ss") }),
-          }}
-        />
-      ),
+      title: <span className="text-error">{t("workflow_run.action.delete.modal.title", { name: `#${workflowRun.id}` })}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("workflow_run.action.delete.modal.content") }} />,
       icon: (
         <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
@@ -303,7 +296,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
         })}
       />
 
-      <WorkflowRunDetailDrawer data={detailRecord} open={detailOpen} onOpenChange={setDetailOpen} />
+      <WorkflowRunDetailDrawer {...detailDrawerProps} />
     </div>
   );
 };

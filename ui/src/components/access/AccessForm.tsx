@@ -126,15 +126,15 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
   const providerFilter = useMemo(() => {
     switch (usage) {
       case "dns":
-        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.DNS);
+        return (_: string, option: AccessProvider) => option.usages.includes(ACCESS_USAGES.DNS);
       case "hosting":
-        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.HOSTING);
+        return (_: string, option: AccessProvider) => option.usages.includes(ACCESS_USAGES.HOSTING);
       case "dns-hosting":
-        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.DNS) || record.usages.includes(ACCESS_USAGES.HOSTING);
+        return (_: string, option: AccessProvider) => option.usages.includes(ACCESS_USAGES.DNS) || option.usages.includes(ACCESS_USAGES.HOSTING);
       case "ca":
-        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.CA);
+        return (_: string, option: AccessProvider) => option.usages.includes(ACCESS_USAGES.CA);
       case "notification":
-        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.NOTIFICATION);
+        return (_: string, option: AccessProvider) => option.usages.includes(ACCESS_USAGES.NOTIFICATION);
       default:
         console.warn(`[certimate] unsupported provider usage: '${usage}'`);
     }
@@ -371,9 +371,9 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
             fallback={
               <AccessProviderPicker
                 autoFocus
-                filter={providerFilter}
                 placeholder={t("access.form.provider.search.placeholder")}
                 showOptionTags={usage == null || (usage === "dns-hosting" ? { [ACCESS_USAGES.DNS]: true, [ACCESS_USAGES.HOSTING]: true } : false)}
+                onFilter={providerFilter}
                 onSelect={handleProviderPick}
               />
             }
@@ -384,11 +384,11 @@ const AccessForm = forwardRef<AccessFormInstance, AccessFormProps>(({ className,
 
             <Form.Item name="provider" label={t("access.form.provider.label")} rules={[formRule]} tooltip={providerTooltip}>
               <AccessProviderSelect
-                filter={providerFilter}
                 disabled={mode !== "create"}
                 placeholder={t("access.form.provider.placeholder")}
                 showOptionTags={usage == null || (usage === "dns-hosting" ? { [ACCESS_USAGES.DNS]: true, [ACCESS_USAGES.HOSTING]: true } : false)}
                 showSearch={!disabled}
+                onFilter={providerFilter}
               />
             </Form.Item>
           </Show>

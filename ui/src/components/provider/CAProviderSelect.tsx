@@ -6,10 +6,10 @@ import { type CAProvider, caProvidersMap } from "@/domain/provider";
 
 export interface CAProviderSelectProps
   extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
-  filter?: (record: CAProvider) => boolean;
+  onFilter?: (value: string, option: CAProvider) => boolean;
 }
 
-const CAProviderSelect = ({ filter, ...props }: CAProviderSelectProps) => {
+const CAProviderSelect = ({ onFilter, ...props }: CAProviderSelectProps) => {
   const { t } = useTranslation();
 
   const { token: themeToken } = theme.useToken();
@@ -17,8 +17,8 @@ const CAProviderSelect = ({ filter, ...props }: CAProviderSelectProps) => {
   const options = useMemo<Array<{ key: string; value: string; label: string; data: CAProvider }>>(() => {
     const temp = Array.from(caProvidersMap.values())
       .filter((provider) => {
-        if (filter) {
-          return filter(provider);
+        if (onFilter) {
+          return onFilter(provider.type, provider);
         }
 
         return true;
@@ -38,7 +38,7 @@ const CAProviderSelect = ({ filter, ...props }: CAProviderSelectProps) => {
     });
 
     return temp;
-  }, [filter]);
+  }, [onFilter]);
 
   const renderOption = (key: string) => {
     if (key === "") {

@@ -3,11 +3,12 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { IconCirclePlus, IconCopy, IconDotsVertical, IconHierarchy3, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { App, Button, Dropdown, Flex, Input, Segmented, Skeleton, Switch, Table, type TableProps, Typography } from "antd";
+import { App, Button, Dropdown, Flex, Input, Segmented, Skeleton, Switch, Table, type TableProps, Typography, theme } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
 import Empty from "@/components/Empty";
+import Show from "@/components/Show";
 import WorkflowStatusIcon from "@/components/workflow/WorkflowStatusIcon";
 import { WORKFLOW_TRIGGERS, type WorkflowModel, cloneNode, initWorkflow, isAllNodesValidated } from "@/domain/workflow";
 import { useAppSettings } from "@/hooks";
@@ -19,6 +20,8 @@ const WorkflowList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { t } = useTranslation();
+
+  const { token: themeToken } = theme.useToken();
 
   const { message, modal, notification } = App.useApp();
 
@@ -36,14 +39,10 @@ const WorkflowList = () => {
   const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
   const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || globalAppSettings.defaultPerPage!);
 
+  const [tableData, setTableData] = useState<WorkflowModel[]>([]);
+  const [tableTotal, setTableTotal] = useState<number>(0);
+  const [tableSelectedRowKeys, setTableSelectedRowKeys] = useState<string[]>([]);
   const tableColumns: TableProps<WorkflowModel>["columns"] = [
-    {
-      key: "$index",
-      align: "center",
-      fixed: "left",
-      width: 50,
-      render: (_, __, index) => (page - 1) * pageSize + index + 1,
-    },
     {
       key: "name",
       title: t("workflow.props.name"),
@@ -172,8 +171,31 @@ const WorkflowList = () => {
       ),
     },
   ];
-  const [tableData, setTableData] = useState<WorkflowModel[]>([]);
-  const [tableTotal, setTableTotal] = useState<number>(0);
+  const tableRowSelection: TableProps<WorkflowModel>["rowSelection"] = {
+    fixed: true,
+    selectedRowKeys: tableSelectedRowKeys,
+    renderCell(checked, _, index, node) {
+      if (!checked) {
+        return (
+          <div className="group">
+            <div className="group-hover:hidden">{(page - 1) * pageSize + index + 1}</div>
+            <div className="hidden group-hover:block">{node}</div>
+          </div>
+        );
+      }
+      return node;
+    },
+    onCell: () => {
+      return {
+        onClick: (e) => {
+          e.stopPropagation();
+        },
+      };
+    },
+    onChange: (keys) => {
+      setTableSelectedRowKeys(keys as string[]);
+    },
+  };
 
   const {
     loading,
@@ -286,8 +308,8 @@ const WorkflowList = () => {
 
   const handleRecordDuplicateClick = (workflow: WorkflowModel) => {
     modal.confirm({
-      title: t("workflow.action.duplicate.modal.title"),
-      content: t("workflow.action.duplicate.modal.content", { name: workflow.name }),
+      title: t("workflow.action.duplicate.modal.title", { name: workflow.name }),
+      content: t("workflow.action.duplicate.modal.content"),
       onOk: async () => {
         try {
           const workflowCopy = {
@@ -316,8 +338,8 @@ const WorkflowList = () => {
 
   const handleRecordDeleteClick = (workflow: WorkflowModel) => {
     modal.confirm({
-      title: <span className="text-error">{t("workflow.action.delete.modal.title")}</span>,
-      content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.modal.content", { name: workflow.name }) }} />,
+      title: <span className="text-error">{t("workflow.action.delete.modal.title", { name: workflow.name })}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.modal.content") }} />,
       icon: (
         <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
@@ -330,6 +352,39 @@ const WorkflowList = () => {
           const resp = await removeWorkflow(workflow);
           if (resp) {
             setTableData((prev) => prev.filter((item) => item.id !== workflow.id));
+            refreshData();
+          }
+        } catch (err) {
+          console.error(err);
+          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        }
+      },
+    });
+  };
+
+  const handleBatchDeleteClick = () => {
+    const records = tableData.filter((item) => tableSelectedRowKeys.includes(item.id));
+    if (records.length === 0) {
+      return;
+    }
+
+    modal.confirm({
+      title: <span className="text-error">{t("workflow.action.batch_delete.modal.title")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.batch_delete.modal.content", { count: records.length }) }} />,
+      icon: (
+        <span className="anticon" role="img">
+          <IconTrash className="text-error" size="1em" />
+        </span>
+      ),
+      okText: t("common.button.confirm"),
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          const resp = await removeWorkflow(records);
+          if (resp) {
+            setTableSelectedRowKeys([]);
+            setTableData((prev) => prev.filter((item) => !records.some((record) => record.id === item.id)));
+            setTableTotal((prev) => prev - records.length);
             refreshData();
           }
         } catch (err) {
@@ -384,53 +439,72 @@ const WorkflowList = () => {
           </div>
         </div>
 
-        <Table<WorkflowModel>
-          className="mt-4"
-          columns={tableColumns}
-          dataSource={tableData}
-          loading={loading}
-          locale={{
-            emptyText: loading ? (
-              <Skeleton />
-            ) : (
-              <Empty
-                title={t("workflow.nodata.title")}
-                description={getErrMsg(loadedError ?? t("workflow.nodata.description"))}
-                icon={<IconHierarchy3 size={24} />}
-                extra={
-                  loadedError ? (
-                    <Button icon={<IconReload size="1.25em" />} type="primary" onClick={handleReloadClick}>
-                      {t("common.button.reload")}
-                    </Button>
-                  ) : (
-                    <Button icon={<IconCirclePlus size="1.25em" />} type="primary" onClick={handleCreateClick}>
-                      {t("workflow.nodata.button")}
-                    </Button>
-                  )
-                }
-              />
-            ),
-          }}
-          pagination={{
-            current: page,
-            pageSize: pageSize,
-            total: tableTotal,
-            showSizeChanger: true,
-            onChange: handlePaginationChange,
-            onShowSizeChange: handlePaginationChange,
-          }}
-          rowClassName="cursor-pointer"
-          rowKey={(record) => record.id}
-          scroll={{ x: "max(100%, 960px)" }}
-          onChange={(_, __, sorter) => {
-            setSorter(Array.isArray(sorter) ? sorter[0] : sorter);
-          }}
-          onRow={(record) => ({
-            onClick: () => {
-              handleRecordDetailClick(record);
-            },
-          })}
-        />
+        <div className="relative mt-4">
+          <Table<WorkflowModel>
+            columns={tableColumns}
+            dataSource={tableData}
+            loading={loading}
+            locale={{
+              emptyText: loading ? (
+                <Skeleton />
+              ) : (
+                <Empty
+                  title={t("workflow.nodata.title")}
+                  description={getErrMsg(loadedError ?? t("workflow.nodata.description"))}
+                  icon={<IconHierarchy3 size={24} />}
+                  extra={
+                    loadedError ? (
+                      <Button icon={<IconReload size="1.25em" />} type="primary" onClick={handleReloadClick}>
+                        {t("common.button.reload")}
+                      </Button>
+                    ) : (
+                      <Button icon={<IconCirclePlus size="1.25em" />} type="primary" onClick={handleCreateClick}>
+                        {t("workflow.nodata.button")}
+                      </Button>
+                    )
+                  }
+                />
+              ),
+            }}
+            pagination={{
+              current: page,
+              pageSize: pageSize,
+              total: tableTotal,
+              showSizeChanger: true,
+              onChange: handlePaginationChange,
+              onShowSizeChange: handlePaginationChange,
+            }}
+            rowClassName="cursor-pointer"
+            rowKey={(record) => record.id}
+            rowSelection={tableRowSelection}
+            scroll={{ x: "max(100%, 960px)" }}
+            onChange={(_, __, sorter) => {
+              setSorter(Array.isArray(sorter) ? sorter[0] : sorter);
+            }}
+            onRow={(record) => ({
+              onClick: () => {
+                handleRecordDetailClick(record);
+              },
+            })}
+          />
+
+          <Show when={tableSelectedRowKeys.length > 0}>
+            <div
+              className="absolute top-0 right-0 left-[32px] z-10 h-[54px]"
+              style={{
+                left: "32px", // Match the width of the table row selection checkbox
+                height: "54px", // Match the height of the table header
+                background: themeToken.Table?.headerBg ?? themeToken.colorBgElevated,
+              }}
+            >
+              <div className="flex size-full items-center justify-end gap-x-2 overflow-hidden px-4 py-2">
+                <Button icon={<IconTrash size="1.25em" />} danger ghost onClick={handleBatchDeleteClick}>
+                  {t("common.button.delete")}
+                </Button>
+              </div>
+            </div>
+          </Show>
+        </div>
       </div>
     </div>
   );

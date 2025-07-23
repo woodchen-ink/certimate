@@ -6,10 +6,10 @@ import { type NotificationProvider, notificationProvidersMap } from "@/domain/pr
 
 export interface NotificationProviderSelectProps
   extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
-  filter?: (record: NotificationProvider) => boolean;
+  onFilter?: (value: string, option: NotificationProvider) => boolean;
 }
 
-const NotificationProviderSelect = ({ filter, ...props }: NotificationProviderSelectProps) => {
+const NotificationProviderSelect = ({ onFilter, ...props }: NotificationProviderSelectProps) => {
   const { t } = useTranslation();
 
   const { token: themeToken } = theme.useToken();
@@ -17,8 +17,8 @@ const NotificationProviderSelect = ({ filter, ...props }: NotificationProviderSe
   const options = useMemo<Array<{ key: string; value: string; label: string; data: NotificationProvider }>>(() => {
     return Array.from(notificationProvidersMap.values())
       .filter((provider) => {
-        if (filter) {
-          return filter(provider);
+        if (onFilter) {
+          return onFilter(provider.type, provider);
         }
 
         return true;
@@ -29,7 +29,7 @@ const NotificationProviderSelect = ({ filter, ...props }: NotificationProviderSe
         label: t(provider.name),
         data: provider,
       }));
-  }, [filter]);
+  }, [onFilter]);
 
   const renderOption = (key: string) => {
     const provider = notificationProvidersMap.get(key);

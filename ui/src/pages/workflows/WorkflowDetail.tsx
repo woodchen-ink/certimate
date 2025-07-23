@@ -90,8 +90,8 @@ const WorkflowDetail = () => {
 
   const handleDeleteClick = () => {
     modal.confirm({
-      title: <span className="text-error">{t("workflow.action.delete.modal.title")}</span>,
-      content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.modal.content", { name: workflow.name }) }} />,
+      title: <span className="text-error">{t("workflow.action.delete.modal.title", { name: workflow.name })}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("workflow.action.delete.modal.content") }} />,
       icon: (
         <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />

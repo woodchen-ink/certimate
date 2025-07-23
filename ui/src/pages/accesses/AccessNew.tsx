@@ -32,15 +32,15 @@ const AccessNew = () => {
   const providerFilter = useMemo(() => {
     switch (providerUsage) {
       case "dns":
-        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.DNS);
+        return (_: string, record: AccessProvider) => record.usages.includes(ACCESS_USAGES.DNS);
       case "hosting":
-        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.HOSTING);
+        return (_: string, record: AccessProvider) => record.usages.includes(ACCESS_USAGES.HOSTING);
       case "dns-hosting":
-        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.DNS) || record.usages.includes(ACCESS_USAGES.HOSTING);
+        return (_: string, record: AccessProvider) => record.usages.includes(ACCESS_USAGES.DNS) || record.usages.includes(ACCESS_USAGES.HOSTING);
       case "ca":
-        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.CA);
+        return (_: string, record: AccessProvider) => record.usages.includes(ACCESS_USAGES.CA);
       case "notification":
-        return (record: AccessProvider) => record.usages.includes(ACCESS_USAGES.NOTIFICATION);
+        return (_: string, record: AccessProvider) => record.usages.includes(ACCESS_USAGES.NOTIFICATION);
       default:
         console.warn(`[certimate] unsupported provider usage: '${providerUsage}'`);
     }
@@ -96,10 +96,10 @@ const AccessNew = () => {
           fallback={
             <AccessProviderPicker
               autoFocus
-              filter={providerFilter}
               gap="large"
               placeholder={t("access.form.provider.search.placeholder")}
               showOptionTags={providerUsage == null || (providerUsage === "dns-hosting" ? { [ACCESS_USAGES.DNS]: true, [ACCESS_USAGES.HOSTING]: true } : false)}
+              onFilter={providerFilter}
               onSelect={handleProviderPick}
             />
           }

@@ -8,10 +8,10 @@ import { useAccessesStore } from "@/stores/access";
 
 export interface AccessTypeSelectProps
   extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "loading" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
-  filter?: (record: AccessModel) => boolean;
+  onFilter?: (value: string, option: AccessModel) => boolean;
 }
 
-const AccessSelect = ({ filter, ...props }: AccessTypeSelectProps) => {
+const AccessSelect = ({ onFilter, ...props }: AccessTypeSelectProps) => {
   const { token: themeToken } = theme.useToken();
 
   const { accesses, loadedAtOnce, fetchAccesses } = useAccessesStore(useZustandShallowSelector(["accesses", "loadedAtOnce", "fetchAccesses"]));
@@ -21,7 +21,7 @@ const AccessSelect = ({ filter, ...props }: AccessTypeSelectProps) => {
 
   const [options, setOptions] = useState<Array<{ key: string; value: string; label: string; data: AccessModel }>>([]);
   useEffect(() => {
-    const filteredItems = filter != null ? accesses.filter(filter) : accesses;
+    const filteredItems = onFilter != null ? accesses.filter((item) => onFilter(item.id, item)) : accesses;
     setOptions(
       filteredItems.map((item) => ({
         key: item.id,
@@ -30,7 +30,7 @@ const AccessSelect = ({ filter, ...props }: AccessTypeSelectProps) => {
         data: item,
       }))
     );
-  }, [accesses, filter]);
+  }, [accesses, onFilter]);
 
   const renderOption = (key: string) => {
     const access = accesses.find((e) => e.id === key);

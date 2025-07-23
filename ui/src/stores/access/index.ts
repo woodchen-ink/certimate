@@ -12,7 +12,7 @@ export interface AccessesState {
   fetchAccesses: () => Promise<void>;
   createAccess: (access: MaybeModelRecord<AccessModel>) => Promise<AccessModel>;
   updateAccess: (access: MaybeModelRecordWithId<AccessModel>) => Promise<AccessModel>;
-  deleteAccess: (access: MaybeModelRecordWithId<AccessModel>) => Promise<AccessModel>;
+  deleteAccess: (access: MaybeModelRecordWithId<AccessModel> | MaybeModelRecordWithId<AccessModel>[]) => Promise<AccessModel>;
 }
 
 export const useAccessesStore = create<AccessesState>((set) => {
@@ -63,11 +63,19 @@ export const useAccessesStore = create<AccessesState>((set) => {
 
     deleteAccess: async (access) => {
       await removeAccess(access);
-      set(
-        produce((state: AccessesState) => {
-          state.accesses = state.accesses.filter((a) => a.id !== access.id);
-        })
-      );
+      if (Array.isArray(access)) {
+        set(
+          produce((state: AccessesState) => {
+            state.accesses = state.accesses.filter((e) => !access.some((item) => item.id === e.id));
+          })
+        );
+      } else {
+        set(
+          produce((state: AccessesState) => {
+            state.accesses = state.accesses.filter((e) => e.id !== access.id);
+          })
+        );
+      }
 
       return access as AccessModel;
     },

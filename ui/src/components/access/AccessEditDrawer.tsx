@@ -126,4 +126,29 @@ const AccessEditDrawer = ({ mode, data, loading, trigger, usage, afterSubmit, ..
   );
 };
 
-export default AccessEditDrawer;
+const useProps = () => {
+  const [data, setData] = useState<AccessEditDrawerProps["data"]>();
+  const [open, setOpen] = useState<boolean>(false);
+
+  const onOpenChange = (open: boolean) => {
+    setOpen(open);
+
+    if (!open) {
+      setData(undefined);
+    }
+  };
+
+  return {
+    data,
+    open,
+    setData,
+    setOpen,
+    onOpenChange,
+  };
+};
+
+const _default = Object.assign(AccessEditDrawer, {
+  useProps,
+});
+
+export default _default;

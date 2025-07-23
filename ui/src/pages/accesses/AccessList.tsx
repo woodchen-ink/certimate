@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { IconCirclePlus, IconCopy, IconDotsVertical, IconFingerprint, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { App, Avatar, Button, Dropdown, Input, Skeleton, Table, type TableProps, Tabs, Typography } from "antd";
+import { App, Avatar, Button, Dropdown, Input, Skeleton, Table, type TableProps, Tabs, Typography, theme } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
 import AccessEditDrawer, { type AccessEditDrawerProps } from "@/components/access/AccessEditDrawer";
 import Empty from "@/components/Empty";
+import Show from "@/components/Show";
 import { type AccessModel } from "@/domain/access";
 import { ACCESS_USAGES, accessProvidersMap } from "@/domain/provider";
 import { useAppSettings, useZustandShallowSelector } from "@/hooks";
@@ -22,6 +23,8 @@ const AccessList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { t } = useTranslation();
+
+  const { token: themeToken } = theme.useToken();
 
   const { modal, notification } = App.useApp();
 
@@ -40,14 +43,10 @@ const AccessList = () => {
   const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
   const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || globalAppSettings.defaultPerPage!);
 
+  const [tableData, setTableData] = useState<AccessModel[]>([]);
+  const [tableTotal, setTableTotal] = useState<number>(0);
+  const [tableSelectedRowKeys, setTableSelectedRowKeys] = useState<string[]>([]);
   const tableColumns: TableProps<AccessModel>["columns"] = [
-    {
-      key: "$index",
-      align: "center",
-      fixed: "left",
-      width: 50,
-      render: (_, __, index) => (page - 1) * pageSize + index + 1,
-    },
     {
       key: "name",
       title: t("access.props.name"),
@@ -126,8 +125,31 @@ const AccessList = () => {
       ),
     },
   ];
-  const [tableData, setTableData] = useState<AccessModel[]>([]);
-  const [tableTotal, setTableTotal] = useState<number>(0);
+  const tableRowSelection: TableProps<AccessModel>["rowSelection"] = {
+    fixed: true,
+    selectedRowKeys: tableSelectedRowKeys,
+    renderCell(checked, _, index, node) {
+      if (!checked) {
+        return (
+          <div className="group">
+            <div className="group-hover:hidden">{(page - 1) * pageSize + index + 1}</div>
+            <div className="hidden group-hover:block">{node}</div>
+          </div>
+        );
+      }
+      return node;
+    },
+    onCell: () => {
+      return {
+        onClick: (e) => {
+          e.stopPropagation();
+        },
+      };
+    },
+    onChange: (keys) => {
+      setTableSelectedRowKeys(keys as string[]);
+    },
+  };
 
   useEffect(() => {
     fetchAccesses().catch((err) => {
@@ -223,9 +245,8 @@ const AccessList = () => {
     navigate(`/accesses/new?usage=${filters["usage"]}`);
   };
 
-  const [detailRecord, setDetailRecord] = useState<MaybeModelRecord<AccessModel>>();
+  const { setData: setDetailRecord, setOpen: setDetailOpen, ...detailDrawerProps } = AccessEditDrawer.useProps();
   const [detailMode, setDetailMode] = useState<AccessEditDrawerProps["mode"]>("create");
-  const [detailOpen, setDetailOpen] = useState<boolean>(false);
 
   const handleRecordDetailClick = (access: AccessModel) => {
     setDetailRecord(access);
@@ -241,8 +262,8 @@ const AccessList = () => {
 
   const handleRecordDeleteClick = async (access: AccessModel) => {
     modal.confirm({
-      title: <span className="text-error">{t("access.action.delete.modal.title")}</span>,
-      content: <span dangerouslySetInnerHTML={{ __html: t("access.action.delete.modal.content", { name: access.name }) }} />,
+      title: <span className="text-error">{t("access.action.delete.modal.title", { name: access.name })}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("access.action.delete.modal.content") }} />,
       icon: (
         <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
@@ -255,6 +276,39 @@ const AccessList = () => {
         try {
           await deleteAccess(access);
           refreshData();
+        } catch (err) {
+          console.error(err);
+          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        }
+      },
+    });
+  };
+
+  const handleBatchDeleteClick = () => {
+    const records = tableData.filter((item) => tableSelectedRowKeys.includes(item.id));
+    if (records.length === 0) {
+      return;
+    }
+
+    modal.confirm({
+      title: <span className="text-error">{t("access.action.batch_delete.modal.title")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("access.action.batch_delete.modal.content", { count: records.length }) }} />,
+      icon: (
+        <span className="anticon" role="img">
+          <IconTrash className="text-error" size="1em" />
+        </span>
+      ),
+      okText: t("common.button.confirm"),
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          const resp = await deleteAccess(records);
+          if (resp) {
+            setTableSelectedRowKeys([]);
+            setTableData((prev) => prev.filter((item) => !records.some((record) => record.id === item.id)));
+            setTableTotal((prev) => prev - records.length);
+            refreshData();
+          }
         } catch (err) {
           console.error(err);
           notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
@@ -313,45 +367,65 @@ const AccessList = () => {
           onChange={(key) => handleTabChange(key)}
         />
 
-        <Table<AccessModel>
-          columns={tableColumns}
-          dataSource={tableData}
-          loading={!loadedAtOnce || loading}
-          locale={{
-            emptyText: loading ? (
-              <Skeleton />
-            ) : (
-              <Empty
-                title={t("access.nodata.title")}
-                description={t("access.nodata.description")}
-                icon={<IconFingerprint size={24} />}
-                extra={
-                  <Button icon={<IconCirclePlus size="1.25em" />} type="primary" onClick={handleCreateClick}>
-                    {t("access.action.create.button")}
-                  </Button>
-                }
-              />
-            ),
-          }}
-          pagination={{
-            current: page,
-            pageSize: pageSize,
-            total: tableTotal,
-            showSizeChanger: true,
-            onChange: handlePaginationChange,
-            onShowSizeChange: handlePaginationChange,
-          }}
-          rowClassName="cursor-pointer"
-          rowKey={(record) => record.id}
-          scroll={{ x: "max(100%, 960px)" }}
-          onRow={(record) => ({
-            onClick: () => {
-              handleRecordDetailClick(record);
-            },
-          })}
-        />
+        <div className="relative">
+          <Table<AccessModel>
+            columns={tableColumns}
+            dataSource={tableData}
+            loading={!loadedAtOnce || loading}
+            locale={{
+              emptyText: loading ? (
+                <Skeleton />
+              ) : (
+                <Empty
+                  title={t("access.nodata.title")}
+                  description={t("access.nodata.description")}
+                  icon={<IconFingerprint size={24} />}
+                  extra={
+                    <Button icon={<IconCirclePlus size="1.25em" />} type="primary" onClick={handleCreateClick}>
+                      {t("access.action.create.button")}
+                    </Button>
+                  }
+                />
+              ),
+            }}
+            pagination={{
+              current: page,
+              pageSize: pageSize,
+              total: tableTotal,
+              showSizeChanger: true,
+              onChange: handlePaginationChange,
+              onShowSizeChange: handlePaginationChange,
+            }}
+            rowClassName="cursor-pointer"
+            rowKey={(record) => record.id}
+            rowSelection={tableRowSelection}
+            scroll={{ x: "max(100%, 960px)" }}
+            onRow={(record) => ({
+              onClick: () => {
+                handleRecordDetailClick(record);
+              },
+            })}
+          />
 
-        <AccessEditDrawer data={detailRecord} open={detailOpen} mode={detailMode} usage={filters["usage"] as AccessUsages} onOpenChange={setDetailOpen} />
+          <Show when={tableSelectedRowKeys.length > 0}>
+            <div
+              className="absolute top-0 right-0 left-[32px] z-10 h-[54px]"
+              style={{
+                left: "32px", // Match the width of the table row selection checkbox
+                height: "54px", // Match the height of the table header
+                background: themeToken.Table?.headerBg ?? themeToken.colorBgElevated,
+              }}
+            >
+              <div className="flex size-full items-center justify-end gap-x-2 overflow-hidden px-4 py-2">
+                <Button icon={<IconTrash size="1.25em" />} danger ghost onClick={handleBatchDeleteClick}>
+                  {t("common.button.delete")}
+                </Button>
+              </div>
+            </div>
+          </Show>
+        </div>
+
+        <AccessEditDrawer mode={detailMode} usage={filters["usage"] as AccessUsages} {...detailDrawerProps} />
       </div>
     </div>
   );

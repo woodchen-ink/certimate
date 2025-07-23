@@ -178,15 +178,15 @@ const NotifyNodeConfigForm = forwardRef<NotifyNodeConfigFormInstance, NotifyNode
         <Form.Item name="provider" label={t("workflow_node.notify.form.provider.label")} hidden={!showProvider} rules={[formRule]}>
           <NotificationProviderSelect
             disabled={!showProvider}
-            filter={(record) => {
+            placeholder={t("workflow_node.notify.form.provider.placeholder")}
+            showSearch
+            onFilter={(_, option) => {
               if (fieldProviderAccessId) {
-                return accesses.find((e) => e.id === fieldProviderAccessId)?.provider === record.provider;
+                return accesses.find((e) => e.id === fieldProviderAccessId)?.provider === option.provider;
               }
 
               return true;
             }}
-            placeholder={t("workflow_node.notify.form.provider.placeholder")}
-            showSearch
             onSelect={handleProviderSelect}
           />
         </Form.Item>
@@ -220,15 +220,15 @@ const NotifyNodeConfigForm = forwardRef<NotifyNodeConfigFormInstance, NotifyNode
           </label>
           <Form.Item name="providerAccessId" rules={[formRule]}>
             <AccessSelect
-              filter={(record) => {
-                if (record.reserve !== "notification") return false;
-
-                const provider = accessProvidersMap.get(record.provider);
-                return !!provider?.usages?.includes(ACCESS_USAGES.NOTIFICATION);
-              }}
               placeholder={t("workflow_node.notify.form.provider_access.placeholder")}
               showSearch
               onChange={handleProviderAccessSelect}
+              onFilter={(_, option) => {
+                if (option.reserve !== "notification") return false;
+
+                const provider = accessProvidersMap.get(option.provider);
+                return !!provider?.usages?.includes(ACCESS_USAGES.NOTIFICATION);
+              }}
             />
           </Form.Item>
         </Form.Item>

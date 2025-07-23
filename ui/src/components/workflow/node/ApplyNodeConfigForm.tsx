@@ -300,15 +300,15 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
           <Form.Item name="provider" label={t("workflow_node.apply.form.provider.label")} hidden={!showProvider} rules={[formRule]}>
             <ACMEDns01ProviderSelect
               disabled={!showProvider}
-              filter={(record) => {
+              placeholder={t("workflow_node.apply.form.provider.placeholder")}
+              showSearch
+              onFilter={(_, option) => {
                 if (fieldProviderAccessId) {
-                  return accesses.find((e) => e.id === fieldProviderAccessId)?.provider === record.provider;
+                  return accesses.find((e) => e.id === fieldProviderAccessId)?.provider === option.provider;
                 }
 
                 return true;
               }}
-              placeholder={t("workflow_node.apply.form.provider.placeholder")}
-              showSearch
               onSelect={handleProviderSelect}
             />
           </Form.Item>
@@ -347,15 +347,15 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
             </label>
             <Form.Item name="providerAccessId" rules={[formRule]}>
               <AccessSelect
-                filter={(record) => {
-                  if (record.reserve) return false;
-
-                  const provider = accessProvidersMap.get(record.provider);
-                  return !!provider?.usages?.includes(ACCESS_USAGES.DNS);
-                }}
                 placeholder={t("workflow_node.apply.form.provider_access.placeholder")}
                 showSearch
                 onChange={handleProviderAccessSelect}
+                onFilter={(_, option) => {
+                  if (option.reserve) return false;
+
+                  const provider = accessProvidersMap.get(option.provider);
+                  return !!provider?.usages?.includes(ACCESS_USAGES.DNS);
+                }}
               />
             </Form.Item>
           </Form.Item>
@@ -428,15 +428,15 @@ const ApplyNodeConfigForm = forwardRef<ApplyNodeConfigFormInstance, ApplyNodeCon
             </label>
             <Form.Item name="caProviderAccessId" rules={[formRule]}>
               <AccessSelect
-                filter={(record) => {
-                  if (record.reserve !== "ca") return false;
-                  if (fieldCAProvider) return caProvidersMap.get(fieldCAProvider)?.provider === record.provider;
-
-                  const provider = accessProvidersMap.get(record.provider);
-                  return !!provider?.usages?.includes(ACCESS_USAGES.CA);
-                }}
                 placeholder={t("workflow_node.apply.form.ca_provider_access.placeholder")}
                 showSearch
+                onFilter={(_, option) => {
+                  if (option.reserve !== "ca") return false;
+                  if (fieldCAProvider) return caProvidersMap.get(fieldCAProvider)?.provider === option.provider;
+
+                  const provider = accessProvidersMap.get(option.provider);
+                  return !!provider?.usages?.includes(ACCESS_USAGES.CA);
+                }}
               />
             </Form.Item>
           </Form.Item>

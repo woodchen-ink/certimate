@@ -6,10 +6,10 @@ import { type ACMEDns01Provider, acmeDns01ProvidersMap } from "@/domain/provider
 
 export interface ACMEDns01ProviderSelectProps
   extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
-  filter?: (record: ACMEDns01Provider) => boolean;
+  onFilter?: (value: string, option: ACMEDns01Provider) => boolean;
 }
 
-const ACMEDns01ProviderSelect = ({ filter, ...props }: ACMEDns01ProviderSelectProps) => {
+const ACMEDns01ProviderSelect = ({ onFilter, ...props }: ACMEDns01ProviderSelectProps) => {
   const { t } = useTranslation();
 
   const { token: themeToken } = theme.useToken();
@@ -17,8 +17,8 @@ const ACMEDns01ProviderSelect = ({ filter, ...props }: ACMEDns01ProviderSelectPr
   const options = useMemo<Array<{ key: string; value: string; label: string; data: ACMEDns01Provider }>>(() => {
     return Array.from(acmeDns01ProvidersMap.values())
       .filter((provider) => {
-        if (filter) {
-          return filter(provider);
+        if (onFilter) {
+          return onFilter(provider.type, provider);
         }
 
         return true;
@@ -29,7 +29,7 @@ const ACMEDns01ProviderSelect = ({ filter, ...props }: ACMEDns01ProviderSelectPr
         label: t(provider.name),
         data: provider,
       }));
-  }, [filter]);
+  }, [onFilter]);
 
   const renderOption = (key: string) => {
     const provider = acmeDns01ProvidersMap.get(key);

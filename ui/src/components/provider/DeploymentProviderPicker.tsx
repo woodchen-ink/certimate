@@ -11,13 +11,13 @@ export interface DeploymentProviderPickerProps {
   className?: string;
   style?: React.CSSProperties;
   autoFocus?: boolean;
-  filter?: (record: DeploymentProvider) => boolean;
   gap?: number | "small" | "middle" | "large";
   placeholder?: string;
+  onFilter?: (value: string, option: DeploymentProvider) => boolean;
   onSelect?: (value: string) => void;
 }
 
-const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeholder, onSelect, ...props }: DeploymentProviderPickerProps) => {
+const DeploymentProviderPicker = ({ className, style, autoFocus, onFilter, placeholder, onSelect, ...props }: DeploymentProviderPickerProps) => {
   const { gap = "middle" } = props;
 
   const { t } = useTranslation();
@@ -38,8 +38,8 @@ const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeho
   const providers = useMemo(() => {
     return Array.from(deploymentProvidersMap.values())
       .filter((provider) => {
-        if (filter) {
-          return filter(provider);
+        if (onFilter) {
+          return onFilter(provider.type, provider);
         }
 
         return true;
@@ -59,7 +59,7 @@ const DeploymentProviderPicker = ({ className, style, autoFocus, filter, placeho
 
         return true;
       });
-  }, [filter, category, keyword]);
+  }, [onFilter, category, keyword]);
   const providerCols = useMemo(() => {
     if (!wrapperSize) {
       return 1;

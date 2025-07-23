@@ -53,9 +53,20 @@ export const listByWorkflowRunId = async (workflowRunId: string) => {
   };
 };
 
-export const remove = async (record: MaybeModelRecordWithId<CertificateModel>) => {
-  await getPocketBase()
-    .collection(COLLECTION_NAME_CERTIFICATE)
-    .update<CertificateModel>(record.id!, { deleted: dayjs.utc().format("YYYY-MM-DD HH:mm:ss") });
-  return true;
+export const remove = async (record: MaybeModelRecordWithId<CertificateModel> | MaybeModelRecordWithId<CertificateModel>[]) => {
+  const pb = getPocketBase();
+
+  const deletedAt = dayjs.utc().format("YYYY-MM-DD HH:mm:ss");
+
+  if (Array.isArray(record)) {
+    const batch = pb.createBatch();
+    for (const item of record) {
+      batch.collection(COLLECTION_NAME_CERTIFICATE).update(item.id, { deleted: deletedAt });
+    }
+    const res = await batch.send();
+    return res.every((e) => e.status === 200);
+  } else {
+    await pb.collection(COLLECTION_NAME_CERTIFICATE).update<CertificateModel>(record.id!, { deleted: deletedAt });
+    return true;
+  }
 };

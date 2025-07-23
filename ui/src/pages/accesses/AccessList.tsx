@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconCirclePlus, IconCopy, IconEdit, IconFingerprint, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
+import { IconCirclePlus, IconCopy, IconDotsVertical, IconFingerprint, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { App, Avatar, Button, Input, Skeleton, Table, type TableProps, Tabs, Tooltip, Typography } from "antd";
+import { App, Avatar, Button, Dropdown, Input, Skeleton, Table, type TableProps, Tabs, Typography } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
@@ -77,42 +77,51 @@ const AccessList = () => {
       key: "$action",
       align: "end",
       fixed: "right",
-      width: 120,
+      width: 64,
       render: (_, record) => (
-        <div className="flex items-center justify-end">
-          <Tooltip title={t("common.button.edit")}>
-            <Button
-              color="primary"
-              icon={<IconEdit size="1.25em" />}
-              variant="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRecordDetailClick(record);
-              }}
-            />
-          </Tooltip>
-          <Tooltip title={t("common.button.duplicate")}>
-            <Button
-              color="primary"
-              icon={<IconCopy size="1.25em" />}
-              variant="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRecordDuplicateClick(record);
-              }}
-            />
-          </Tooltip>
-          <Tooltip title={t("common.button.delete")}>
-            <Button
-              color="danger"
-              icon={<IconTrash size="1.25em" />}
-              variant="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRecordDeleteClick(record);
-              }}
-            />
-          </Tooltip>
+        <div
+          className="flex items-center justify-end"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: "duplicate",
+                  label: t("common.button.duplicate"),
+                  icon: (
+                    <span className="anticon scale-125">
+                      <IconCopy size="1em" />
+                    </span>
+                  ),
+                  onClick: () => {
+                    handleRecordDuplicateClick(record);
+                  },
+                },
+                {
+                  type: "divider",
+                },
+                {
+                  key: "delete",
+                  label: t("common.button.delete"),
+                  danger: true,
+                  icon: (
+                    <span className="anticon scale-125">
+                      <IconTrash size="1em" />
+                    </span>
+                  ),
+                  onClick: () => {
+                    handleRecordDeleteClick(record);
+                  },
+                },
+              ],
+            }}
+            trigger={["click"]}
+          >
+            <Button icon={<IconDotsVertical size="1.25em" />} type="text" />
+          </Dropdown>
         </div>
       ),
     },

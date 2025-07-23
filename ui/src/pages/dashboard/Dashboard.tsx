@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   IconActivity,
-  IconBrowserShare,
   IconHierarchy3,
   IconPlugConnected,
   IconPlus,
@@ -255,16 +254,6 @@ const WorkflowRunHistoryTable = () => {
         return <></>;
       },
     },
-    {
-      key: "$action",
-      align: "end",
-      width: 120,
-      render: (_, record) => (
-        <div className="flex items-center justify-end">
-          <WorkflowRunDetailDrawer data={record} trigger={<Button color="primary" icon={<IconBrowserShare size="1.25em" />} variant="text" />} />
-        </div>
-      ),
-    },
   ];
   const [tableData, setTableData] = useState<WorkflowRunModel[]>([]);
   const { loading: tableLoading } = useRequest(
@@ -292,19 +281,37 @@ const WorkflowRunHistoryTable = () => {
     }
   );
 
+  const [detailRecord, setDetailRecord] = useState<WorkflowRunModel>();
+  const [detailOpen, setDetailOpen] = useState<boolean>(false);
+
+  const handleRecordDetailClick = (workflowRun: WorkflowRunModel) => {
+    setDetailRecord(workflowRun);
+    setDetailOpen(true);
+  };
+
   return (
-    <Table<WorkflowRunModel>
-      columns={tableColumns}
-      dataSource={tableData}
-      loading={tableLoading}
-      locale={{
-        emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />,
-      }}
-      pagination={false}
-      rowKey={(record) => record.id}
-      scroll={{ x: "max(100%, 720px)" }}
-      size="small"
-    />
+    <>
+      <Table<WorkflowRunModel>
+        columns={tableColumns}
+        dataSource={tableData}
+        loading={tableLoading}
+        locale={{
+          emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />,
+        }}
+        pagination={false}
+        rowClassName="cursor-pointer"
+        rowKey={(record) => record.id}
+        scroll={{ x: "max(100%, 720px)" }}
+        size="small"
+        onRow={(record) => ({
+          onClick: () => {
+            handleRecordDetailClick(record);
+          },
+        })}
+      />
+
+      <WorkflowRunDetailDrawer data={detailRecord} open={detailOpen} onOpenChange={setDetailOpen} />
+    </>
   );
 };
 

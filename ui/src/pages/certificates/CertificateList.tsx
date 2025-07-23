@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconBrowserShare, IconCertificate, IconExternalLink, IconReload, IconTrash } from "@tabler/icons-react";
+import { IconCertificate, IconDotsVertical, IconExternalLink, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { App, Button, Input, Segmented, Skeleton, Table, type TableProps, Tooltip, Typography } from "antd";
+import { App, Button, Dropdown, Input, Segmented, Skeleton, Table, type TableProps, Typography } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
@@ -136,31 +136,36 @@ const CertificateList = () => {
       key: "$action",
       align: "end",
       fixed: "right",
-      width: 120,
+      width: 64,
       render: (_, record) => (
-        <div className="flex items-center justify-end">
-          <Tooltip title={t("common.button.view")}>
-            <Button
-              color="primary"
-              icon={<IconBrowserShare size="1.25em" />}
-              variant="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRecordDetailClick(record);
-              }}
-            />
-          </Tooltip>
-          <Tooltip title={t("common.button.delete")}>
-            <Button
-              color="danger"
-              icon={<IconTrash size="1.25em" />}
-              variant="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRecordDeleteClick(record);
-              }}
-            />
-          </Tooltip>
+        <div
+          className="flex items-center justify-end"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: "delete",
+                  label: t("common.button.delete"),
+                  danger: true,
+                  icon: (
+                    <span className="anticon scale-125">
+                      <IconTrash size="1em" />
+                    </span>
+                  ),
+                  onClick: () => {
+                    handleRecordDeleteClick(record);
+                  },
+                },
+              ],
+            }}
+            trigger={["click"]}
+          >
+            <Button icon={<IconDotsVertical size="1.25em" />} type="text" />
+          </Dropdown>
         </div>
       ),
     },

@@ -52,7 +52,7 @@ const SettingsAppearanceTheme = ({ className, style }: { className?: string; sty
             <div className="flex w-full items-center gap-4 max-md:flex-wrap">
               {themeItems.map((item) => (
                 <div className="relative max-w-44 flex-1/3 max-md:flex-1/2 max-sm:flex-1" key={item.key}>
-                  <div className="overflow-hidden rounded-lg border border-solid" style={{ borderColor: themeToken.colorBorderSecondary }}>
+                  <div className="overflow-hidden rounded-lg border border-solid" style={{ borderColor: themeToken.colorBorder }}>
                     <img className="mb-2 w-full" src={`/imgs/themes/${item.key}.png`} />
                     <div className="mb-2 px-2">
                       <Radio value={item.key}>{item.label}</Radio>

@@ -104,7 +104,7 @@ func (r *WorkflowLogRepository) castRecordToModel(record *core.Record) (*domain.
 		NodeId:     record.GetString("nodeId"),
 		NodeName:   record.GetString("nodeName"),
 		Timestamp:  int64(record.GetInt("timestamp")),
-		Level:      record.GetString("level"),
+		Level:      int32(record.GetInt("level")),
 		Message:    record.GetString("message"),
 		Data:       logdata,
 	}

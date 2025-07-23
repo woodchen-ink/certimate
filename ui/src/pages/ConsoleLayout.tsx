@@ -12,10 +12,10 @@ import {
   IconMenu2,
   IconSettings,
 } from "@tabler/icons-react";
-import { Alert, Button, Drawer, Layout, Menu, type MenuProps, theme } from "antd";
+import { Alert, Button, Divider, Drawer, Layout, Menu, type MenuProps, theme } from "antd";
 
-import AppLocale, { useAppLocaleMenuItems } from "@/components/AppLocale";
-import AppTheme, { useAppThemeMenuItems } from "@/components/AppTheme";
+import AppLocale from "@/components/AppLocale";
+import AppTheme from "@/components/AppTheme";
 import AppVersion from "@/components/AppVersion";
 import Show from "@/components/Show";
 import { APP_DOCUMENT_URL, APP_REPO_URL } from "@/domain/app";
@@ -29,9 +29,6 @@ const ConsoleLayout = () => {
   const { i18n, t } = useTranslation();
 
   const { token: themeToken } = theme.useToken();
-
-  const localeMenuItems = useAppLocaleMenuItems();
-  const themeMenuItems = useAppThemeMenuItems();
 
   const handleLogoutClick = () => {
     auth.clear();
@@ -77,26 +74,6 @@ const ConsoleLayout = () => {
                 style={{ background: "transparent", borderInlineEnd: "none" }}
                 items={[
                   {
-                    key: "theme",
-                    icon: (
-                      <span className="anticon scale-125" role="img">
-                        <AppTheme.Icon size="1em" />
-                      </span>
-                    ),
-                    label: t("common.menu.theme"),
-                    children: themeMenuItems,
-                  },
-                  {
-                    key: "locale",
-                    icon: (
-                      <span className="anticon scale-115" role="img">
-                        <AppLocale.Icon size="1em" />
-                      </span>
-                    ),
-                    label: t("common.menu.locale"),
-                    children: localeMenuItems,
-                  },
-                  {
                     key: "document",
                     icon: (
                       <span className="anticon scale-125" role="img">
@@ -126,7 +103,7 @@ const ConsoleLayout = () => {
         </Layout.Sider>
 
         <Layout className="flex flex-col overflow-hidden">
-          <Layout.Header className="shadow-xs md:hidden" style={{ padding: 0 }}>
+          <Layout.Header className="border-b shadow-sm md:hidden" style={{ padding: 0, borderBottomColor: themeToken.colorBorderSecondary }}>
             <div className="flex size-full items-center justify-between overflow-hidden px-4">
               <div className="flex items-center gap-4">
                 <SiderMenuDrawer trigger={<Button icon={<IconMenu2 size="1.25em" stroke="1.25" />} />} />

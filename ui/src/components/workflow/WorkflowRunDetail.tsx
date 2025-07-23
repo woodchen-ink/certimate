@@ -9,7 +9,7 @@ import { ClientResponseError } from "pocketbase";
 import CertificateDetailDrawer from "@/components/certificate/CertificateDetailDrawer";
 import Show from "@/components/Show";
 import { type CertificateModel } from "@/domain/certificate";
-import { type WorkflowLogModel } from "@/domain/workflowLog";
+import { WorkflowLogLevel, type WorkflowLogModel } from "@/domain/workflowLog";
 import { WORKFLOW_RUN_STATUSES, type WorkflowRunModel } from "@/domain/workflowRun";
 import { useBrowserTheme } from "@/hooks";
 import { listByWorkflowRunId as listCertificatesByWorkflowRunId } from "@/repository/certificate";
@@ -138,10 +138,14 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
         <div
           className={mergeCls(
             "font-mono",
-            record.level === "DEBUG" ? "text-stone-400" : "",
-            record.level === "WARN" ? "text-yellow-600" : "",
-            record.level === "ERROR" ? "text-red-600" : "",
-            !showWhitespace ? "whitespace-pre-line" : ""
+            record.level < WorkflowLogLevel.Info
+              ? "text-stone-400"
+              : record.level < WorkflowLogLevel.Warn
+                ? ""
+                : record.level < WorkflowLogLevel.Error
+                  ? "text-warning"
+                  : "text-error",
+            { ["whitespace-pre-line"]: !showWhitespace }
           )}
         >
           {message}
@@ -259,94 +263,6 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
   );
 };
 
-const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
-  const { t } = useTranslation();
-
-  const { notification } = App.useApp();
-
-  const tableColumns: TableProps<CertificateModel>["columns"] = [
-    {
-      key: "$index",
-      align: "center",
-      fixed: "left",
-      width: 50,
-      render: (_, __, index) => index + 1,
-    },
-    {
-      key: "type",
-      title: t("workflow_run_artifact.props.type"),
-      render: () => t("workflow_run_artifact.props.type.certificate"),
-    },
-    {
-      key: "name",
-      title: t("workflow_run_artifact.props.name"),
-      render: (_, record) => {
-        return (
-          <div className="max-w-full truncate">
-            <Typography.Text delete={!!record.deleted} ellipsis>
-              {record.subjectAltNames}
-            </Typography.Text>
-          </div>
-        );
-      },
-    },
-    {
-      key: "$action",
-      align: "end",
-      width: 120,
-      render: (_, record) => (
-        <div className="flex items-center justify-end">
-          <CertificateDetailDrawer
-            data={record}
-            trigger={
-              <Tooltip title={t("common.button.view")}>
-                <Button color="primary" disabled={!!record.deleted} icon={<IconBrowserShare size="1.25em" />} variant="text" />
-              </Tooltip>
-            }
-          />
-        </div>
-      ),
-    },
-  ];
-  const [tableData, setTableData] = useState<CertificateModel[]>([]);
-  const { loading: tableLoading } = useRequest(
-    () => {
-      return listCertificatesByWorkflowRunId(runId);
-    },
-    {
-      refreshDeps: [runId],
-      onSuccess: (res) => {
-        setTableData(res.items);
-      },
-      onError: (err) => {
-        if (err instanceof ClientResponseError && err.isAbort) {
-          return;
-        }
-
-        console.error(err);
-        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
-
-        throw err;
-      },
-    }
-  );
-
-  return (
-    <>
-      <Typography.Title level={5}>{t("workflow_run.artifacts")}</Typography.Title>
-      <Table<CertificateModel>
-        columns={tableColumns}
-        dataSource={tableData}
-        loading={tableLoading}
-        locale={{
-          emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />,
-        }}
-        pagination={false}
-        rowKey={(record) => record.id}
-        size="small"
-      />
-    </>
-  );
-};
+const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {};
 
 export default WorkflowRunDetail;

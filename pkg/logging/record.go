@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"log/slog"
 	"time"
 
 	types "github.com/pocketbase/pocketbase/tools/types"
@@ -8,7 +9,7 @@ import (
 
 type Record struct {
 	Time    time.Time
-	Level   Level
+	Level   slog.Level
 	Message string
 	Data    types.JSONMap[any]
 }

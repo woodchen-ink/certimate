@@ -83,7 +83,7 @@ func (w *workflowInvoker) processNode(ctx context.Context, node *domain.Workflow
 						log.NodeId = current.Id
 						log.NodeName = current.Name
 						log.Timestamp = record.Time.UnixMilli()
-						log.Level = record.Level.String()
+						log.Level = int32(record.Level)
 						log.Message = record.Message
 						log.Data = record.Data
 						log.CreatedAt = record.Time

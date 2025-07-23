@@ -7,10 +7,11 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/ctcccloud-elb"
 	ctyunelb "github.com/certimate-go/certimate/pkg/sdk3rd/ctyun/elb"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -118,8 +119,8 @@ func (d *SSLDeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCer
 		}
 
 		listListenersReq := &ctyunelb.ListListenersRequest{
-			RegionID:       xtypes.ToPtr(d.config.RegionId),
-			LoadBalancerID: xtypes.ToPtr(d.config.LoadbalancerId),
+			RegionID:       lo.ToPtr(d.config.RegionId),
+			LoadBalancerID: lo.ToPtr(d.config.LoadbalancerId),
 		}
 		listListenersResp, err := d.sdkClient.ListListeners(listListenersReq)
 		d.logger.Debug("sdk request 'elb.ListListeners'", slog.Any("request", listListenersReq), slog.Any("response", listListenersResp))
@@ -179,9 +180,9 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 	// 更新监听器
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=24&api=5652&data=88&isNormal=1&vid=82
 	setLoadBalancerHTTPSListenerAttributeReq := &ctyunelb.UpdateListenerRequest{
-		RegionID:      xtypes.ToPtr(d.config.RegionId),
-		ListenerID:    xtypes.ToPtr(cloudListenerId),
-		CertificateID: xtypes.ToPtr(cloudCertId),
+		RegionID:      lo.ToPtr(d.config.RegionId),
+		ListenerID:    lo.ToPtr(cloudListenerId),
+		CertificateID: lo.ToPtr(cloudCertId),
 	}
 	setLoadBalancerHTTPSListenerAttributeResp, err := d.sdkClient.UpdateListener(setLoadBalancerHTTPSListenerAttributeReq)
 	d.logger.Debug("sdk request 'elb.UpdateListener'", slog.Any("request", setLoadBalancerHTTPSListenerAttributeReq), slog.Any("response", setLoadBalancerHTTPSListenerAttributeResp))

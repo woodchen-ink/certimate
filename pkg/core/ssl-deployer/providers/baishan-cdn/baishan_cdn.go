@@ -10,9 +10,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	bssdk "github.com/certimate-go/certimate/pkg/sdk3rd/baishan"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -69,9 +70,9 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		// REF: https://portal.baishancloud.com/track/document/downloadPdf/1441
 		certificateId := ""
 		setDomainCertificateReq := &bssdk.SetDomainCertificateRequest{
-			Name:        xtypes.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
-			Certificate: xtypes.ToPtr(certPEM),
-			Key:         xtypes.ToPtr(privkeyPEM),
+			Name:        lo.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
+			Certificate: lo.ToPtr(certPEM),
+			Key:         lo.ToPtr(privkeyPEM),
 		}
 		setDomainCertificateResp, err := d.sdkClient.SetDomainCertificate(setDomainCertificateReq)
 		d.logger.Debug("sdk request 'baishan.SetDomainCertificate'", slog.Any("request", setDomainCertificateReq), slog.Any("response", setDomainCertificateResp))
@@ -94,8 +95,8 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		// 查询域名配置
 		// REF: https://portal.baishancloud.com/track/document/api/1/1065
 		getDomainConfigReq := &bssdk.GetDomainConfigRequest{
-			Domains: xtypes.ToPtr(d.config.Domain),
-			Config:  xtypes.ToPtr([]string{"https"}),
+			Domains: lo.ToPtr(d.config.Domain),
+			Config:  lo.ToPtr([]string{"https"}),
 		}
 		getDomainConfigResp, err := d.sdkClient.GetDomainConfig(getDomainConfigReq)
 		d.logger.Debug("sdk request 'baishan.GetDomainConfig'", slog.Any("request", getDomainConfigReq), slog.Any("response", getDomainConfigResp))
@@ -108,7 +109,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		// 设置域名配置
 		// REF: https://portal.baishancloud.com/track/document/api/1/1045
 		setDomainConfigReq := &bssdk.SetDomainConfigRequest{
-			Domains: xtypes.ToPtr(d.config.Domain),
+			Domains: lo.ToPtr(d.config.Domain),
 			Config: &bssdk.DomainConfig{
 				Https: &bssdk.DomainConfigHttps{
 					CertId:      json.Number(certificateId),
@@ -128,9 +129,9 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		// REF: https://portal.baishancloud.com/track/document/downloadPdf/1441
 		setDomainCertificateReq := &bssdk.SetDomainCertificateRequest{
 			CertificateId: &d.config.CertificateId,
-			Name:          xtypes.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
-			Certificate:   xtypes.ToPtr(certPEM),
-			Key:           xtypes.ToPtr(privkeyPEM),
+			Name:          lo.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
+			Certificate:   lo.ToPtr(certPEM),
+			Key:           lo.ToPtr(privkeyPEM),
 		}
 		setDomainCertificateResp, err := d.sdkClient.SetDomainCertificate(setDomainCertificateReq)
 		d.logger.Debug("sdk request 'baishan.SetDomainCertificate'", slog.Any("request", setDomainCertificateReq), slog.Any("response", setDomainCertificateResp))

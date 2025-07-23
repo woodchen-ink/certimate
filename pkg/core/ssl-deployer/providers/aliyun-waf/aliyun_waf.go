@@ -10,12 +10,10 @@ import (
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
 	aliwaf "github.com/alibabacloud-go/waf-openapi-20211001/v5/client"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
-	"github.com/certimate-go/certimate/pkg/utils/ifelse"
-	xslices "github.com/certimate-go/certimate/pkg/utils/slices"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -58,9 +56,8 @@ func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProv
 		AccessKeyId:     config.AccessKeyId,
 		AccessKeySecret: config.AccessKeySecret,
 		ResourceGroupId: config.ResourceGroupId,
-		Region: ifelse.
-			If[string](config.Region == "" || strings.HasPrefix(config.Region, "cn-")).
-			Then("cn-hangzhou").
+		Region: lo.
+			If(config.Region == "" || strings.HasPrefix(config.Region, "cn-"), "cn-hangzhou").
 			Else("ap-southeast-1"),
 	})
 	if err != nil {
@@ -118,7 +115,7 @@ func (d *SSLDeployerProvider) deployToWAF3(ctx context.Context, certPEM string, 
 		// 查询默认 SSL/TLS 设置
 		// REF: https://help.aliyun.com/zh/waf/web-application-firewall-3-0/developer-reference/api-waf-openapi-2021-10-01-describedefaulthttps
 		describeDefaultHttpsReq := &aliwaf.DescribeDefaultHttpsRequest{
-			ResourceManagerResourceGroupId: xtypes.ToPtrOrZeroNil(d.config.ResourceGroupId),
+			ResourceManagerResourceGroupId: lo.EmptyableToPtr(d.config.ResourceGroupId),
 			InstanceId:                     tea.String(d.config.InstanceId),
 			RegionId:                       tea.String(d.config.Region),
 		}
@@ -131,7 +128,7 @@ func (d *SSLDeployerProvider) deployToWAF3(ctx context.Context, certPEM string, 
 		// 修改默认 SSL/TLS 设置
 		// REF: https://help.aliyun.com/zh/waf/web-application-firewall-3-0/developer-reference/api-waf-openapi-2021-10-01-modifydefaulthttps
 		modifyDefaultHttpsReq := &aliwaf.ModifyDefaultHttpsRequest{
-			ResourceManagerResourceGroupId: xtypes.ToPtrOrZeroNil(d.config.ResourceGroupId),
+			ResourceManagerResourceGroupId: lo.EmptyableToPtr(d.config.ResourceGroupId),
 			InstanceId:                     tea.String(d.config.InstanceId),
 			RegionId:                       tea.String(d.config.Region),
 			CertId:                         tea.String(upres.CertId),
@@ -245,7 +242,7 @@ func assign(source *aliwaf.ModifyDomainRequest, target *aliwaf.DescribeDomainDet
 		}
 
 		if target.Listen.HttpPorts != nil {
-			source.Listen.HttpPorts = xslices.Map(target.Listen.HttpPorts, func(v *int64) *int32 {
+			source.Listen.HttpPorts = lo.Map(target.Listen.HttpPorts, func(v *int64, _ int) *int32 {
 				if v == nil {
 					return nil
 				}
@@ -254,7 +251,7 @@ func assign(source *aliwaf.ModifyDomainRequest, target *aliwaf.DescribeDomainDet
 		}
 
 		if target.Listen.HttpsPorts != nil {
-			source.Listen.HttpsPorts = xslices.Map(target.Listen.HttpsPorts, func(v *int64) *int32 {
+			source.Listen.HttpsPorts = lo.Map(target.Listen.HttpsPorts, func(v *int64, _ int) *int32 {
 				if v == nil {
 					return nil
 				}
@@ -289,7 +286,7 @@ func assign(source *aliwaf.ModifyDomainRequest, target *aliwaf.DescribeDomainDet
 		}
 
 		if target.Redirect.Backends != nil {
-			source.Redirect.Backends = xslices.Map(target.Redirect.Backends, func(v *aliwaf.DescribeDomainDetailResponseBodyRedirectBackends) *string {
+			source.Redirect.Backends = lo.Map(target.Redirect.Backends, func(v *aliwaf.DescribeDomainDetailResponseBodyRedirectBackends, _ int) *string {
 				if v == nil {
 					return nil
 				}
@@ -298,7 +295,7 @@ func assign(source *aliwaf.ModifyDomainRequest, target *aliwaf.DescribeDomainDet
 		}
 
 		if target.Redirect.BackupBackends != nil {
-			source.Redirect.BackupBackends = xslices.Map(target.Redirect.BackupBackends, func(v *aliwaf.DescribeDomainDetailResponseBodyRedirectBackupBackends) *string {
+			source.Redirect.BackupBackends = lo.Map(target.Redirect.BackupBackends, func(v *aliwaf.DescribeDomainDetailResponseBodyRedirectBackupBackends, _ int) *string {
 				if v == nil {
 					return nil
 				}
@@ -335,7 +332,7 @@ func assign(source *aliwaf.ModifyDomainRequest, target *aliwaf.DescribeDomainDet
 		}
 
 		if target.Redirect.RequestHeaders != nil {
-			source.Redirect.RequestHeaders = xslices.Map(target.Redirect.RequestHeaders, func(v *aliwaf.DescribeDomainDetailResponseBodyRedirectRequestHeaders) *aliwaf.ModifyDomainRequestRedirectRequestHeaders {
+			source.Redirect.RequestHeaders = lo.Map(target.Redirect.RequestHeaders, func(v *aliwaf.DescribeDomainDetailResponseBodyRedirectRequestHeaders, _ int) *aliwaf.ModifyDomainRequestRedirectRequestHeaders {
 				if v == nil {
 					return nil
 				}

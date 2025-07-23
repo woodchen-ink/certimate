@@ -12,11 +12,10 @@ import (
 	alicloudapi "github.com/alibabacloud-go/cloudapi-20160714/v5/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
-	"github.com/certimate-go/certimate/pkg/utils/ifelse"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -68,9 +67,8 @@ func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProv
 		AccessKeyId:     config.AccessKeyId,
 		AccessKeySecret: config.AccessKeySecret,
 		ResourceGroupId: config.ResourceGroupId,
-		Region: ifelse.
-			If[string](config.Region == "" || strings.HasPrefix(config.Region, "cn-")).
-			Then("cn-hangzhou").
+		Region: lo.
+			If(config.Region == "" || strings.HasPrefix(config.Region, "cn-"), "cn-hangzhou").
 			Else("ap-southeast-1"),
 	})
 	if err != nil {
@@ -159,7 +157,7 @@ func (d *SSLDeployerProvider) deployToCloudNative(ctx context.Context, certPEM s
 		}
 
 		listDomainsReq := &aliapig.ListDomainsRequest{
-			ResourceGroupId: xtypes.ToPtrOrZeroNil(d.config.ResourceGroupId),
+			ResourceGroupId: lo.EmptyableToPtr(d.config.ResourceGroupId),
 			GatewayId:       tea.String(d.config.GatewayId),
 			NameLike:        tea.String(d.config.Domain),
 			PageNumber:      tea.Int32(listDomainsPageNumber),

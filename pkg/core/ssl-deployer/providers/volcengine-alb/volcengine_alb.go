@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/samber/lo"
 	vealb "github.com/volcengine/volcengine-go-sdk/service/alb"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
 	vesession "github.com/volcengine/volcengine-go-sdk/volcengine/session"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/volcengine-certcenter"
-	xslices "github.com/certimate-go/certimate/pkg/utils/slices"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -232,14 +232,14 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 		// REF: https://www.volcengine.com/docs/6767/113683
 		modifyListenerAttributesReq := &vealb.ModifyListenerAttributesInput{
 			ListenerId: ve.String(cloudListenerId),
-			DomainExtensions: xslices.Map(
-				xslices.Filter(
+			DomainExtensions: lo.Map(
+				lo.Filter(
 					describeListenerAttributesResp.DomainExtensions,
-					func(domain *vealb.DomainExtensionForDescribeListenerAttributesOutput) bool {
+					func(domain *vealb.DomainExtensionForDescribeListenerAttributesOutput, _ int) bool {
 						return *domain.Domain == d.config.Domain
 					},
 				),
-				func(domain *vealb.DomainExtensionForDescribeListenerAttributesOutput) *vealb.DomainExtensionForModifyListenerAttributesInput {
+				func(domain *vealb.DomainExtensionForDescribeListenerAttributesOutput, _ int) *vealb.DomainExtensionForModifyListenerAttributesInput {
 					return &vealb.DomainExtensionForModifyListenerAttributesInput{
 						DomainExtensionId:       domain.DomainExtensionId,
 						Domain:                  domain.Domain,

@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	ctyunelb "github.com/certimate-go/certimate/pkg/sdk3rd/ctyun/elb"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLManagerProviderConfig struct {
@@ -67,7 +67,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// 查询证书列表，避免重复上传
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=24&api=5692&data=88&isNormal=1&vid=82
 	listCertificatesReq := &ctyunelb.ListCertificatesRequest{
-		RegionID: xtypes.ToPtr(m.config.RegionId),
+		RegionID: lo.ToPtr(m.config.RegionId),
 	}
 	listCertificatesResp, err := m.sdkClient.ListCertificates(listCertificatesReq)
 	m.logger.Debug("sdk request 'elb.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
@@ -104,13 +104,13 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// 创建证书
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=24&api=5685&data=88&isNormal=1&vid=82
 	createCertificateReq := &ctyunelb.CreateCertificateRequest{
-		ClientToken: xtypes.ToPtr(generateClientToken()),
-		RegionID:    xtypes.ToPtr(m.config.RegionId),
-		Name:        xtypes.ToPtr(certName),
-		Description: xtypes.ToPtr("upload from certimate"),
-		Type:        xtypes.ToPtr("Server"),
-		Certificate: xtypes.ToPtr(certPEM),
-		PrivateKey:  xtypes.ToPtr(privkeyPEM),
+		ClientToken: lo.ToPtr(generateClientToken()),
+		RegionID:    lo.ToPtr(m.config.RegionId),
+		Name:        lo.ToPtr(certName),
+		Description: lo.ToPtr("upload from certimate"),
+		Type:        lo.ToPtr("Server"),
+		Certificate: lo.ToPtr(certPEM),
+		PrivateKey:  lo.ToPtr(privkeyPEM),
 	}
 	createCertificateResp, err := m.sdkClient.CreateCertificate(createCertificateReq)
 	m.logger.Debug("sdk request 'elb.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))

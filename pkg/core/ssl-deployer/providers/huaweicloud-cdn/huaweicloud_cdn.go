@@ -10,10 +10,10 @@ import (
 	hccdn "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2"
 	hccdnmodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
 	hccdnregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/region"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/huaweicloud-scm"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -95,7 +95,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	// 查询加速域名配置
 	// REF: https://support.huaweicloud.com/api-cdn/ShowDomainFullConfig.html
 	showDomainFullConfigReq := &hccdnmodel.ShowDomainFullConfigRequest{
-		EnterpriseProjectId: xtypes.ToPtrOrZeroNil(d.config.EnterpriseProjectId),
+		EnterpriseProjectId: lo.EmptyableToPtr(d.config.EnterpriseProjectId),
 		DomainName:          d.config.Domain,
 	}
 	showDomainFullConfigResp, err := d.sdkClient.ShowDomainFullConfig(showDomainFullConfigReq)
@@ -110,12 +110,12 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	updateDomainMultiCertificatesReqBodyContent := &hccdnmodel.UpdateDomainMultiCertificatesRequestBodyContent{}
 	updateDomainMultiCertificatesReqBodyContent.DomainName = d.config.Domain
 	updateDomainMultiCertificatesReqBodyContent.HttpsSwitch = 1
-	updateDomainMultiCertificatesReqBodyContent.CertificateType = xtypes.ToPtr(int32(2))
-	updateDomainMultiCertificatesReqBodyContent.ScmCertificateId = xtypes.ToPtr(upres.CertId)
-	updateDomainMultiCertificatesReqBodyContent.CertName = xtypes.ToPtr(upres.CertName)
+	updateDomainMultiCertificatesReqBodyContent.CertificateType = lo.ToPtr(int32(2))
+	updateDomainMultiCertificatesReqBodyContent.ScmCertificateId = lo.ToPtr(upres.CertId)
+	updateDomainMultiCertificatesReqBodyContent.CertName = lo.ToPtr(upres.CertName)
 	updateDomainMultiCertificatesReqBodyContent = assign(updateDomainMultiCertificatesReqBodyContent, showDomainFullConfigResp.Configs)
 	updateDomainMultiCertificatesReq := &hccdnmodel.UpdateDomainMultiCertificatesRequest{
-		EnterpriseProjectId: xtypes.ToPtrOrZeroNil(d.config.EnterpriseProjectId),
+		EnterpriseProjectId: lo.EmptyableToPtr(d.config.EnterpriseProjectId),
 		Body: &hccdnmodel.UpdateDomainMultiCertificatesRequestBody{
 			Https: updateDomainMultiCertificatesReqBodyContent,
 		},
@@ -168,11 +168,11 @@ func assign(source *hccdnmodel.UpdateDomainMultiCertificatesRequestBodyContent, 
 	}
 
 	if *target.OriginProtocol == "follow" {
-		source.AccessOriginWay = xtypes.ToPtr(int32(1))
+		source.AccessOriginWay = lo.ToPtr(int32(1))
 	} else if *target.OriginProtocol == "http" {
-		source.AccessOriginWay = xtypes.ToPtr(int32(2))
+		source.AccessOriginWay = lo.ToPtr(int32(2))
 	} else if *target.OriginProtocol == "https" {
-		source.AccessOriginWay = xtypes.ToPtr(int32(3))
+		source.AccessOriginWay = lo.ToPtr(int32(3))
 	}
 
 	if target.ForceRedirect != nil {
@@ -190,7 +190,7 @@ func assign(source *hccdnmodel.UpdateDomainMultiCertificatesRequestBodyContent, 
 
 	if target.Https != nil {
 		if *target.Https.Http2Status == "on" {
-			source.Http2 = xtypes.ToPtr(int32(1))
+			source.Http2 = lo.ToPtr(int32(1))
 		}
 	}
 

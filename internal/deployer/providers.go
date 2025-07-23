@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/pkg/core"
 	p1PanelConsole "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/1panel-console"
@@ -107,7 +109,6 @@ import (
 	pWebhook "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/webhook"
 	xhttp "github.com/certimate-go/certimate/pkg/utils/http"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
-	xslices "github.com/certimate-go/certimate/pkg/utils/slices"
 )
 
 type deployerProviderOptions struct {
@@ -206,8 +207,8 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 					AccessKeySecret: access.AccessKeySecret,
 					ResourceGroupId: access.ResourceGroupId,
 					Region:          xmaps.GetString(options.ProviderServiceConfig, "region"),
-					ResourceIds:     xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "resourceIds"), ";"), func(s string) bool { return s != "" }),
-					ContactIds:      xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "contactIds"), ";"), func(s string) bool { return s != "" }),
+					ResourceIds:     lo.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "resourceIds"), ";"), func(s string, _ int) bool { return s != "" }),
+					ContactIds:      lo.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "contactIds"), ";"), func(s string, _ int) bool { return s != "" }),
 				})
 				return deployer, err
 
@@ -522,7 +523,7 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 					AllowInsecureConnections: access.AllowInsecureConnections,
 					SiteType:                 xmaps.GetOrDefaultString(options.ProviderServiceConfig, "siteType", "other"),
 					SiteName:                 xmaps.GetString(options.ProviderServiceConfig, "siteName"),
-					SiteNames:                xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "siteNames"), ";"), func(s string) bool { return s != "" }),
+					SiteNames:                lo.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "siteNames"), ";"), func(s string, _ int) bool { return s != "" }),
 				})
 				return deployer, err
 
@@ -1211,7 +1212,7 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 					SecretKey: access.SecretKey,
 					Endpoint:  xmaps.GetString(options.ProviderServiceConfig, "endpoint"),
 					ZoneId:    xmaps.GetString(options.ProviderServiceConfig, "zoneId"),
-					Domains:   xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "domains"), ";"), func(s string) bool { return s != "" }),
+					Domains:   lo.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "domains"), ";"), func(s string, _ int) bool { return s != "" }),
 				})
 				return deployer, err
 
@@ -1251,7 +1252,7 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 					Endpoint:     xmaps.GetString(options.ProviderServiceConfig, "endpoint"),
 					Region:       xmaps.GetString(options.ProviderServiceConfig, "region"),
 					ResourceType: xmaps.GetString(options.ProviderServiceConfig, "resourceType"),
-					ResourceIds:  xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "resourceIds"), ";"), func(s string) bool { return s != "" }),
+					ResourceIds:  lo.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "resourceIds"), ";"), func(s string, _ int) bool { return s != "" }),
 				})
 				return deployer, err
 
@@ -1262,8 +1263,8 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 					Endpoint:        xmaps.GetString(options.ProviderServiceConfig, "endpoint"),
 					CertificateId:   xmaps.GetString(options.ProviderServiceConfig, "certificateId"),
 					IsReplaced:      xmaps.GetBool(options.ProviderServiceConfig, "isReplaced"),
-					ResourceTypes:   xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "resourceTypes"), ";"), func(s string) bool { return s != "" }),
-					ResourceRegions: xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "resourceRegions"), ";"), func(s string) bool { return s != "" }),
+					ResourceTypes:   lo.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "resourceTypes"), ";"), func(s string, _ int) bool { return s != "" }),
+					ResourceRegions: lo.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "resourceRegions"), ";"), func(s string, _ int) bool { return s != "" }),
 				})
 				return deployer, err
 
@@ -1464,7 +1465,7 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 				deployer, err := pWangsuCDN.NewSSLDeployerProvider(&pWangsuCDN.SSLDeployerProviderConfig{
 					AccessKeyId:     access.AccessKeyId,
 					AccessKeySecret: access.AccessKeySecret,
-					Domains:         xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "domains"), ";"), func(s string) bool { return s != "" }),
+					Domains:         lo.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "domains"), ";"), func(s string, _ int) bool { return s != "" }),
 				})
 				return deployer, err
 

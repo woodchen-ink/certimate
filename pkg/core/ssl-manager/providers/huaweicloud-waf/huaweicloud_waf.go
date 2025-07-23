@@ -15,10 +15,10 @@ import (
 	hcwaf "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/waf/v1"
 	hcwafmodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/waf/v1/model"
 	hcwafregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/waf/v1/region"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLManagerProviderConfig struct {
@@ -85,9 +85,9 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		}
 
 		listCertificatesReq := &hcwafmodel.ListCertificatesRequest{
-			EnterpriseProjectId: xtypes.ToPtrOrZeroNil(m.config.EnterpriseProjectId),
-			Page:                xtypes.ToPtr(listCertificatesPage),
-			Pagesize:            xtypes.ToPtr(listCertificatesPageSize),
+			EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
+			Page:                lo.ToPtr(listCertificatesPage),
+			Pagesize:            lo.ToPtr(listCertificatesPageSize),
 		}
 		listCertificatesResp, err := m.sdkClient.ListCertificates(listCertificatesReq)
 		m.logger.Debug("sdk request 'waf.ShowCertificate'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
@@ -98,7 +98,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		if listCertificatesResp.Items != nil {
 			for _, certItem := range *listCertificatesResp.Items {
 				showCertificateReq := &hcwafmodel.ShowCertificateRequest{
-					EnterpriseProjectId: xtypes.ToPtrOrZeroNil(m.config.EnterpriseProjectId),
+					EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
 					CertificateId:       certItem.Id,
 				}
 				showCertificateResp, err := m.sdkClient.ShowCertificate(showCertificateReq)
@@ -143,7 +143,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// 创建证书
 	// REF: https://support.huaweicloud.com/api-waf/CreateCertificate.html
 	createCertificateReq := &hcwafmodel.CreateCertificateRequest{
-		EnterpriseProjectId: xtypes.ToPtrOrZeroNil(m.config.EnterpriseProjectId),
+		EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
 		Body: &hcwafmodel.CreateCertificateRequestBody{
 			Name:    certName,
 			Content: certPEM,

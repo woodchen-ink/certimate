@@ -11,10 +11,10 @@ import (
 	alicas "github.com/alibabacloud-go/cas-20200407/v3/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLManagerProviderConfig struct {
@@ -81,7 +81,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		}
 
 		listUserCertificateOrderReq := &alicas.ListUserCertificateOrderRequest{
-			ResourceGroupId: xtypes.ToPtrOrZeroNil(m.config.ResourceGroupId),
+			ResourceGroupId: lo.EmptyableToPtr(m.config.ResourceGroupId),
 			CurrentPage:     tea.Int64(listUserCertificateOrderPage),
 			ShowSize:        tea.Int64(listUserCertificateOrderLimit),
 			OrderType:       tea.String("CERT"),
@@ -157,7 +157,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// 上传新证书
 	// REF: https://help.aliyun.com/zh/ssl-certificate/developer-reference/api-cas-2020-04-07-uploadusercertificate
 	uploadUserCertificateReq := &alicas.UploadUserCertificateRequest{
-		ResourceGroupId: xtypes.ToPtrOrZeroNil(m.config.ResourceGroupId),
+		ResourceGroupId: lo.EmptyableToPtr(m.config.ResourceGroupId),
 		Name:            tea.String(certName),
 		Cert:            tea.String(certPEM),
 		Key:             tea.String(privkeyPEM),

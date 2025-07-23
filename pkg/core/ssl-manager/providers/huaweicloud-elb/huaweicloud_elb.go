@@ -15,10 +15,10 @@ import (
 	hciam "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
 	hciammodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
 	hciamregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/region"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLManagerProviderConfig struct {
@@ -84,7 +84,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		}
 
 		listCertificatesReq := &hcelbmodel.ListCertificatesRequest{
-			Limit:  xtypes.ToPtr(listCertificatesLimit),
+			Limit:  lo.ToPtr(listCertificatesLimit),
 			Marker: listCertificatesMarker,
 			Type:   &[]string{"server"},
 		}
@@ -141,11 +141,11 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	createCertificateReq := &hcelbmodel.CreateCertificateRequest{
 		Body: &hcelbmodel.CreateCertificateRequestBody{
 			Certificate: &hcelbmodel.CreateCertificateOption{
-				EnterpriseProjectId: xtypes.ToPtrOrZeroNil(m.config.EnterpriseProjectId),
-				ProjectId:           xtypes.ToPtr(projectId),
-				Name:                xtypes.ToPtr(certName),
-				Certificate:         xtypes.ToPtr(certPEM),
-				PrivateKey:          xtypes.ToPtr(privkeyPEM),
+				EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
+				ProjectId:           lo.ToPtr(projectId),
+				Name:                lo.ToPtr(certName),
+				Certificate:         lo.ToPtr(certPEM),
+				PrivateKey:          lo.ToPtr(privkeyPEM),
 			},
 		},
 	}

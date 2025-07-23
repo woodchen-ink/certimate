@@ -7,14 +7,13 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/samber/lo"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	tcgaap "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/gaap/v20180529"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
-	"github.com/certimate-go/certimate/pkg/utils/ifelse"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -56,9 +55,8 @@ func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProv
 	sslmgr, err := sslmgrsp.NewSSLManagerProvider(&sslmgrsp.SSLManagerProviderConfig{
 		SecretId:  config.SecretId,
 		SecretKey: config.SecretKey,
-		Endpoint: ifelse.
-			If[string](strings.HasSuffix(strings.TrimSpace(config.Endpoint), "intl.tencentcloudapi.com")).
-			Then("ssl.intl.tencentcloudapi.com"). // 国际站使用独立的接口端点
+		Endpoint: lo.
+			If(strings.HasSuffix(config.Endpoint, "intl.tencentcloudapi.com"), "ssl.intl.tencentcloudapi.com"). // 国际站使用独立的接口端点
 			Else(""),
 	})
 	if err != nil {
@@ -137,7 +135,7 @@ func (d *SSLDeployerProvider) modifyHttpsListenerCertificate(ctx context.Context
 	// 修改 HTTPS 监听器配置
 	// REF: https://cloud.tencent.com/document/api/608/36996
 	modifyHTTPSListenerAttributeReq := tcgaap.NewModifyHTTPSListenerAttributeRequest()
-	modifyHTTPSListenerAttributeReq.ProxyId = xtypes.ToPtrOrZeroNil(d.config.ProxyId)
+	modifyHTTPSListenerAttributeReq.ProxyId = lo.EmptyableToPtr(d.config.ProxyId)
 	modifyHTTPSListenerAttributeReq.ListenerId = common.StringPtr(cloudListenerId)
 	modifyHTTPSListenerAttributeReq.CertificateId = common.StringPtr(cloudCertId)
 	modifyHTTPSListenerAttributeResp, err := d.sdkClient.ModifyHTTPSListenerAttribute(modifyHTTPSListenerAttributeReq)

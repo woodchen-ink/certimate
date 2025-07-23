@@ -9,10 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	wangsusdk "github.com/certimate-go/certimate/pkg/sdk3rd/wangsu/certificate"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLManagerProviderConfig struct {
@@ -100,10 +101,10 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// 新增证书
 	// REF: https://www.wangsu.com/document/api-doc/25199?productCode=certificatemanagement
 	createCertificateReq := &wangsusdk.CreateCertificateRequest{
-		Name:        xtypes.ToPtr(certName),
-		Certificate: xtypes.ToPtr(certPEM),
-		PrivateKey:  xtypes.ToPtr(privkeyPEM),
-		Comment:     xtypes.ToPtr("upload from certimate"),
+		Name:        lo.ToPtr(certName),
+		Certificate: lo.ToPtr(certPEM),
+		PrivateKey:  lo.ToPtr(privkeyPEM),
+		Comment:     lo.ToPtr("upload from certimate"),
 	}
 	createCertificateResp, err := m.sdkClient.CreateCertificate(createCertificateReq)
 	m.logger.Debug("sdk request 'certificatemanagement.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))

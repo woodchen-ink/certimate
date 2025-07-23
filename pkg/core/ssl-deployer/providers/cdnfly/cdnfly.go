@@ -9,9 +9,10 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	cdnflysdk "github.com/certimate-go/certimate/pkg/sdk3rd/cdnfly"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -102,10 +103,10 @@ func (d *SSLDeployerProvider) deployToSite(ctx context.Context, certPEM string, 
 	// 添加单个证书
 	// REF: https://doc.cdnfly.cn/wangzhanzhengshu-v1-certs.html#%E6%B7%BB%E5%8A%A0%E5%8D%95%E4%B8%AA%E6%88%96%E5%A4%9A%E4%B8%AA%E8%AF%81%E4%B9%A6-%E5%A4%9A%E4%B8%AA%E8%AF%81%E4%B9%A6%E6%97%B6%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E4%B8%BA%E6%95%B0%E7%BB%84
 	createCertificateReq := &cdnflysdk.CreateCertRequest{
-		Name: xtypes.ToPtr(fmt.Sprintf("certimate-%d", time.Now().UnixMilli())),
-		Type: xtypes.ToPtr("custom"),
-		Cert: xtypes.ToPtr(certPEM),
-		Key:  xtypes.ToPtr(privkeyPEM),
+		Name: lo.ToPtr(fmt.Sprintf("certimate-%d", time.Now().UnixMilli())),
+		Type: lo.ToPtr("custom"),
+		Cert: lo.ToPtr(certPEM),
+		Key:  lo.ToPtr(privkeyPEM),
 	}
 	createCertificateResp, err := d.sdkClient.CreateCert(createCertificateReq)
 	d.logger.Debug("sdk request 'cdnfly.CreateCert'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
@@ -120,7 +121,7 @@ func (d *SSLDeployerProvider) deployToSite(ctx context.Context, certPEM string, 
 	updateSiteHttpsListenMap["cert"] = createCertificateResp.Data
 	updateSiteHttpsListenData, _ := json.Marshal(updateSiteHttpsListenMap)
 	updateSiteReq := &cdnflysdk.UpdateSiteRequest{
-		HttpsListen: xtypes.ToPtr(string(updateSiteHttpsListenData)),
+		HttpsListen: lo.ToPtr(string(updateSiteHttpsListenData)),
 	}
 	updateSiteResp, err := d.sdkClient.UpdateSite(d.config.SiteId, updateSiteReq)
 	d.logger.Debug("sdk request 'cdnfly.UpdateSite'", slog.String("siteId", d.config.SiteId), slog.Any("request", updateSiteReq), slog.Any("response", updateSiteResp))
@@ -139,9 +140,9 @@ func (d *SSLDeployerProvider) deployToCertificate(ctx context.Context, certPEM s
 	// 修改单个证书
 	// REF: https://doc.cdnfly.cn/wangzhanzhengshu-v1-certs.html#%E4%BF%AE%E6%94%B9%E5%8D%95%E4%B8%AA%E8%AF%81%E4%B9%A6
 	updateCertReq := &cdnflysdk.UpdateCertRequest{
-		Type: xtypes.ToPtr("custom"),
-		Cert: xtypes.ToPtr(certPEM),
-		Key:  xtypes.ToPtr(privkeyPEM),
+		Type: lo.ToPtr("custom"),
+		Cert: lo.ToPtr(certPEM),
+		Key:  lo.ToPtr(privkeyPEM),
 	}
 	updateCertResp, err := d.sdkClient.UpdateCert(d.config.CertificateId, updateCertReq)
 	d.logger.Debug("sdk request 'cdnfly.UpdateCert'", slog.String("certId", d.config.CertificateId), slog.Any("request", updateCertReq), slog.Any("response", updateCertResp))

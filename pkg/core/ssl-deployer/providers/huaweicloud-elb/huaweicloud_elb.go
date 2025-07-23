@@ -14,11 +14,11 @@ import (
 	hciam "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3"
 	hciammodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
 	hciamregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/region"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/huaweicloud-elb"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -126,8 +126,8 @@ func (d *SSLDeployerProvider) deployToCertificate(ctx context.Context, certPEM s
 		CertificateId: d.config.CertificateId,
 		Body: &hcelbmodel.UpdateCertificateRequestBody{
 			Certificate: &hcelbmodel.UpdateCertificateOption{
-				Certificate: xtypes.ToPtr(certPEM),
-				PrivateKey:  xtypes.ToPtr(privkeyPEM),
+				Certificate: lo.ToPtr(certPEM),
+				PrivateKey:  lo.ToPtr(privkeyPEM),
 			},
 		},
 	}
@@ -169,13 +169,13 @@ func (d *SSLDeployerProvider) deployToLoadbalancer(ctx context.Context, certPEM 
 		}
 
 		listListenersReq := &hcelbmodel.ListListenersRequest{
-			Limit:          xtypes.ToPtr(listListenersLimit),
+			Limit:          lo.ToPtr(listListenersLimit),
 			Marker:         listListenersMarker,
 			Protocol:       &[]string{"HTTPS", "TERMINATED_HTTPS"},
 			LoadbalancerId: &[]string{showLoadBalancerResp.Loadbalancer.Id},
 		}
 		if d.config.EnterpriseProjectId != "" {
-			listListenersReq.EnterpriseProjectId = xtypes.ToPtr([]string{d.config.EnterpriseProjectId})
+			listListenersReq.EnterpriseProjectId = lo.ToPtr([]string{d.config.EnterpriseProjectId})
 		}
 		listListenersResp, err := d.sdkClient.ListListeners(listListenersReq)
 		d.logger.Debug("sdk request 'elb.ListListeners'", slog.Any("request", listListenersReq), slog.Any("response", listListenersResp))
@@ -269,7 +269,7 @@ func (d *SSLDeployerProvider) modifyListenerCertificate(ctx context.Context, clo
 		ListenerId: cloudListenerId,
 		Body: &hcelbmodel.UpdateListenerRequestBody{
 			Listener: &hcelbmodel.UpdateListenerOption{
-				DefaultTlsContainerRef: xtypes.ToPtr(cloudCertId),
+				DefaultTlsContainerRef: lo.ToPtr(cloudCertId),
 			},
 		},
 	}
@@ -317,7 +317,7 @@ func (d *SSLDeployerProvider) modifyListenerCertificate(ctx context.Context, clo
 		}
 
 		if showListenerResp.Listener.SniMatchAlgo != "" {
-			updateListenerReq.Body.Listener.SniMatchAlgo = xtypes.ToPtr(showListenerResp.Listener.SniMatchAlgo)
+			updateListenerReq.Body.Listener.SniMatchAlgo = lo.ToPtr(showListenerResp.Listener.SniMatchAlgo)
 		}
 	}
 	updateListenerResp, err := d.sdkClient.UpdateListener(updateListenerReq)

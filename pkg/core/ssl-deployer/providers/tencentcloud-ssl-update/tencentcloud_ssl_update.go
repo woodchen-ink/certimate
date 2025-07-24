@@ -157,10 +157,13 @@ func (d *SSLDeployerProvider) executeUpdateCertificateInstance(ctx context.Conte
 			return fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostUpdateRecordDetail': %w", err)
 		}
 
-		var runningCount, succeededCount, failedCount, totalCount int64
+		var pendingCount, runningCount, succeededCount, failedCount, totalCount int64
 		if describeHostUpdateRecordDetailResp.Response.TotalCount == nil {
 			return errors.New("unexpected tencentcloud deployment job status")
 		} else {
+			if describeHostUpdateRecordDetailResp.Response.PendingTotalCount != nil {
+				pendingCount = *describeHostUpdateRecordDetailResp.Response.PendingTotalCount
+			}
 			if describeHostUpdateRecordDetailResp.Response.RunningTotalCount != nil {
 				runningCount = *describeHostUpdateRecordDetailResp.Response.RunningTotalCount
 			}
@@ -182,7 +185,7 @@ func (d *SSLDeployerProvider) executeUpdateCertificateInstance(ctx context.Conte
 			}
 		}
 
-		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount))
+		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (pending: %d, running: %d, succeeded: %d, failed: %d, total: %d) ...", pendingCount, runningCount, succeededCount, failedCount, totalCount))
 		time.Sleep(time.Second * 5)
 	}
 

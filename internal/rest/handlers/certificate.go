@@ -11,7 +11,7 @@ import (
 )
 
 type certificateService interface {
-	ArchiveFile(ctx context.Context, req *dtos.CertificateArchiveFileReq) (*dtos.CertificateArchiveFileResp, error)
+	DownloadArchivedFile(ctx context.Context, req *dtos.CertificateArchiveFileReq) (*dtos.CertificateArchiveFileResp, error)
 	ValidateCertificate(ctx context.Context, req *dtos.CertificateValidateCertificateReq) (*dtos.CertificateValidateCertificateResp, error)
 	ValidatePrivateKey(ctx context.Context, req *dtos.CertificateValidatePrivateKeyReq) (*dtos.CertificateValidatePrivateKeyResp, error)
 }
@@ -38,7 +38,7 @@ func (handler *CertificateHandler) archiveFile(e *core.RequestEvent) error {
 		return resp.Err(e, err)
 	}
 
-	if res, err := handler.service.ArchiveFile(e.Request.Context(), req); err != nil {
+	if res, err := handler.service.DownloadArchivedFile(e.Request.Context(), req); err != nil {
 		return resp.Err(e, err)
 	} else {
 		return resp.Ok(e, res)

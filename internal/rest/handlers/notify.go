@@ -11,7 +11,7 @@ import (
 )
 
 type notifyService interface {
-	Test(ctx context.Context, req *dtos.NotifyTestPushReq) error
+	TestPush(ctx context.Context, req *dtos.NotifyTestPushReq) error
 }
 
 type NotifyHandler struct {
@@ -33,7 +33,7 @@ func (handler *NotifyHandler) test(e *core.RequestEvent) error {
 		return resp.Err(e, err)
 	}
 
-	if err := handler.service.Test(e.Request.Context(), req); err != nil {
+	if err := handler.service.TestPush(e.Request.Context(), req); err != nil {
 		return resp.Err(e, err)
 	}
 

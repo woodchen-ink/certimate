@@ -59,7 +59,7 @@ func (s *WorkflowService) InitSchedule(ctx context.Context) error {
 			return
 		}
 
-		var settingsContent *domain.PersistenceSettingsContent
+		var settingsContent *domain.SettingsContentAsPersistence
 		json.Unmarshal([]byte(settings.Content), &settingsContent)
 		if settingsContent != nil && settingsContent.WorkflowRunsMaxDaysRetention != 0 {
 			ret, err := s.workflowRunRepo.DeleteWhere(

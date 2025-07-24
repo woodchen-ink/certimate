@@ -107,7 +107,6 @@ type WorkflowNodeConfigForDeploy struct {
 }
 
 type WorkflowNodeConfigForNotify struct {
-	Channel              string         `json:"channel,omitempty"`        // Deprecated: v0.4.x 将废弃
 	Provider             string         `json:"provider"`                 // 通知提供商
 	ProviderAccessId     string         `json:"providerAccessId"`         // 通知提供商授权记录 ID
 	ProviderConfig       map[string]any `json:"providerConfig,omitempty"` // 通知提供商额外配置
@@ -173,7 +172,6 @@ func (n *WorkflowNode) GetConfigForDeploy() WorkflowNodeConfigForDeploy {
 
 func (n *WorkflowNode) GetConfigForNotify() WorkflowNodeConfigForNotify {
 	return WorkflowNodeConfigForNotify{
-		Channel:              xmaps.GetString(n.Config, "channel"),
 		Provider:             xmaps.GetString(n.Config, "provider"),
 		ProviderAccessId:     xmaps.GetString(n.Config, "providerAccessId"),
 		ProviderConfig:       xmaps.GetKVMapAny(n.Config, "providerConfig"),

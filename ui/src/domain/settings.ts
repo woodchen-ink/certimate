@@ -2,11 +2,6 @@ import { type CAProviderType } from "./provider";
 
 export const SETTINGS_NAMES = Object.freeze({
   EMAILS: "emails",
-  NOTIFY_TEMPLATES: "notifyTemplates",
-  /**
-   * @deprecated
-   */
-  NOTIFY_CHANNELS: "notifyChannels",
   SSL_PROVIDER: "sslProvider",
   PERSISTENCE: "persistence",
 } as const);
@@ -21,22 +16,6 @@ export interface SettingsModel<T extends NonNullable<unknown> = any> extends Bas
 // #region Settings: Emails
 export type EmailsSettingsContent = {
   emails: string[];
-};
-// #endregion
-
-// #region Settings: NotifyTemplates
-export type NotifyTemplatesSettingsContent = {
-  notifyTemplates: NotifyTemplate[];
-};
-
-export type NotifyTemplate = {
-  subject: string;
-  message: string;
-};
-
-export const defaultNotifyTemplate: NotifyTemplate = {
-  subject: "有 ${COUNT} 张证书即将过期",
-  message: "有 ${COUNT} 张证书即将过期，域名分别为 ${DOMAINS}，请保持关注！",
 };
 // #endregion
 

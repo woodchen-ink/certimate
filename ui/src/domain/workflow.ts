@@ -210,10 +210,6 @@ export const defaultNodeConfigForDeploy = (): Partial<WorkflowNodeConfigForDeplo
 export type WorkflowNodeConfigForNotify = {
   subject: string;
   message: string;
-  /**
-   * @deprecated
-   */
-  channel?: string;
   provider: string;
   providerAccessId: string;
   providerConfig?: Record<string, unknown>;

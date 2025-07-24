@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/ctcccloud-cdn"
 	ctyuncdn "github.com/certimate-go/certimate/pkg/sdk3rd/ctyun/cdn"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -80,7 +81,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	// 查询域名配置信息
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=108&api=11304&data=161&isNormal=1&vid=154
 	queryDomainDetailReq := &ctyuncdn.QueryDomainDetailRequest{
-		Domain: xtypes.ToPtr(d.config.Domain),
+		Domain: lo.ToPtr(d.config.Domain),
 	}
 	queryDomainDetailResp, err := d.sdkClient.QueryDomainDetail(queryDomainDetailReq)
 	d.logger.Debug("sdk request 'cdn.QueryDomainDetail'", slog.Any("request", queryDomainDetailReq), slog.Any("response", queryDomainDetailResp))
@@ -91,9 +92,9 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	// 修改域名配置
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=108&api=11308&data=161&isNormal=1&vid=154
 	updateDomainReq := &ctyuncdn.UpdateDomainRequest{
-		Domain:      xtypes.ToPtr(d.config.Domain),
-		HttpsStatus: xtypes.ToPtr("on"),
-		CertName:    xtypes.ToPtr(upres.CertName),
+		Domain:      lo.ToPtr(d.config.Domain),
+		HttpsStatus: lo.ToPtr("on"),
+		CertName:    lo.ToPtr(upres.CertName),
 	}
 	updateDomainResp, err := d.sdkClient.UpdateDomain(updateDomainReq)
 	d.logger.Debug("sdk request 'cdn.UpdateDomain'", slog.Any("request", updateDomainReq), slog.Any("response", updateDomainResp))

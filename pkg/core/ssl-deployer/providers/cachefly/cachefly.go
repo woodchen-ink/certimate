@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	cacheflysdk "github.com/certimate-go/certimate/pkg/sdk3rd/cachefly"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -53,8 +54,8 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	// 上传证书
 	// REF: https://api.cachefly.com/api/2.5/docs#tag/Certificates/paths/~1certificates/post
 	createCertificateReq := &cacheflysdk.CreateCertificateRequest{
-		Certificate:    xtypes.ToPtr(certPEM),
-		CertificateKey: xtypes.ToPtr(privkeyPEM),
+		Certificate:    lo.ToPtr(certPEM),
+		CertificateKey: lo.ToPtr(privkeyPEM),
 	}
 	createCertificateResp, err := d.sdkClient.CreateCertificate(createCertificateReq)
 	d.logger.Debug("sdk request 'cachefly.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))

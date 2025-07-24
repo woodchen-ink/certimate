@@ -139,8 +139,8 @@ type AccessConfigForDingTalkBot struct {
 }
 
 type AccessConfigForDiscordBot struct {
-	BotToken         string `json:"botToken"`
-	DefaultChannelId string `json:"defaultChannelId,omitempty"`
+	BotToken  string `json:"botToken"`
+	ChannelId string `json:"channelId,omitempty"`
 }
 
 type AccessConfigForDNSLA struct {
@@ -167,14 +167,14 @@ type AccessConfigForEdgio struct {
 }
 
 type AccessConfigForEmail struct {
-	SmtpHost               string `json:"smtpHost"`
-	SmtpPort               int32  `json:"smtpPort"`
-	SmtpTls                bool   `json:"smtpTls"`
-	Username               string `json:"username"`
-	Password               string `json:"password"`
-	DefaultSenderAddress   string `json:"defaultSenderAddress,omitempty"`
-	DefaultSenderName      string `json:"defaultSenderName,omitempty"`
-	DefaultReceiverAddress string `json:"defaultReceiverAddress,omitempty"`
+	SmtpHost        string `json:"smtpHost"`
+	SmtpPort        int32  `json:"smtpPort"`
+	SmtpTls         bool   `json:"smtpTls"`
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+	SenderAddress   string `json:"senderAddress"`
+	SenderName      string `json:"senderName"`
+	ReceiverAddress string `json:"receiverAddress,omitempty"`
 }
 
 type AccessConfigForFlexCDN struct {
@@ -251,10 +251,10 @@ type AccessConfigForLeCDN struct {
 }
 
 type AccessConfigForMattermost struct {
-	ServerUrl        string `json:"serverUrl"`
-	Username         string `json:"username"`
-	Password         string `json:"password"`
-	DefaultChannelId string `json:"defaultChannelId,omitempty"`
+	ServerUrl string `json:"serverUrl"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	ChannelId string `json:"channelId,omitempty"`
 }
 
 type AccessConfigForNamecheap struct {
@@ -326,8 +326,8 @@ type AccessConfigForSafeLine struct {
 }
 
 type AccessConfigForSlackBot struct {
-	BotToken         string `json:"botToken"`
-	DefaultChannelId string `json:"defaultChannelId,omitempty"`
+	BotToken  string `json:"botToken"`
+	ChannelId string `json:"channelId,omitempty"`
 }
 
 type AccessConfigForSpaceship struct {
@@ -360,8 +360,8 @@ type AccessConfigForSSLCom struct {
 }
 
 type AccessConfigForTelegramBot struct {
-	BotToken      string `json:"botToken"`
-	DefaultChatId int64  `json:"defaultChatId,omitempty"`
+	BotToken string `json:"botToken"`
+	ChatId   int64  `json:"chatId,omitempty"`
 }
 
 type AccessConfigForTencentCloud struct {
@@ -402,12 +402,12 @@ type AccessConfigForWangsu struct {
 }
 
 type AccessConfigForWebhook struct {
-	Url                        string `json:"url"`
-	Method                     string `json:"method,omitempty"`
-	HeadersString              string `json:"headers,omitempty"`
-	AllowInsecureConnections   bool   `json:"allowInsecureConnections,omitempty"`
-	DefaultDataForDeployment   string `json:"defaultDataForDeployment,omitempty"`
-	DefaultDataForNotification string `json:"defaultDataForNotification,omitempty"`
+	Url                       string `json:"url"`
+	Method                    string `json:"method,omitempty"`
+	HeadersString             string `json:"headers,omitempty"`
+	DataStringForDeployment   string `json:"dataForDeployment,omitempty"`
+	DataStringForNotification string `json:"dataForNotification,omitempty"`
+	AllowInsecureConnections  bool   `json:"allowInsecureConnections,omitempty"`
 }
 
 type AccessConfigForWeComBot struct {

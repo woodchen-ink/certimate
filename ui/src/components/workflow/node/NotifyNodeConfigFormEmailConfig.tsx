@@ -26,14 +26,6 @@ const NotifyNodeConfigFormEmailConfig = ({ form: formInst, formName, disabled, i
   const { t } = useTranslation();
 
   const formSchema = z.object({
-    senderAddress: z
-      .string()
-      .nullish()
-      .refine((v) => {
-        if (!v) return true;
-        return validEmailAddress(v);
-      }, t("common.errmsg.email_invalid")),
-    senderName: z.string().nullish(),
     receiverAddress: z
       .string()
       .nullish()
@@ -57,24 +49,6 @@ const NotifyNodeConfigFormEmailConfig = ({ form: formInst, formName, disabled, i
       name={formName}
       onValuesChange={handleFormChange}
     >
-      <Form.Item
-        name="senderAddress"
-        label={t("workflow_node.notify.form.email_sender_address.label")}
-        rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.notify.form.email_sender_address.tooltip") }}></span>}
-      >
-        <Input type="email" allowClear placeholder={t("workflow_node.notify.form.email_sender_address.placeholder")} />
-      </Form.Item>
-
-      <Form.Item
-        name="senderName"
-        label={t("workflow_node.notify.form.email_sender_name.label")}
-        rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.notify.form.email_sender_name.tooltip") }}></span>}
-      >
-        <Input allowClear placeholder={t("workflow_node.notify.form.email_sender_name.placeholder")} />
-      </Form.Item>
-
       <Form.Item
         name="receiverAddress"
         label={t("workflow_node.notify.form.email_receiver_address.label")}

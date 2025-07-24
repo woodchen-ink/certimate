@@ -13,11 +13,11 @@ import (
 	alicas "github.com/alibabacloud-go/cas-20200407/v3/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
-	"github.com/certimate-go/certimate/pkg/utils/ifelse"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -70,9 +70,8 @@ func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProv
 		AccessKeyId:     config.AccessKeyId,
 		AccessKeySecret: config.AccessKeySecret,
 		ResourceGroupId: config.ResourceGroupId,
-		Region: ifelse.
-			If[string](config.Region == "" || strings.HasPrefix(config.Region, "cn-")).
-			Then("cn-hangzhou").
+		Region: lo.
+			If(config.Region == "" || strings.HasPrefix(config.Region, "cn-"), "cn-hangzhou").
 			Else("ap-southeast-1"),
 	})
 	if err != nil {

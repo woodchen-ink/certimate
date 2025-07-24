@@ -2,7 +2,6 @@ package logging
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"sync"
 
@@ -114,22 +113,10 @@ func (h *HookHandler) Handle(ctx context.Context, r slog.Record) error {
 
 	log := &Record{
 		Time:    r.Time,
+		Level:   r.Level,
 		Message: r.Message,
 		Data:    types.JSONMap[any](data),
 	}
-	switch r.Level {
-	case slog.LevelDebug:
-		log.Level = LevelDebug
-	case slog.LevelInfo:
-		log.Level = LevelInfo
-	case slog.LevelWarn:
-		log.Level = LevelWarn
-	case slog.LevelError:
-		log.Level = LevelError
-	default:
-		log.Level = Level(fmt.Sprintf("LV(%d)", r.Level))
-	}
-
 	if err := h.writeRecord(ctx, log); err != nil {
 		return err
 	}

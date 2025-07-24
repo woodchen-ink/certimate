@@ -20,7 +20,7 @@ type Workflow struct {
 	Content       *WorkflowNode         `json:"content" db:"content"`
 	Draft         *WorkflowNode         `json:"draft" db:"draft"`
 	HasDraft      bool                  `json:"hasDraft" db:"hasDraft"`
-	LastRunId     string                `json:"lastRunId" db:"lastRunId"`
+	LastRunId     string                `json:"lastRunId" db:"lastRunRef"`
 	LastRunStatus WorkflowRunStatusType `json:"lastRunStatus" db:"lastRunStatus"`
 	LastRunTime   time.Time             `json:"lastRunTime" db:"lastRunTime"`
 }
@@ -45,8 +45,8 @@ const (
 type WorkflowTriggerType string
 
 const (
-	WorkflowTriggerTypeAuto   = WorkflowTriggerType("auto")
-	WorkflowTriggerTypeManual = WorkflowTriggerType("manual")
+	WorkflowTriggerTypeScheduled = WorkflowTriggerType("scheduled")
+	WorkflowTriggerTypeManual    = WorkflowTriggerType("manual")
 )
 
 type WorkflowNode struct {
@@ -55,8 +55,8 @@ type WorkflowNode struct {
 	Name string           `json:"name"`
 
 	Config  map[string]any   `json:"config"`
-	Inputs  []WorkflowNodeIO `json:"inputs"`
-	Outputs []WorkflowNodeIO `json:"outputs"`
+	Inputs  []WorkflowNodeIO `json:"inputs,omitempty"`
+	Outputs []WorkflowNodeIO `json:"outputs,omitempty"`
 
 	Next     *WorkflowNode  `json:"next,omitempty"`
 	Branches []WorkflowNode `json:"branches,omitempty"`
@@ -107,7 +107,6 @@ type WorkflowNodeConfigForDeploy struct {
 }
 
 type WorkflowNodeConfigForNotify struct {
-	Channel              string         `json:"channel,omitempty"`        // Deprecated: v0.4.x 将废弃
 	Provider             string         `json:"provider"`                 // 通知提供商
 	ProviderAccessId     string         `json:"providerAccessId"`         // 通知提供商授权记录 ID
 	ProviderConfig       map[string]any `json:"providerConfig,omitempty"` // 通知提供商额外配置
@@ -173,7 +172,6 @@ func (n *WorkflowNode) GetConfigForDeploy() WorkflowNodeConfigForDeploy {
 
 func (n *WorkflowNode) GetConfigForNotify() WorkflowNodeConfigForNotify {
 	return WorkflowNodeConfigForNotify{
-		Channel:              xmaps.GetString(n.Config, "channel"),
 		Provider:             xmaps.GetString(n.Config, "provider"),
 		ProviderAccessId:     xmaps.GetString(n.Config, "providerAccessId"),
 		ProviderConfig:       xmaps.GetKVMapAny(n.Config, "providerConfig"),

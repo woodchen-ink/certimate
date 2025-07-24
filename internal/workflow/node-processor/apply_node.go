@@ -79,7 +79,7 @@ func (n *applyNode) Process(ctx context.Context) error {
 	}
 
 	certificate := &domain.Certificate{
-		Source:            domain.CertificateSourceTypeWorkflow,
+		Source:            domain.CertificateSourceTypeRequest,
 		Certificate:       applyResult.FullChainCertificate,
 		PrivateKey:        applyResult.PrivateKey,
 		IssuerCertificate: applyResult.IssuerCertificate,
@@ -115,7 +115,7 @@ func (n *applyNode) Process(ctx context.Context) error {
 	// 记录中间结果
 	n.outputs[outputKeyForNodeSkipped] = strconv.FormatBool(false)
 	n.outputs[outputKeyForCertificateValidity] = strconv.FormatBool(true)
-	n.outputs[outputKeyForCertificateDaysLeft] = strconv.FormatInt(int64(time.Until(certificate.ExpireAt).Hours()/24), 10)
+	n.outputs[outputKeyForCertificateDaysLeft] = strconv.FormatInt(int64(time.Until(certificate.ValidityNotAfter).Hours()/24), 10)
 
 	n.logger.Info("application completed")
 	return nil
@@ -158,7 +158,7 @@ func (n *applyNode) checkCanSkip(ctx context.Context, lastOutput *domain.Workflo
 		lastCertificate, _ := n.certRepo.GetByWorkflowRunIdAndNodeId(ctx, lastOutput.RunId, lastOutput.NodeId)
 		if lastCertificate != nil {
 			renewalInterval := time.Duration(thisNodeCfg.SkipBeforeExpiryDays) * time.Hour * 24
-			expirationTime := time.Until(lastCertificate.ExpireAt)
+			expirationTime := time.Until(lastCertificate.ValidityNotAfter)
 			if expirationTime > renewalInterval {
 				daysLeft := int(expirationTime.Hours() / 24)
 				// TODO: 优化此处逻辑，[checkCanSkip] 方法不应该修改中间结果，违背单一职责

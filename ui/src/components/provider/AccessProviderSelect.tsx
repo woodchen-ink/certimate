@@ -7,11 +7,11 @@ import { ACCESS_USAGES, type AccessProvider, type AccessUsageType, accessProvide
 
 export interface AccessProviderSelectProps
   extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
-  filter?: (record: AccessProvider) => boolean;
   showOptionTags?: boolean | { [key in AccessUsageType]?: boolean };
+  onFilter?: (value: string, option: AccessProvider) => boolean;
 }
 
-const AccessProviderSelect = ({ filter, showOptionTags, ...props }: AccessProviderSelectProps = { showOptionTags: true }) => {
+const AccessProviderSelect = ({ showOptionTags, onFilter, ...props }: AccessProviderSelectProps = { showOptionTags: true }) => {
   const { t } = useTranslation();
 
   const { token: themeToken } = theme.useToken();
@@ -19,8 +19,8 @@ const AccessProviderSelect = ({ filter, showOptionTags, ...props }: AccessProvid
   const options = useMemo<Array<{ key: string; value: string; label: string; data: AccessProvider }>>(() => {
     return Array.from(accessProvidersMap.values())
       .filter((provider) => {
-        if (filter) {
-          return filter(provider);
+        if (onFilter) {
+          return onFilter(provider.type, provider);
         }
 
         return true;
@@ -32,7 +32,7 @@ const AccessProviderSelect = ({ filter, showOptionTags, ...props }: AccessProvid
         disabled: provider.builtin,
         data: provider,
       }));
-  }, [filter]);
+  }, [onFilter]);
 
   const showOptionTagForDNS = useMemo(() => {
     return typeof showOptionTags === "object" ? !!showOptionTags?.[ACCESS_USAGES.DNS] : !!showOptionTags;

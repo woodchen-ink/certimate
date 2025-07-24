@@ -50,8 +50,19 @@ export const save = async (record: MaybeModelRecord<WorkflowModel>) => {
   return await getPocketBase().collection(COLLECTION_NAME_WORKFLOW).create<WorkflowModel>(record);
 };
 
-export const remove = async (record: MaybeModelRecordWithId<WorkflowModel>) => {
-  return await getPocketBase().collection(COLLECTION_NAME_WORKFLOW).delete(record.id);
+export const remove = async (record: MaybeModelRecordWithId<WorkflowModel> | MaybeModelRecordWithId<WorkflowModel>[]) => {
+  const pb = getPocketBase();
+
+  if (Array.isArray(record)) {
+    const batch = pb.createBatch();
+    for (const item of record) {
+      batch.collection(COLLECTION_NAME_WORKFLOW).delete(item.id);
+    }
+    const res = await batch.send();
+    return res.every((e) => e.status === 200);
+  } else {
+    return await pb.collection(COLLECTION_NAME_WORKFLOW).delete(record.id);
+  }
 };
 
 export const subscribe = async (id: string, cb: (e: RecordSubscription<WorkflowModel>) => void) => {

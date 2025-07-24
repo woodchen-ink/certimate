@@ -13,13 +13,13 @@ export interface WorkflowModel extends BaseModel {
   content?: WorkflowNode;
   draft?: WorkflowNode;
   hasDraft?: boolean;
-  lastRunId?: string;
+  lastRunRef?: string;
   lastRunStatus?: string;
   lastRunTime?: string;
 }
 
 export const WORKFLOW_TRIGGERS = Object.freeze({
-  AUTO: "auto",
+  SCHEDULED: "scheduled",
   MANUAL: "manual",
 } as const);
 
@@ -135,7 +135,7 @@ export type WorkflowNodeConfigForStart = {
 
 export const defaultNodeConfigForStart = (): Partial<WorkflowNodeConfigForStart> => {
   return {
-    trigger: WORKFLOW_TRIGGERS.AUTO,
+    trigger: WORKFLOW_TRIGGERS.SCHEDULED,
     triggerCron: "0 0 * * *",
   };
 };
@@ -210,10 +210,6 @@ export const defaultNodeConfigForDeploy = (): Partial<WorkflowNodeConfigForDeplo
 export type WorkflowNodeConfigForNotify = {
   subject: string;
   message: string;
-  /**
-   * @deprecated
-   */
-  channel?: string;
   provider: string;
   providerAccessId: string;
   providerConfig?: Record<string, unknown>;

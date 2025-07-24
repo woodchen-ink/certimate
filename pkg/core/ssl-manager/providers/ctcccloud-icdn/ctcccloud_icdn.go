@@ -9,10 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	ctyunicdn "github.com/certimate-go/certimate/pkg/sdk3rd/ctyun/icdn"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLManagerProviderConfig struct {
@@ -74,9 +75,9 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		}
 
 		queryCertListReq := &ctyunicdn.QueryCertListRequest{
-			Page:      xtypes.ToPtr(queryCertListPage),
-			PerPage:   xtypes.ToPtr(queryCertListPerPage),
-			UsageMode: xtypes.ToPtr(int32(0)),
+			Page:      lo.ToPtr(queryCertListPage),
+			PerPage:   lo.ToPtr(queryCertListPerPage),
+			UsageMode: lo.ToPtr(int32(0)),
 		}
 		queryCertListResp, err := m.sdkClient.QueryCertList(queryCertListReq)
 		m.logger.Debug("sdk request 'icdn.QueryCertList'", slog.Any("request", queryCertListReq), slog.Any("response", queryCertListResp))
@@ -106,7 +107,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 				// 查询证书详情
 				// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=112&api=10837&data=173&isNormal=1&vid=166
 				queryCertDetailReq := &ctyunicdn.QueryCertDetailRequest{
-					Id: xtypes.ToPtr(certRecord.Id),
+					Id: lo.ToPtr(certRecord.Id),
 				}
 				queryCertDetailResp, err := m.sdkClient.QueryCertDetail(queryCertDetailReq)
 				m.logger.Debug("sdk request 'icdn.QueryCertDetail'", slog.Any("request", queryCertDetailReq), slog.Any("response", queryCertDetailResp))
@@ -150,9 +151,9 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// 创建证书
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=112&api=10835&data=173&isNormal=1&vid=166
 	createCertReq := &ctyunicdn.CreateCertRequest{
-		Name:  xtypes.ToPtr(certName),
-		Certs: xtypes.ToPtr(certPEM),
-		Key:   xtypes.ToPtr(privkeyPEM),
+		Name:  lo.ToPtr(certName),
+		Certs: lo.ToPtr(certPEM),
+		Key:   lo.ToPtr(privkeyPEM),
 	}
 	createCertResp, err := m.sdkClient.CreateCert(createCertReq)
 	m.logger.Debug("sdk request 'icdn.CreateCert'", slog.Any("request", createCertReq), slog.Any("response", createCertResp))

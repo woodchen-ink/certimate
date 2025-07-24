@@ -509,15 +509,15 @@ const DeployNodeConfigForm = forwardRef<DeployNodeConfigFormInstance, DeployNode
               </label>
               <Form.Item name="providerAccessId" rules={[formRule]}>
                 <AccessSelect
-                  filter={(record) => {
-                    if (record.reserve) return false;
-                    if (fieldProvider) return deploymentProvidersMap.get(fieldProvider)?.provider === record.provider;
-
-                    const provider = accessProvidersMap.get(record.provider);
-                    return !!provider?.usages?.includes(ACCESS_USAGES.HOSTING);
-                  }}
                   placeholder={t("workflow_node.deploy.form.provider_access.placeholder")}
                   showSearch
+                  onFilter={(_, option) => {
+                    if (option.reserve) return false;
+                    if (fieldProvider) return deploymentProvidersMap.get(fieldProvider)?.provider === option.provider;
+
+                    const provider = accessProvidersMap.get(option.provider);
+                    return !!provider?.usages?.includes(ACCESS_USAGES.HOSTING);
+                  }}
                 />
               </Form.Item>
             </Form.Item>

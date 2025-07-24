@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	apisixsdk "github.com/certimate-go/certimate/pkg/sdk3rd/apisix"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -89,11 +90,11 @@ func (d *SSLDeployerProvider) deployToCertificate(ctx context.Context, certPEM s
 	// 更新 SSL 证书
 	// REF: https://apisix.apache.org/zh/docs/apisix/admin-api/#ssl
 	updateSSLReq := &apisixsdk.UpdateSSLRequest{
-		Cert:   xtypes.ToPtr(certPEM),
-		Key:    xtypes.ToPtr(privkeyPEM),
-		SNIs:   xtypes.ToPtr(certX509.DNSNames),
-		Type:   xtypes.ToPtr("server"),
-		Status: xtypes.ToPtr(int32(1)),
+		Cert:   lo.ToPtr(certPEM),
+		Key:    lo.ToPtr(privkeyPEM),
+		SNIs:   lo.ToPtr(certX509.DNSNames),
+		Type:   lo.ToPtr("server"),
+		Status: lo.ToPtr(int32(1)),
 	}
 	updateSSLResp, err := d.sdkClient.UpdateSSL(d.config.CertificateId, updateSSLReq)
 	d.logger.Debug("sdk request 'apisix.UpdateSSL'", slog.String("sslId", d.config.CertificateId), slog.Any("request", updateSSLReq), slog.Any("response", updateSSLResp))

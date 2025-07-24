@@ -29,7 +29,7 @@ const AccessFormSlackBotConfig = ({ form: formInst, formName, disabled, initialV
       .string(t("access.form.slackbot_token.placeholder"))
       .min(1, t("access.form.slackbot_token.placeholder"))
       .max(256, t("common.errmsg.string_max", { max: 256 })),
-    defaultChannelId: z.string().nullish(),
+    channelId: z.string().nullish(),
   });
   const formRule = createSchemaFieldRule(formSchema);
 
@@ -56,12 +56,12 @@ const AccessFormSlackBotConfig = ({ form: formInst, formName, disabled, initialV
       </Form.Item>
 
       <Form.Item
-        name="defaultChannelId"
-        label={t("access.form.slackbot_default_channel_id.label")}
+        name="channelId"
+        label={t("access.form.slackbot_channel_id.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("access.form.slackbot_default_channel_id.tooltip") }}></span>}
+        tooltip={<span dangerouslySetInnerHTML={{ __html: t("access.form.slackbot_channel_id.tooltip") }}></span>}
       >
-        <Input allowClear placeholder={t("access.form.slackbot_default_channel_id.placeholder")} />
+        <Input allowClear placeholder={t("access.form.slackbot_channel_id.placeholder")} />
       </Form.Item>
     </Form>
   );

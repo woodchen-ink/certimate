@@ -12,10 +12,10 @@ import (
 	hcscm "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/scm/v3"
 	hcscmmodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/scm/v3/model"
 	hcscmregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/scm/v3/region"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLManagerProviderConfig struct {
@@ -82,11 +82,11 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		}
 
 		listCertificatesReq := &hcscmmodel.ListCertificatesRequest{
-			EnterpriseProjectId: xtypes.ToPtrOrZeroNil(m.config.EnterpriseProjectId),
-			Limit:               xtypes.ToPtr(listCertificatesLimit),
-			Offset:              xtypes.ToPtr(listCertificatesOffset),
-			SortDir:             xtypes.ToPtr("DESC"),
-			SortKey:             xtypes.ToPtr("certExpiredTime"),
+			EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
+			Limit:               lo.ToPtr(listCertificatesLimit),
+			Offset:              lo.ToPtr(listCertificatesOffset),
+			SortDir:             lo.ToPtr("DESC"),
+			SortKey:             lo.ToPtr("certExpiredTime"),
 		}
 		listCertificatesResp, err := m.sdkClient.ListCertificates(listCertificatesReq)
 		m.logger.Debug("sdk request 'scm.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
@@ -156,7 +156,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// REF: https://support.huaweicloud.com/api-ccm/ImportCertificate.html
 	importCertificateReq := &hcscmmodel.ImportCertificateRequest{
 		Body: &hcscmmodel.ImportCertificateRequestBody{
-			EnterpriseProjectId: xtypes.ToPtrOrZeroNil(m.config.EnterpriseProjectId),
+			EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
 			Name:                certName,
 			Certificate:         certPEM,
 			PrivateKey:          privkeyPEM,

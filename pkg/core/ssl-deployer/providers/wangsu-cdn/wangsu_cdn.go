@@ -8,10 +8,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/wangsu-certificate"
 	wangsusdk "github.com/certimate-go/certimate/pkg/sdk3rd/wangsu/cdn"
-	xslices "github.com/certimate-go/certimate/pkg/utils/slices"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -84,7 +85,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	certId, _ := strconv.ParseInt(upres.CertId, 10, 64)
 	batchUpdateCertificateConfigReq := &wangsusdk.BatchUpdateCertificateConfigRequest{
 		CertificateId: certId,
-		DomainNames: xslices.Map(d.config.Domains, func(domain string) string {
+		DomainNames: lo.Map(d.config.Domains, func(domain string, _ int) string {
 			// "*.example.com" → ".example.com"，适配网宿云 CDN 要求的泛域名格式
 			return strings.TrimPrefix(domain, "*")
 		}),

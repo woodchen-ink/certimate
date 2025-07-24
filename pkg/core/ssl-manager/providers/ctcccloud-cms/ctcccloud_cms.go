@@ -10,10 +10,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	ctyuncms "github.com/certimate-go/certimate/pkg/sdk3rd/ctyun/cms"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLManagerProviderConfig struct {
@@ -74,11 +75,11 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// 上传证书
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=152&api=17243&data=204&isNormal=1&vid=283
 	uploadCertificateReq := &ctyuncms.UploadCertificateRequest{
-		Name:               xtypes.ToPtr(certName),
-		Certificate:        xtypes.ToPtr(serverCertPEM),
-		CertificateChain:   xtypes.ToPtr(intermediaCertPEM),
-		PrivateKey:         xtypes.ToPtr(privkeyPEM),
-		EncryptionStandard: xtypes.ToPtr("INTERNATIONAL"),
+		Name:               lo.ToPtr(certName),
+		Certificate:        lo.ToPtr(serverCertPEM),
+		CertificateChain:   lo.ToPtr(intermediaCertPEM),
+		PrivateKey:         lo.ToPtr(privkeyPEM),
+		EncryptionStandard: lo.ToPtr("INTERNATIONAL"),
 	}
 	uploadCertificateResp, err := m.sdkClient.UploadCertificate(uploadCertificateReq)
 	m.logger.Debug("sdk request 'cms.UploadCertificate'", slog.Any("request", uploadCertificateReq), slog.Any("response", uploadCertificateResp))
@@ -126,10 +127,10 @@ func (m *SSLManagerProvider) findCertIfExists(ctx context.Context, certPEM strin
 		}
 
 		getCertificateListReq := &ctyuncms.GetCertificateListRequest{
-			PageNum:  xtypes.ToPtr(getCertificateListPageNum),
-			PageSize: xtypes.ToPtr(getCertificateListPageSize),
-			Keyword:  xtypes.ToPtr(certX509.Subject.CommonName),
-			Origin:   xtypes.ToPtr("UPLOAD"),
+			PageNum:  lo.ToPtr(getCertificateListPageNum),
+			PageSize: lo.ToPtr(getCertificateListPageSize),
+			Keyword:  lo.ToPtr(certX509.Subject.CommonName),
+			Origin:   lo.ToPtr("UPLOAD"),
 		}
 		getCertificateListResp, err := m.sdkClient.GetCertificateList(getCertificateListReq)
 		m.logger.Debug("sdk request 'cms.GetCertificateList'", slog.Any("request", getCertificateListReq), slog.Any("response", getCertificateListResp))

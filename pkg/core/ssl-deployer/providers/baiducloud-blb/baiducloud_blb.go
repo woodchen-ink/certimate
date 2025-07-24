@@ -10,10 +10,10 @@ import (
 
 	bceblb "github.com/baidubce/bce-sdk-go/services/blb"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/baiducloud-cert"
-	xslices "github.com/certimate-go/certimate/pkg/utils/slices"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -282,7 +282,7 @@ func (d *SSLDeployerProvider) updateHttpsListenerCertificate(ctx context.Context
 			ClientToken:  generateClientToken(),
 			ListenerPort: uint16(cloudHttpsListenerPort),
 			CertIds:      describeHTTPSListenersResp.ListenerList[0].CertIds,
-			AdditionalCertDomains: xslices.Map(describeHTTPSListenersResp.ListenerList[0].AdditionalCertDomains, func(domain bceblb.AdditionalCertDomainsModel) bceblb.AdditionalCertDomainsModel {
+			AdditionalCertDomains: lo.Map(describeHTTPSListenersResp.ListenerList[0].AdditionalCertDomains, func(domain bceblb.AdditionalCertDomainsModel, _ int) bceblb.AdditionalCertDomainsModel {
 				if domain.Host == d.config.Domain {
 					return bceblb.AdditionalCertDomainsModel{
 						Host:   domain.Host,

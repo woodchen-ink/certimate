@@ -16,10 +16,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	wangsucdn "github.com/certimate-go/certimate/pkg/sdk3rd/wangsu/cdnpro"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -98,10 +99,10 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		return nil, fmt.Errorf("failed to encrypt private key: %w", err)
 	}
 	certificateNewVersionInfo := &wangsucdn.CertificateVersionInfo{
-		PrivateKey:  xtypes.ToPtr(encryptedPrivateKey),
-		Certificate: xtypes.ToPtr(certPEM),
+		PrivateKey:  lo.ToPtr(encryptedPrivateKey),
+		Certificate: lo.ToPtr(certPEM),
 		IdentificationInfo: &wangsucdn.CertificateVersionIdentificationInfo{
-			CommonName:              xtypes.ToPtr(certX509.Subject.CommonName),
+			CommonName:              lo.ToPtr(certX509.Subject.CommonName),
 			SubjectAlternativeNames: &certX509.DNSNames,
 		},
 	}
@@ -120,8 +121,8 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		// 创建证书
 		createCertificateReq := &wangsucdn.CreateCertificateRequest{
 			Timestamp:  timestamp,
-			Name:       xtypes.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
-			AutoRenew:  xtypes.ToPtr("Off"),
+			Name:       lo.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
+			AutoRenew:  lo.ToPtr("Off"),
 			NewVersion: certificateNewVersionInfo,
 		}
 		createCertificateResp, err := d.sdkClient.CreateCertificate(createCertificateReq)
@@ -143,8 +144,8 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		// 更新证书
 		updateCertificateReq := &wangsucdn.UpdateCertificateRequest{
 			Timestamp:  timestamp,
-			Name:       xtypes.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
-			AutoRenew:  xtypes.ToPtr("Off"),
+			Name:       lo.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
+			AutoRenew:  lo.ToPtr("Off"),
 			NewVersion: certificateNewVersionInfo,
 		}
 		updateCertificateResp, err := d.sdkClient.UpdateCertificate(d.config.CertificateId, updateCertificateReq)
@@ -171,18 +172,18 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	// 创建部署任务
 	// REF: https://www.wangsu.com/document/api-doc/27034
 	createDeploymentTaskReq := &wangsucdn.CreateDeploymentTaskRequest{
-		Name:   xtypes.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
-		Target: xtypes.ToPtr(d.config.Environment),
+		Name:   lo.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
+		Target: lo.ToPtr(d.config.Environment),
 		Actions: &[]wangsucdn.DeploymentTaskActionInfo{
 			{
-				Action:        xtypes.ToPtr("deploy_cert"),
-				CertificateId: xtypes.ToPtr(wangsuCertId),
-				Version:       xtypes.ToPtr(wangsuCertVer),
+				Action:        lo.ToPtr("deploy_cert"),
+				CertificateId: lo.ToPtr(wangsuCertId),
+				Version:       lo.ToPtr(wangsuCertVer),
 			},
 		},
 	}
 	if d.config.WebhookId != "" {
-		createDeploymentTaskReq.Webhook = xtypes.ToPtr(d.config.WebhookId)
+		createDeploymentTaskReq.Webhook = lo.ToPtr(d.config.WebhookId)
 	}
 	createDeploymentTaskResp, err := d.sdkClient.CreateDeploymentTask(createDeploymentTaskReq)
 	d.logger.Debug("sdk request 'cdnpro.CreateCertificate'", slog.Any("request", createDeploymentTaskReq), slog.Any("response", createDeploymentTaskResp))

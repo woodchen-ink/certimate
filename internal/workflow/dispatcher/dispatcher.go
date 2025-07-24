@@ -12,9 +12,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
-	xslices "github.com/certimate-go/certimate/pkg/utils/slices"
 )
 
 var maxWorkers = 1
@@ -126,7 +127,7 @@ func (d *WorkflowDispatcher) Cancel(runId string) {
 
 	// 移除排队中的 WorkflowRun
 	d.queueMutex.Lock()
-	d.queue = xslices.Filter(d.queue, func(d *WorkflowWorkerData) bool {
+	d.queue = lo.Filter(d.queue, func(d *WorkflowWorkerData, _ int) bool {
 		return d.RunId != runId
 	})
 	d.queueMutex.Unlock()

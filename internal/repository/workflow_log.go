@@ -21,7 +21,7 @@ func NewWorkflowLogRepository() *WorkflowLogRepository {
 func (r *WorkflowLogRepository) ListByWorkflowRunId(ctx context.Context, workflowRunId string) ([]*domain.WorkflowLog, error) {
 	records, err := app.GetApp().FindRecordsByFilter(
 		domain.CollectionNameWorkflowLog,
-		"runId={:runId}",
+		"runRef={:runId}",
 		"timestamp",
 		0, 0,
 		dbx.Params{"runId": workflowRunId},
@@ -62,8 +62,8 @@ func (r *WorkflowLogRepository) Save(ctx context.Context, workflowLog *domain.Wo
 		}
 	}
 
-	record.Set("workflowId", workflowLog.WorkflowId)
-	record.Set("runId", workflowLog.RunId)
+	record.Set("workflowRef", workflowLog.WorkflowId)
+	record.Set("runRef", workflowLog.RunId)
 	record.Set("nodeId", workflowLog.NodeId)
 	record.Set("nodeName", workflowLog.NodeName)
 	record.Set("timestamp", workflowLog.Timestamp)
@@ -99,12 +99,12 @@ func (r *WorkflowLogRepository) castRecordToModel(record *core.Record) (*domain.
 			CreatedAt: record.GetDateTime("created").Time(),
 			UpdatedAt: record.GetDateTime("updated").Time(),
 		},
-		WorkflowId: record.GetString("workflowId"),
-		RunId:      record.GetString("runId"),
+		WorkflowId: record.GetString("workflowRef"),
+		RunId:      record.GetString("runRef"),
 		NodeId:     record.GetString("nodeId"),
 		NodeName:   record.GetString("nodeName"),
 		Timestamp:  int64(record.GetInt("timestamp")),
-		Level:      record.GetString("level"),
+		Level:      int32(record.GetInt("level")),
 		Message:    record.GetString("message"),
 		Data:       logdata,
 	}

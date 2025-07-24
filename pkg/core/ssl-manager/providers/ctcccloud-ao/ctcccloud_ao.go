@@ -9,10 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	ctyunao "github.com/certimate-go/certimate/pkg/sdk3rd/ctyun/ao"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLManagerProviderConfig struct {
@@ -74,9 +75,9 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		}
 
 		listCertsReq := &ctyunao.ListCertsRequest{
-			Page:      xtypes.ToPtr(listCertPage),
-			PerPage:   xtypes.ToPtr(listCertPerPage),
-			UsageMode: xtypes.ToPtr(int32(0)),
+			Page:      lo.ToPtr(listCertPage),
+			PerPage:   lo.ToPtr(listCertPerPage),
+			UsageMode: lo.ToPtr(int32(0)),
 		}
 		listCertsResp, err := m.sdkClient.ListCerts(listCertsReq)
 		m.logger.Debug("sdk request 'ao.ListCerts'", slog.Any("request", listCertsReq), slog.Any("response", listCertsResp))
@@ -106,7 +107,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 				// 查询证书详情
 				// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=113&api=13015&data=174&isNormal=1&vid=167
 				queryCertReq := &ctyunao.QueryCertRequest{
-					Id: xtypes.ToPtr(certRecord.Id),
+					Id: lo.ToPtr(certRecord.Id),
 				}
 				queryCertResp, err := m.sdkClient.QueryCert(queryCertReq)
 				m.logger.Debug("sdk request 'ao.QueryCert'", slog.Any("request", queryCertReq), slog.Any("response", queryCertResp))
@@ -150,9 +151,9 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// 创建证书
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=113&api=13014&data=174&isNormal=1&vid=167
 	createCertReq := &ctyunao.CreateCertRequest{
-		Name:  xtypes.ToPtr(certName),
-		Certs: xtypes.ToPtr(certPEM),
-		Key:   xtypes.ToPtr(privkeyPEM),
+		Name:  lo.ToPtr(certName),
+		Certs: lo.ToPtr(certPEM),
+		Key:   lo.ToPtr(privkeyPEM),
 	}
 	createCertResp, err := m.sdkClient.CreateCert(createCertReq)
 	m.logger.Debug("sdk request 'ao.CreateCert'", slog.Any("request", createCertReq), slog.Any("response", createCertResp))

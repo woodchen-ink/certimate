@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useControllableValue } from "ahooks";
 import { Drawer } from "antd";
 
@@ -46,4 +47,29 @@ const WorkflowRunDetailDrawer = ({ data, loading, trigger, ...props }: WorkflowR
   );
 };
 
-export default WorkflowRunDetailDrawer;
+const useProps = () => {
+  const [data, setData] = useState<WorkflowRunDetailDrawerProps["data"]>();
+  const [open, setOpen] = useState<boolean>(false);
+
+  const onOpenChange = (open: boolean) => {
+    setOpen(open);
+
+    if (!open) {
+      setData(undefined);
+    }
+  };
+
+  return {
+    data,
+    open,
+    setData,
+    setOpen,
+    onOpenChange,
+  };
+};
+
+const _default = Object.assign(WorkflowRunDetailDrawer, {
+  useProps,
+});
+
+export default _default;

@@ -8,9 +8,9 @@ import (
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/platform/config/env"
+	"github.com/samber/lo"
 
 	ctyundns "github.com/certimate-go/certimate/pkg/sdk3rd/ctyun/dns"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 const (
@@ -129,9 +129,9 @@ func (d *DNSProvider) findDNSRecordId(zoneName, subDomain string) (int32, error)
 	// 查询解析记录列表
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=122&api=11264&data=181&isNormal=1&vid=259
 	request := &ctyundns.QueryRecordListRequest{}
-	request.Domain = xtypes.ToPtr(zoneName)
-	request.Host = xtypes.ToPtr(subDomain)
-	request.Type = xtypes.ToPtr("TXT")
+	request.Domain = lo.ToPtr(zoneName)
+	request.Host = lo.ToPtr(subDomain)
+	request.Type = lo.ToPtr("TXT")
 
 	response, err := d.client.QueryRecordList(request)
 	if err != nil {
@@ -155,13 +155,13 @@ func (d *DNSProvider) addOrUpdateDNSRecord(zoneName, subDomain, value string) er
 		// 新增解析记录
 		// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=122&api=11259&data=181&isNormal=1&vid=259
 		request := &ctyundns.AddRecordRequest{
-			Domain:   xtypes.ToPtr(zoneName),
-			Host:     xtypes.ToPtr(subDomain),
-			Type:     xtypes.ToPtr("TXT"),
-			LineCode: xtypes.ToPtr("Default"),
-			Value:    xtypes.ToPtr(value),
-			State:    xtypes.ToPtr(int32(1)),
-			TTL:      xtypes.ToPtr(int32(d.config.TTL)),
+			Domain:   lo.ToPtr(zoneName),
+			Host:     lo.ToPtr(subDomain),
+			Type:     lo.ToPtr("TXT"),
+			LineCode: lo.ToPtr("Default"),
+			Value:    lo.ToPtr(value),
+			State:    lo.ToPtr(int32(1)),
+			TTL:      lo.ToPtr(int32(d.config.TTL)),
 		}
 		_, err := d.client.AddRecord(request)
 		return err
@@ -169,14 +169,14 @@ func (d *DNSProvider) addOrUpdateDNSRecord(zoneName, subDomain, value string) er
 		// 修改解析记录
 		// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=122&api=11261&data=181&isNormal=1&vid=259
 		request := &ctyundns.UpdateRecordRequest{
-			RecordId: xtypes.ToPtr(recordId),
-			Domain:   xtypes.ToPtr(zoneName),
-			Host:     xtypes.ToPtr(subDomain),
-			Type:     xtypes.ToPtr("TXT"),
-			LineCode: xtypes.ToPtr("Default"),
-			Value:    xtypes.ToPtr(value),
-			State:    xtypes.ToPtr(int32(1)),
-			TTL:      xtypes.ToPtr(int32(d.config.TTL)),
+			RecordId: lo.ToPtr(recordId),
+			Domain:   lo.ToPtr(zoneName),
+			Host:     lo.ToPtr(subDomain),
+			Type:     lo.ToPtr("TXT"),
+			LineCode: lo.ToPtr("Default"),
+			Value:    lo.ToPtr(value),
+			State:    lo.ToPtr(int32(1)),
+			TTL:      lo.ToPtr(int32(d.config.TTL)),
 		}
 		_, err := d.client.UpdateRecord(request)
 		return err
@@ -195,7 +195,7 @@ func (d *DNSProvider) removeDNSRecord(zoneName, subDomain string) error {
 		// 删除解析记录
 		// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=122&api=11262&data=181&isNormal=1&vid=259
 		request := &ctyundns.DeleteRecordRequest{
-			RecordId: xtypes.ToPtr(recordId),
+			RecordId: lo.ToPtr(recordId),
 		}
 		_, err = d.client.DeleteRecord(request)
 		return err

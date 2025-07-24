@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconBrowserShare, IconCertificate, IconExternalLink, IconReload, IconTrash } from "@tabler/icons-react";
+import { IconBrowserShare, IconCertificate, IconDotsVertical, IconExternalLink, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
-import { App, Button, Input, Segmented, Skeleton, Table, type TableProps, Tooltip, Typography } from "antd";
+import { App, Button, Dropdown, Input, Segmented, Skeleton, Table, type TableProps, Typography, theme } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
 import CertificateDetailDrawer from "@/components/certificate/CertificateDetailDrawer";
 import Empty from "@/components/Empty";
+import Show from "@/components/Show";
 import { type CertificateModel } from "@/domain/certificate";
 import { useAppSettings } from "@/hooks";
 import { list as listCertificates, type ListRequest as listCertificatesRequest, remove as removeCertificate } from "@/repository/certificate";
@@ -19,6 +20,8 @@ const CertificateList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { t } = useTranslation();
+
+  const { token: themeToken } = theme.useToken();
 
   const { modal, notification } = App.useApp();
 
@@ -36,28 +39,24 @@ const CertificateList = () => {
   const [page, setPage] = useState<number>(() => parseInt(+searchParams.get("page")! + "") || 1);
   const [pageSize, setPageSize] = useState<number>(() => parseInt(+searchParams.get("perPage")! + "") || globalAppSettings.defaultPerPage!);
 
+  const [tableData, setTableData] = useState<CertificateModel[]>([]);
+  const [tableTotal, setTableTotal] = useState<number>(0);
+  const [tableSelectedRowKeys, setTableSelectedRowKeys] = useState<string[]>([]);
   const tableColumns: TableProps<CertificateModel>["columns"] = [
-    {
-      key: "$index",
-      align: "center",
-      fixed: "left",
-      width: 50,
-      render: (_, __, index) => (page - 1) * pageSize + index + 1,
-    },
     {
       key: "name",
       title: t("certificate.props.subject_alt_names"),
       render: (_, record) => <Typography.Text>{record.subjectAltNames}</Typography.Text>,
     },
     {
-      key: "expiry",
+      key: "validity",
       title: t("certificate.props.validity"),
       sorter: true,
-      sortOrder: sorter.columnKey === "expiry" ? sorter.order : undefined,
+      sortOrder: sorter.columnKey === "validity" ? sorter.order : undefined,
       render: (_, record) => {
-        const total = dayjs(record.expireAt).diff(dayjs(record.created), "d") + 1;
-        const isExpired = dayjs().isAfter(dayjs(record.expireAt));
-        const leftHours = dayjs(record.expireAt).diff(dayjs(), "h");
+        const total = dayjs(record.validityNotAfter).diff(dayjs(record.created), "d") + 1;
+        const isExpired = dayjs().isAfter(dayjs(record.validityNotAfter));
+        const leftHours = dayjs(record.validityNotAfter).diff(dayjs(), "h");
         const leftDays = Math.round(leftHours / 24);
 
         return (
@@ -84,7 +83,7 @@ const CertificateList = () => {
             )}
 
             <Typography.Text ellipsis type="secondary">
-              {t("certificate.props.validity.expiration", { date: dayjs(record.expireAt).format("YYYY-MM-DD") })}
+              {t("certificate.props.validity.expiration", { date: dayjs(record.validityNotAfter).format("YYYY-MM-DD") })}
             </Typography.Text>
           </div>
         );
@@ -104,7 +103,7 @@ const CertificateList = () => {
       key: "source",
       title: t("certificate.props.source"),
       render: (_, record) => {
-        const workflowId = record.workflowId;
+        const workflowId = record.workflowRef;
         return (
           <div className="flex max-w-full flex-col gap-1 truncate">
             <Typography.Text ellipsis>{t(`certificate.props.source.${record.source}`)}</Typography.Text>
@@ -118,7 +117,7 @@ const CertificateList = () => {
                 }
               }}
             >
-              {record.expand?.workflowId?.name ?? <span className="font-mono">{t(`#${workflowId}`)}</span>}
+              {record.expand?.workflowRef?.name ?? <span className="font-mono">{t(`#${workflowId}`)}</span>}
             </Typography.Link>
           </div>
         );
@@ -136,37 +135,80 @@ const CertificateList = () => {
       key: "$action",
       align: "end",
       fixed: "right",
-      width: 120,
+      width: 64,
       render: (_, record) => (
-        <div className="flex items-center justify-end">
-          <Tooltip title={t("common.button.view")}>
-            <Button
-              color="primary"
-              icon={<IconBrowserShare size="1.25em" />}
-              variant="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRecordDetailClick(record);
-              }}
-            />
-          </Tooltip>
-          <Tooltip title={t("common.button.delete")}>
-            <Button
-              color="danger"
-              icon={<IconTrash size="1.25em" />}
-              variant="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRecordDeleteClick(record);
-              }}
-            />
-          </Tooltip>
-        </div>
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: "view",
+                label: t("certificate.action.view.button"),
+                icon: (
+                  <span className="anticon scale-125">
+                    <IconBrowserShare size="1em" />
+                  </span>
+                ),
+                onClick: () => {
+                  handleRecordDetailClick(record);
+                },
+              },
+              {
+                type: "divider",
+              },
+              {
+                key: "delete",
+                label: t("certificate.action.delete.button"),
+                danger: true,
+                icon: (
+                  <span className="anticon scale-125">
+                    <IconTrash size="1em" />
+                  </span>
+                ),
+                onClick: () => {
+                  handleRecordDeleteClick(record);
+                },
+              },
+            ],
+          }}
+          trigger={["click"]}
+        >
+          <Button icon={<IconDotsVertical size="1.25em" />} type="text" />
+        </Dropdown>
       ),
+      onCell: () => {
+        return {
+          onClick: (e) => {
+            e.stopPropagation();
+          },
+        };
+      },
     },
   ];
-  const [tableData, setTableData] = useState<CertificateModel[]>([]);
-  const [tableTotal, setTableTotal] = useState<number>(0);
+  const tableRowSelection: TableProps<CertificateModel>["rowSelection"] = {
+    fixed: true,
+    selectedRowKeys: tableSelectedRowKeys,
+    renderCell(checked, _, index, node) {
+      if (!checked) {
+        return (
+          <div className="group">
+            <div className="group-hover:hidden">{(page - 1) * pageSize + index + 1}</div>
+            <div className="hidden group-hover:block">{node}</div>
+          </div>
+        );
+      }
+      return node;
+    },
+    onCell: () => {
+      return {
+        onClick: (e) => {
+          e.stopPropagation();
+        },
+      };
+    },
+    onChange: (keys) => {
+      setTableSelectedRowKeys(keys as string[]);
+    },
+  };
 
   const {
     loading,
@@ -176,7 +218,7 @@ const CertificateList = () => {
     () => {
       const { columnKey: sorterKey, order: sorterOrder } = sorter;
       let sort: string | undefined;
-      sort = sorterKey === "expiry" ? "expireAt" : "";
+      sort = sorterKey === "validity" ? "validityNotAfter" : "";
       sort = sort && (sorterOrder === "ascend" ? `${sort}` : sorterOrder === "descend" ? `-${sort}` : undefined);
 
       return listCertificates({
@@ -208,6 +250,7 @@ const CertificateList = () => {
 
           return prev;
         });
+        setTableSelectedRowKeys([]);
       },
       onSuccess: (res) => {
         setTableData(res.items);
@@ -242,8 +285,7 @@ const CertificateList = () => {
     setPageSize(pageSize);
   };
 
-  const [detailRecord, setDetailRecord] = useState<CertificateModel>();
-  const [detailOpen, setDetailOpen] = useState<boolean>(false);
+  const { setData: setDetailRecord, setOpen: setDetailOpen, ...detailDrawerProps } = CertificateDetailDrawer.useProps();
 
   const handleRecordDetailClick = (certificate: CertificateModel) => {
     setDetailRecord(certificate);
@@ -252,8 +294,8 @@ const CertificateList = () => {
 
   const handleRecordDeleteClick = (certificate: CertificateModel) => {
     modal.confirm({
-      title: <span className="text-error">{t("certificate.action.delete.modal.title")}</span>,
-      content: <span dangerouslySetInnerHTML={{ __html: t("certificate.action.delete.modal.content", { name: certificate.subjectAltNames }) }} />,
+      title: <span className="text-error">{t("certificate.action.delete.modal.title", { name: certificate.subjectAltNames })}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("certificate.action.delete.modal.content") }} />,
       icon: (
         <span className="anticon" role="img">
           <IconTrash className="text-error" size="1em" />
@@ -265,7 +307,42 @@ const CertificateList = () => {
         try {
           const resp = await removeCertificate(certificate);
           if (resp) {
+            setTableSelectedRowKeys((prev) => prev.filter((key) => key !== certificate.id));
             setTableData((prev) => prev.filter((item) => item.id !== certificate.id));
+            setTableTotal((prev) => prev - 1);
+            refreshData();
+          }
+        } catch (err) {
+          console.error(err);
+          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        }
+      },
+    });
+  };
+
+  const handleBatchDeleteClick = () => {
+    const records = tableData.filter((item) => tableSelectedRowKeys.includes(item.id));
+    if (records.length === 0) {
+      return;
+    }
+
+    modal.confirm({
+      title: <span className="text-error">{t("certificate.action.batch_delete.modal.title")}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("certificate.action.batch_delete.modal.content", { count: records.length }) }} />,
+      icon: (
+        <span className="anticon" role="img">
+          <IconTrash className="text-error" size="1em" />
+        </span>
+      ),
+      okText: t("common.button.confirm"),
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          const resp = await removeCertificate(records);
+          if (resp) {
+            setTableSelectedRowKeys([]);
+            setTableData((prev) => prev.filter((item) => !records.some((record) => record.id === item.id)));
+            setTableTotal((prev) => prev - records.length);
             refreshData();
           }
         } catch (err) {
@@ -316,55 +393,74 @@ const CertificateList = () => {
           <div></div>
         </div>
 
-        <Table<CertificateModel>
-          className="mt-4"
-          columns={tableColumns}
-          dataSource={tableData}
-          loading={loading}
-          locale={{
-            emptyText: loading ? (
-              <Skeleton />
-            ) : (
-              <Empty
-                title={t("certificate.nodata.title")}
-                description={getErrMsg(loadedError ?? t("certificate.nodata.description"))}
-                icon={<IconCertificate size={24} />}
-                extra={
-                  loadedError ? (
-                    <Button icon={<IconReload size="1.25em" />} type="primary" onClick={handleReloadClick}>
-                      {t("common.button.reload")}
-                    </Button>
-                  ) : (
-                    <Button icon={<IconExternalLink size="1.25em" />} type="primary" onClick={() => navigate("/workflows")}>
-                      {t("certificate.nodata.button")}
-                    </Button>
-                  )
-                }
-              />
-            ),
-          }}
-          pagination={{
-            current: page,
-            pageSize: pageSize,
-            total: tableTotal,
-            showSizeChanger: true,
-            onChange: handlePaginationChange,
-            onShowSizeChange: handlePaginationChange,
-          }}
-          rowClassName="cursor-pointer"
-          rowKey={(record) => record.id}
-          scroll={{ x: "max(100%, 960px)" }}
-          onChange={(_, __, sorter) => {
-            setSorter(Array.isArray(sorter) ? sorter[0] : sorter);
-          }}
-          onRow={(record) => ({
-            onClick: () => {
-              handleRecordDetailClick(record);
-            },
-          })}
-        />
+        <div className="relative mt-4">
+          <Table<CertificateModel>
+            columns={tableColumns}
+            dataSource={tableData}
+            loading={loading}
+            locale={{
+              emptyText: loading ? (
+                <Skeleton />
+              ) : (
+                <Empty
+                  title={t("certificate.nodata.title")}
+                  description={loadedError ? getErrMsg(loadedError) : t("certificate.nodata.description")}
+                  icon={<IconCertificate size={24} />}
+                  extra={
+                    loadedError ? (
+                      <Button icon={<IconReload size="1.25em" />} type="primary" onClick={handleReloadClick}>
+                        {t("common.button.reload")}
+                      </Button>
+                    ) : (
+                      <Button icon={<IconExternalLink size="1.25em" />} type="primary" onClick={() => navigate("/workflows")}>
+                        {t("certificate.nodata.button")}
+                      </Button>
+                    )
+                  }
+                />
+              ),
+            }}
+            pagination={{
+              current: page,
+              pageSize: pageSize,
+              total: tableTotal,
+              showSizeChanger: true,
+              onChange: handlePaginationChange,
+              onShowSizeChange: handlePaginationChange,
+            }}
+            rowClassName="cursor-pointer"
+            rowKey={(record) => record.id}
+            rowSelection={tableRowSelection}
+            scroll={{ x: "max(100%, 960px)" }}
+            onChange={(_, __, sorter) => {
+              setSorter(Array.isArray(sorter) ? sorter[0] : sorter);
+            }}
+            onRow={(record) => ({
+              onClick: () => {
+                handleRecordDetailClick(record);
+              },
+            })}
+          />
 
-        <CertificateDetailDrawer data={detailRecord} open={detailOpen} onOpenChange={setDetailOpen} />
+          <Show when={tableSelectedRowKeys.length > 0}>
+            <div
+              className="absolute top-0 right-0 left-[32px] z-10 h-[54px]"
+              style={{
+                left: "32px", // Match the width of the table row selection checkbox
+                height: "54px", // Match the height of the table header
+                background: themeToken.Table?.headerBg ?? themeToken.colorBgElevated,
+              }}
+            >
+              <div className="flex size-full items-center justify-end gap-x-2 overflow-hidden px-4 py-2">
+                <Button icon={<IconTrash size="1.25em" />} danger ghost onClick={handleBatchDeleteClick}>
+                  {t("common.button.delete")}
+                </Button>
+              </div>
+            </div>
+          </Show>
+        </div>
+
+        <CertificateDetailDrawer {...detailDrawerProps} />
       </div>
     </div>
   );

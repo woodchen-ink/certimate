@@ -60,7 +60,7 @@ const WorkflowElement = ({ node, disabled, branchId, branchIndex }: WorkflowElem
         return <EndNode />;
 
       default:
-        console.warn(`[certimate] unsupported workflow node type: ${node.type}`);
+        console.warn(`[certimate] unsupported workflow node type: '${node.type}'`);
         return <UnknownNode node={node} />;
     }
   }, [node, disabled, branchId, branchIndex]);

@@ -50,7 +50,7 @@ func (r *WorkflowRunRepository) Save(ctx context.Context, workflowRun *domain.Wo
 	}
 
 	err = app.GetApp().RunInTransaction(func(txApp core.App) error {
-		record.Set("workflowId", workflowRun.WorkflowId)
+		record.Set("workflowRef", workflowRun.WorkflowId)
 		record.Set("trigger", string(workflowRun.Trigger))
 		record.Set("status", string(workflowRun.Status))
 		record.Set("startedAt", workflowRun.StartedAt)
@@ -70,7 +70,7 @@ func (r *WorkflowRunRepository) Save(ctx context.Context, workflowRun *domain.Wo
 		workflowRecord, err := txApp.FindRecordById(domain.CollectionNameWorkflow, workflowRun.WorkflowId)
 		if err != nil {
 			return err
-		} else if workflowRun.Id == workflowRecord.GetString("lastRunId") {
+		} else if workflowRun.Id == workflowRecord.GetString("lastRunRef") {
 			workflowRecord.IgnoreUnchangedFields(true)
 			workflowRecord.Set("lastRunStatus", record.GetString("status"))
 			err = txApp.Save(workflowRecord)
@@ -79,7 +79,7 @@ func (r *WorkflowRunRepository) Save(ctx context.Context, workflowRun *domain.Wo
 			}
 		} else if workflowRecord.GetDateTime("lastRunTime").Time().IsZero() || workflowRun.StartedAt.After(workflowRecord.GetDateTime("lastRunTime").Time()) {
 			workflowRecord.IgnoreUnchangedFields(true)
-			workflowRecord.Set("lastRunId", record.Id)
+			workflowRecord.Set("lastRunRef", record.Id)
 			workflowRecord.Set("lastRunStatus", record.GetString("status"))
 			workflowRecord.Set("lastRunTime", record.GetString("startedAt"))
 			err = txApp.Save(workflowRecord)
@@ -136,7 +136,7 @@ func (r *WorkflowRunRepository) castRecordToModel(record *core.Record) (*domain.
 			CreatedAt: record.GetDateTime("created").Time(),
 			UpdatedAt: record.GetDateTime("updated").Time(),
 		},
-		WorkflowId: record.GetString("workflowId"),
+		WorkflowId: record.GetString("workflowRef"),
 		Status:     domain.WorkflowRunStatusType(record.GetString("status")),
 		Trigger:    domain.WorkflowTriggerType(record.GetString("trigger")),
 		StartedAt:  record.GetDateTime("startedAt").Time(),

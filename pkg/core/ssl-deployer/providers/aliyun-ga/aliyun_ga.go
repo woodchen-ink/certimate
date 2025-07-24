@@ -10,10 +10,10 @@ import (
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	aliga "github.com/alibabacloud-go/ga-20191120/v3/client"
 	"github.com/alibabacloud-go/tea/tea"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
-	xslices "github.com/certimate-go/certimate/pkg/utils/slices"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -256,14 +256,14 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 		}
 	} else {
 		// 指定 SNI，需部署到扩展域名
-		if xslices.Some(listenerAdditionalCertificates, func(item *aliga.ListListenerCertificatesResponseBodyCertificates) bool {
+		if lo.SomeBy(listenerAdditionalCertificates, func(item *aliga.ListListenerCertificatesResponseBodyCertificates) bool {
 			return tea.StringValue(item.CertificateId) == cloudCertId
 		}) {
 			d.logger.Info("no need to update ga listener additional certificate")
 			return nil
 		}
 
-		if xslices.Some(listenerAdditionalCertificates, func(item *aliga.ListListenerCertificatesResponseBodyCertificates) bool {
+		if lo.SomeBy(listenerAdditionalCertificates, func(item *aliga.ListListenerCertificatesResponseBodyCertificates) bool {
 			return tea.StringValue(item.Domain) == d.config.Domain
 		}) {
 			// 为监听替换扩展证书

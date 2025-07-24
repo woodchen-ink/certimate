@@ -29,16 +29,12 @@ const AccessFormTelegramBotConfig = ({ form: formInst, formName, disabled, initi
       .string(t("access.form.telegrambot_token.placeholder"))
       .min(1, t("access.form.telegrambot_token.placeholder"))
       .max(256, t("common.errmsg.string_max", { max: 256 })),
-    defaultChatId: z
+    chatId: z
       .preprocess(
         (v) => (v == null || v === "" ? undefined : Number(v)),
-        z
-          .number()
-          .nullish()
-          .refine((v) => {
-            if (v == null || v + "" === "") return true;
-            return !Number.isNaN(+v!) && +v! !== 0;
-          }, t("access.form.telegrambot_default_chat_id.placeholder"))
+        z.number().refine((v) => {
+          return !Number.isNaN(+v!) && +v! !== 0;
+        }, t("access.form.telegrambot_chat_id.placeholder"))
       )
       .nullish(),
   });
@@ -67,12 +63,12 @@ const AccessFormTelegramBotConfig = ({ form: formInst, formName, disabled, initi
       </Form.Item>
 
       <Form.Item
-        name="defaultChatId"
-        label={t("access.form.telegrambot_default_chat_id.label")}
+        name="chatId"
+        label={t("access.form.telegrambot_chat_id.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("access.form.telegrambot_default_chat_id.tooltip") }}></span>}
+        tooltip={<span dangerouslySetInnerHTML={{ __html: t("access.form.telegrambot_chat_id.tooltip") }}></span>}
       >
-        <Input allowClear placeholder={t("access.form.telegrambot_default_chat_id.placeholder")} />
+        <Input allowClear placeholder={t("access.form.telegrambot_chat_id.placeholder")} />
       </Form.Item>
     </Form>
   );

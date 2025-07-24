@@ -16,7 +16,7 @@ import (
 )
 
 type workflowRepository interface {
-	ListEnabledAuto(ctx context.Context) ([]*domain.Workflow, error)
+	ListEnabledScheduled(ctx context.Context) ([]*domain.Workflow, error)
 	GetById(ctx context.Context, id string) (*domain.Workflow, error)
 	Save(ctx context.Context, workflow *domain.Workflow) (*domain.Workflow, error)
 }
@@ -59,7 +59,7 @@ func (s *WorkflowService) InitSchedule(ctx context.Context) error {
 			return
 		}
 
-		var settingsContent *domain.PersistenceSettingsContent
+		var settingsContent *domain.SettingsContentAsPersistence
 		json.Unmarshal([]byte(settings.Content), &settingsContent)
 		if settingsContent != nil && settingsContent.WorkflowRunsMaxDaysRetention != 0 {
 			ret, err := s.workflowRunRepo.DeleteWhere(
@@ -80,7 +80,7 @@ func (s *WorkflowService) InitSchedule(ctx context.Context) error {
 
 	// 工作流
 	{
-		workflows, err := s.workflowRepo.ListEnabledAuto(ctx)
+		workflows, err := s.workflowRepo.ListEnabledScheduled(ctx)
 		if err != nil {
 			return err
 		}
@@ -91,7 +91,7 @@ func (s *WorkflowService) InitSchedule(ctx context.Context) error {
 			err := app.GetScheduler().Add(fmt.Sprintf("workflow#%s", workflow.Id), workflow.TriggerCron, func() {
 				s.StartRun(ctx, &dtos.WorkflowStartRunReq{
 					WorkflowId: workflow.Id,
-					RunTrigger: domain.WorkflowTriggerTypeAuto,
+					RunTrigger: domain.WorkflowTriggerTypeScheduled,
 				})
 			})
 			if err != nil {

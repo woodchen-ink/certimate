@@ -14,10 +14,10 @@ import (
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	alislb "github.com/alibabacloud-go/slb-20140515/v4/client"
 	"github.com/alibabacloud-go/tea/tea"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLManagerProviderConfig struct {
@@ -74,7 +74,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// 查询证书列表，避免重复上传
 	// REF: https://help.aliyun.com/zh/slb/classic-load-balancer/developer-reference/api-slb-2014-05-15-describeservercertificates
 	describeServerCertificatesReq := &alislb.DescribeServerCertificatesRequest{
-		ResourceGroupId: xtypes.ToPtrOrZeroNil(m.config.ResourceGroupId),
+		ResourceGroupId: lo.EmptyableToPtr(m.config.ResourceGroupId),
 		RegionId:        tea.String(m.config.Region),
 	}
 	describeServerCertificatesResp, err := m.sdkClient.DescribeServerCertificates(describeServerCertificatesReq)
@@ -113,7 +113,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// 上传新证书
 	// REF: https://help.aliyun.com/zh/slb/classic-load-balancer/developer-reference/api-slb-2014-05-15-uploadservercertificate
 	uploadServerCertificateReq := &alislb.UploadServerCertificateRequest{
-		ResourceGroupId:       xtypes.ToPtrOrZeroNil(m.config.ResourceGroupId),
+		ResourceGroupId:       lo.EmptyableToPtr(m.config.ResourceGroupId),
 		RegionId:              tea.String(m.config.Region),
 		ServerCertificateName: tea.String(certName),
 		ServerCertificate:     tea.String(certPEM),

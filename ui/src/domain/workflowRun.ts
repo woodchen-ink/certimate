@@ -1,14 +1,14 @@
 import { type WorkflowModel } from "./workflow";
 
 export interface WorkflowRunModel extends BaseModel {
-  workflowId: string;
+  workflowRef: string;
   status: string;
   trigger: string;
   startedAt: ISO8601String;
   endedAt: ISO8601String;
   error?: string;
   expand?: {
-    workflowId?: WorkflowModel; // TODO: ugly, maybe to use an alias?
+    workflowRef?: WorkflowModel;
   };
 }
 

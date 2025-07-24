@@ -30,7 +30,7 @@ const AccessFormMattermostConfig = ({ form: formInst, formName, disabled, initia
     serverUrl: z.url(t("common.errmsg.url_invalid")),
     username: z.string().nonempty(t("access.form.mattermost_username.placeholder")),
     password: z.string().nonempty(t("access.form.mattermost_password.placeholder")),
-    defaultChannelId: z.string().nullish(),
+    channelId: z.string().nullish(),
   });
   const formRule = createSchemaFieldRule(formSchema);
 
@@ -65,12 +65,12 @@ const AccessFormMattermostConfig = ({ form: formInst, formName, disabled, initia
       </Form.Item>
 
       <Form.Item
-        name="defaultChannelId"
-        label={t("access.form.mattermost_default_channel_id.label")}
+        name="channelId"
+        label={t("access.form.mattermost_channel_id.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("access.form.mattermost_default_channel_id.tooltip") }}></span>}
+        tooltip={<span dangerouslySetInnerHTML={{ __html: t("access.form.mattermost_channel_id.tooltip") }}></span>}
       >
-        <Input allowClear placeholder={t("access.form.mattermost_default_channel_id.placeholder")} />
+        <Input allowClear placeholder={t("access.form.mattermost_channel_id.placeholder")} />
       </Form.Item>
     </Form>
   );

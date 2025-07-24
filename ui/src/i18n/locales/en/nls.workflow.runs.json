@@ -1,11 +1,16 @@
 {
-  "workflow_run.action.cancel.button": "Cancel",
+  "workflow_run.action.view.button": "View details",
+  "workflow_run.action.cancel.button": "Cancel workflow run",
   "workflow_run.action.cancel.modal.title": "Cancel run",
   "workflow_run.action.cancel.modal.content": "Are you sure to cancel this run?",
-  "workflow_run.action.delete.modal.title": "Delete run",
-  "workflow_run.action.delete.modal.content": "Are you sure want to delete this \"{{name}}\" workflow run?<br>This action cannot be undone.",
+  "workflow_run.action.delete.button": "Delete workflow run",
+  "workflow_run.action.delete.modal.title": "Delete \"{{name}}\"",
+  "workflow_run.action.delete.modal.content": "Are you sure want to delete this workflow run? <br>This action cannot be undone.",
 
-  "workflow_run.table.alert": "The workflow run contains the execution results of each node. Deleting it may trigger re-application or re-deployment of certificates due to the inability to find the previous execution result. Please do not delete unless necessary. It is recommended to keep it for at least 180 days.",
+  "workflow_run.deletion.alert": "The workflow run contains the execution results of each node. Deleting it may trigger re-application or re-deployment of certificates due to the inability to find the previous execution result. Please do not delete unless necessary. It is recommended to keep it for at least 180 days. ",
+  "workflow_run.cancellation.alert": "If the process is unexpectedly terminated or the server times out, you can manually cancel long-hanging runs to prevent blocking subsequent executions.",
+
+  "workflow_run.nodata.description": "It looks like you don't have any runs. Get started by running this workflow.",
 
   "workflow_run.props.id": "ID",
   "workflow_run.props.status": "Status",
@@ -15,7 +20,7 @@
   "workflow_run.props.status.failed": "Failed",
   "workflow_run.props.status.canceled": "Canceled",
   "workflow_run.props.trigger": "Trigger",
-  "workflow_run.props.trigger.auto": "Timing",
+  "workflow_run.props.trigger.scheduled": "Scheduled",
   "workflow_run.props.trigger.manual": "Manual",
   "workflow_run.props.started_at": "Started at",
   "workflow_run.props.ended_at": "Ended at",

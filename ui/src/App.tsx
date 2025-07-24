@@ -93,6 +93,7 @@ const RootApp = () => {
           Layout: {
             ...antdTheme?.components?.Layout,
             bodyBg: "transparent",
+            headerBg: "transparent",
             siderBg: "transparent",
           },
           Dropdown: {

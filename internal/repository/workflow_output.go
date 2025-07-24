@@ -123,8 +123,8 @@ func (r *WorkflowOutputRepository) castRecordToModel(record *core.Record) (*doma
 			CreatedAt: record.GetDateTime("created").Time(),
 			UpdatedAt: record.GetDateTime("updated").Time(),
 		},
-		WorkflowId: record.GetString("workflowId"),
-		RunId:      record.GetString("runId"),
+		WorkflowId: record.GetString("workflowRef"),
+		RunId:      record.GetString("runRef"),
 		NodeId:     record.GetString("nodeId"),
 		Node:       node,
 		Outputs:    outputs,
@@ -148,8 +148,8 @@ func (r *WorkflowOutputRepository) saveRecord(workflowOutput *domain.WorkflowOut
 			return record, err
 		}
 	}
-	record.Set("workflowId", workflowOutput.WorkflowId)
-	record.Set("runId", workflowOutput.RunId)
+	record.Set("workflowRef", workflowOutput.WorkflowId)
+	record.Set("runRef", workflowOutput.RunId)
 	record.Set("nodeId", workflowOutput.NodeId)
 	record.Set("node", workflowOutput.Node)
 	record.Set("outputs", workflowOutput.Outputs)

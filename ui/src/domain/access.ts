@@ -208,7 +208,7 @@ export type AccessConfigForDingTalkBot = {
 
 export type AccessConfigForDiscordBot = {
   botToken: string;
-  defaultChannelId?: string;
+  channelId?: string;
 };
 
 export type AccessConfigForDNSLA = {
@@ -240,8 +240,9 @@ export type AccessConfigForEmail = {
   smtpTls: boolean;
   username: string;
   password: string;
-  defaultSenderAddress?: string;
-  defaultReceiverAddress?: string;
+  senderAddress?: string;
+  senderName?: string;
+  receiverAddress?: string;
 };
 
 export type AccessConfigForFlexCDN = {
@@ -321,7 +322,7 @@ export type AccessConfigForMattermost = {
   serverUrl: string;
   username: string;
   password: string;
-  defaultChannelId?: string;
+  channelId?: string;
 };
 
 export type AccessConfigForNamecheap = {
@@ -394,7 +395,7 @@ export type AccessConfigForSafeLine = {
 
 export type AccessConfigForSlackBot = {
   botToken: string;
-  defaultChannelId?: string;
+  channelId?: string;
 };
 
 export type AccessConfigForSpaceship = {
@@ -419,7 +420,7 @@ export type AccessConfigForSSLCom = {
 
 export type AccessConfigForTelegramBot = {
   botToken: string;
-  defaultChatId?: number;
+  chatId?: number;
 };
 
 export type AccessConfigForTencentCloud = {
@@ -464,8 +465,8 @@ export type AccessConfigForWebhook = {
   method: string;
   headers?: string;
   allowInsecureConnections?: boolean;
-  defaultDataForDeployment?: string;
-  defaultDataForNotification?: string;
+  dataForDeployment?: string;
+  dataForNotification?: string;
 };
 
 export type AccessConfigForWeComBot = {

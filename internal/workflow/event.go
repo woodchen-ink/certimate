@@ -57,8 +57,8 @@ func onWorkflowRecordCreateOrUpdate(ctx context.Context, record *core.Record) er
 	enabled := record.GetBool("enabled")
 	trigger := record.GetString("trigger")
 
-	// 如果是手动触发或未启用，移除定时任务
-	if !enabled || trigger == string(domain.WorkflowTriggerTypeManual) {
+	// 如果非定时触发或未启用，移除定时任务
+	if !enabled || trigger != string(domain.WorkflowTriggerTypeScheduled) {
 		scheduler.Remove(fmt.Sprintf("workflow#%s", workflowId))
 		return nil
 	}
@@ -68,7 +68,7 @@ func onWorkflowRecordCreateOrUpdate(ctx context.Context, record *core.Record) er
 		workflowSrv := NewWorkflowService(repository.NewWorkflowRepository(), repository.NewWorkflowRunRepository(), repository.NewSettingsRepository())
 		workflowSrv.StartRun(ctx, &dtos.WorkflowStartRunReq{
 			WorkflowId: workflowId,
-			RunTrigger: domain.WorkflowTriggerTypeAuto,
+			RunTrigger: domain.WorkflowTriggerTypeScheduled,
 		})
 	})
 	if err != nil {

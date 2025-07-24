@@ -7,10 +7,11 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/wangsu-certificate"
 	wangsusdk "github.com/certimate-go/certimate/pkg/sdk3rd/wangsu/certificate"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -79,10 +80,10 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		// 修改证书
 		// REF: https://www.wangsu.com/document/api-doc/25568?productCode=certificatemanagement
 		updateCertificateReq := &wangsusdk.UpdateCertificateRequest{
-			Name:        xtypes.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
-			Certificate: xtypes.ToPtr(certPEM),
-			PrivateKey:  xtypes.ToPtr(privkeyPEM),
-			Comment:     xtypes.ToPtr("upload from certimate"),
+			Name:        lo.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
+			Certificate: lo.ToPtr(certPEM),
+			PrivateKey:  lo.ToPtr(privkeyPEM),
+			Comment:     lo.ToPtr("upload from certimate"),
 		}
 		updateCertificateResp, err := d.sdkClient.UpdateCertificate(d.config.CertificateId, updateCertificateReq)
 		d.logger.Debug("sdk request 'certificatemanagement.UpdateCertificate'", slog.Any("request", updateCertificateReq), slog.Any("response", updateCertificateResp))

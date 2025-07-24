@@ -11,14 +11,14 @@ export interface AccessProviderPickerProps {
   className?: string;
   style?: React.CSSProperties;
   autoFocus?: boolean;
-  filter?: (record: AccessProvider) => boolean;
   gap?: number | "small" | "middle" | "large";
   placeholder?: string;
   showOptionTags?: boolean | { [key in AccessUsageType]?: boolean };
+  onFilter?: (value: string, option: AccessProvider) => boolean;
   onSelect?: (value: string) => void;
 }
 
-const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder, showOptionTags, onSelect, ...props }: AccessProviderPickerProps) => {
+const AccessProviderPicker = ({ className, style, autoFocus, placeholder, showOptionTags, onFilter, onSelect, ...props }: AccessProviderPickerProps) => {
   const { gap = "middle" } = props;
 
   const { t } = useTranslation();
@@ -53,8 +53,8 @@ const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder
   const providers = useMemo(() => {
     return Array.from(accessProvidersMap.values())
       .filter((provider) => {
-        if (filter) {
-          return filter(provider);
+        if (onFilter) {
+          return onFilter(provider.type, provider);
         }
 
         return true;
@@ -67,7 +67,7 @@ const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder
 
         return true;
       });
-  }, [filter, keyword]);
+  }, [onFilter, keyword]);
   const providerCols = useMemo(() => {
     if (!wrapperSize) {
       return 1;
@@ -86,7 +86,7 @@ const AccessProviderPicker = ({ className, style, autoFocus, filter, placeholder
       <Input.Search ref={keywordInputRef} placeholder={placeholder ?? t("common.text.search")} onChange={(e) => setKeyword(e.target.value.trim())} />
 
       <div className="mt-4">
-        <Show when={providers.length > 0} fallback={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}>
+        <Show when={providers.length > 0} fallback={<Empty description={t("common.text.nodata")} image={Empty.PRESENTED_IMAGE_SIMPLE} />}>
           <div
             className={mergeCls("grid w-full gap-2", `grid-cols-${providerCols}`, {
               "gap-4": gap === "large",

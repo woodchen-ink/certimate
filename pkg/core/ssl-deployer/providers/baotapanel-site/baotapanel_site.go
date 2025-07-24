@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	btsdk "github.com/certimate-go/certimate/pkg/sdk3rd/btpanel"
-	xslices "github.com/certimate-go/certimate/pkg/utils/slices"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -101,7 +102,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 
 			// 设置站点证书
 			sslSetBatchCertToSiteReq := &btsdk.SSLSetBatchCertToSiteRequest{
-				BatchInfo: xslices.Map(d.config.SiteNames, func(siteName string) *btsdk.SSLSetBatchCertToSiteRequestBatchInfo {
+				BatchInfo: lo.Map(d.config.SiteNames, func(siteName string, _ int) *btsdk.SSLSetBatchCertToSiteRequestBatchInfo {
 					return &btsdk.SSLSetBatchCertToSiteRequestBatchInfo{
 						SiteName: siteName,
 						SSLHash:  sslCertSaveCertResp.SSLHash,

@@ -33,33 +33,6 @@ func (n *notifyNode) Process(ctx context.Context) error {
 	nodeCfg := n.node.GetConfigForNotify()
 	n.logger.Info("ready to send notification ...", slog.Any("config", nodeCfg))
 
-	if nodeCfg.Provider == "" {
-		// Deprecated: v0.4.x 将废弃
-		// 兼容旧版本的通知渠道
-		n.logger.Warn("WARNING! you are using the notification channel from global settings, which will be deprecated in the future")
-
-		// 获取通知配置
-		settings, err := n.settingsRepo.GetByName(ctx, "notifyChannels")
-		if err != nil {
-			return err
-		}
-
-		// 获取通知渠道
-		channelConfig, err := settings.GetNotifyChannelConfig(nodeCfg.Channel)
-		if err != nil {
-			return err
-		}
-
-		// 发送通知
-		if err := notify.SendToChannel(nodeCfg.Subject, nodeCfg.Message, nodeCfg.Channel, channelConfig); err != nil {
-			n.logger.Warn("failed to send notification", slog.String("channel", nodeCfg.Channel))
-			return err
-		}
-
-		n.logger.Info("notification completed")
-		return nil
-	}
-
 	// 检测是否可以跳过本次执行
 	if skippable := n.checkCanSkip(ctx); skippable {
 		n.logger.Info(fmt.Sprintf("skip this notification, because all the previous nodes have been skipped"))

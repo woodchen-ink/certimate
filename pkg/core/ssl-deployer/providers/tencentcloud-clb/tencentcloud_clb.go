@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/lo"
 	tcclb "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/clb/v20180317"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
@@ -15,7 +16,6 @@ import (
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
-	"github.com/certimate-go/certimate/pkg/utils/ifelse"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -67,9 +67,8 @@ func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProv
 	sslmgr, err := sslmgrsp.NewSSLManagerProvider(&sslmgrsp.SSLManagerProviderConfig{
 		SecretId:  config.SecretId,
 		SecretKey: config.SecretKey,
-		Endpoint: ifelse.
-			If[string](strings.HasSuffix(strings.TrimSpace(config.Endpoint), "intl.tencentcloudapi.com")).
-			Then("ssl.intl.tencentcloudapi.com"). // 国际站使用独立的接口端点
+		Endpoint: lo.
+			If(strings.HasSuffix(config.Endpoint, "intl.tencentcloudapi.com"), "ssl.intl.tencentcloudapi.com"). // 国际站使用独立的接口端点
 			Else(""),
 	})
 	if err != nil {
@@ -176,10 +175,13 @@ func (d *SSLDeployerProvider) deployViaSslService(ctx context.Context, cloudCert
 			return fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostDeployRecordDetail': %w", err)
 		}
 
-		var runningCount, succeededCount, failedCount, totalCount int64
+		var pendingCount, runningCount, succeededCount, failedCount, totalCount int64
 		if describeHostDeployRecordDetailResp.Response.TotalCount == nil {
 			return errors.New("unexpected tencentcloud deployment job status")
 		} else {
+			if describeHostDeployRecordDetailResp.Response.PendingTotalCount != nil {
+				pendingCount = *describeHostDeployRecordDetailResp.Response.PendingTotalCount
+			}
 			if describeHostDeployRecordDetailResp.Response.RunningTotalCount != nil {
 				runningCount = *describeHostDeployRecordDetailResp.Response.RunningTotalCount
 			}
@@ -201,7 +203,7 @@ func (d *SSLDeployerProvider) deployViaSslService(ctx context.Context, cloudCert
 			}
 		}
 
-		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount))
+		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (pending: %d, running: %d, succeeded: %d, failed: %d, total: %d) ...", pendingCount, runningCount, succeededCount, failedCount, totalCount))
 		time.Sleep(time.Second * 5)
 	}
 

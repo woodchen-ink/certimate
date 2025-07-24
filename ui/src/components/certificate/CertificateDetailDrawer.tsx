@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useControllableValue } from "ahooks";
 import { Drawer } from "antd";
 
@@ -45,4 +46,29 @@ const CertificateDetailDrawer = ({ data, loading, trigger, ...props }: Certifica
   );
 };
 
-export default CertificateDetailDrawer;
+const useProps = () => {
+  const [data, setData] = useState<CertificateDetailDrawerProps["data"]>();
+  const [open, setOpen] = useState<boolean>(false);
+
+  const onOpenChange = (open: boolean) => {
+    setOpen(open);
+
+    if (!open) {
+      setData(undefined);
+    }
+  };
+
+  return {
+    data,
+    open,
+    setData,
+    setOpen,
+    onOpenChange,
+  };
+};
+
+const _default = Object.assign(CertificateDetailDrawer, {
+  useProps,
+});
+
+export default _default;

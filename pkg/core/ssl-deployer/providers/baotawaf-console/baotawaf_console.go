@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	btwafsdk "github.com/certimate-go/certimate/pkg/sdk3rd/btwaf"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -57,8 +58,8 @@ func (d *SSLDeployerProvider) SetLogger(logger *slog.Logger) {
 func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*core.SSLDeployResult, error) {
 	// 设置面板 SSL
 	configSetCertReq := &btwafsdk.ConfigSetCertRequest{
-		CertContent: xtypes.ToPtr(certPEM),
-		KeyContent:  xtypes.ToPtr(privkeyPEM),
+		CertContent: lo.ToPtr(certPEM),
+		KeyContent:  lo.ToPtr(privkeyPEM),
 	}
 	configSetCertResp, err := d.sdkClient.ConfigSetCert(configSetCertReq)
 	d.logger.Debug("sdk request 'bt.ConfigSetCert'", slog.Any("request", configSetCertReq), slog.Any("response", configSetCertResp))

@@ -16,13 +16,13 @@ import (
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/lego"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 	"golang.org/x/time/rate"
 
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/internal/repository"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
-	xslices "github.com/certimate-go/certimate/pkg/utils/slices"
 )
 
 type ApplyResult struct {
@@ -55,7 +55,7 @@ func NewWithWorkflowNode(config ApplicantWithWorkflowNodeConfig) (Applicant, err
 
 	nodeCfg := config.Node.GetConfigForApply()
 	options := &applicantProviderOptions{
-		Domains:                 xslices.Filter(strings.Split(nodeCfg.Domains, ";"), func(s string) bool { return s != "" }),
+		Domains:                 lo.Filter(strings.Split(nodeCfg.Domains, ";"), func(s string, _ int) bool { return s != "" }),
 		ContactEmail:            nodeCfg.ContactEmail,
 		Provider:                domain.ACMEDns01ProviderType(nodeCfg.Provider),
 		ProviderAccessConfig:    make(map[string]any),
@@ -65,7 +65,7 @@ func NewWithWorkflowNode(config ApplicantWithWorkflowNodeConfig) (Applicant, err
 		CAProviderServiceConfig: nodeCfg.CAProviderConfig,
 		KeyAlgorithm:            nodeCfg.KeyAlgorithm,
 		ACMEProfile:             nodeCfg.ACMEProfile,
-		Nameservers:             xslices.Filter(strings.Split(nodeCfg.Nameservers, ";"), func(s string) bool { return s != "" }),
+		Nameservers:             lo.Filter(strings.Split(nodeCfg.Nameservers, ";"), func(s string, _ int) bool { return s != "" }),
 		DnsPropagationWait:      nodeCfg.DnsPropagationWait,
 		DnsPropagationTimeout:   nodeCfg.DnsPropagationTimeout,
 		DnsTTL:                  nodeCfg.DnsTTL,

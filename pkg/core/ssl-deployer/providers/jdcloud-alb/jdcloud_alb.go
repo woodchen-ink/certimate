@@ -12,10 +12,10 @@ import (
 	jdlbapi "github.com/jdcloud-api/jdcloud-sdk-go/services/lb/apis"
 	jdlbclient "github.com/jdcloud-api/jdcloud-sdk-go/services/lb/client"
 	jdlbmodel "github.com/jdcloud-api/jdcloud-sdk-go/services/lb/models"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/jdcloud-ssl"
-	xslices "github.com/certimate-go/certimate/pkg/utils/slices"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -225,7 +225,7 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 	} else {
 		// 指定 SNI，需部署到扩展证书
 
-		extCertSpecs := xslices.Filter(describeListenerResp.Result.Listener.ExtensionCertificateSpecs, func(extCertSpec jdlbmodel.ExtensionCertificateSpec) bool {
+		extCertSpecs := lo.Filter(describeListenerResp.Result.Listener.ExtensionCertificateSpecs, func(extCertSpec jdlbmodel.ExtensionCertificateSpec, _ int) bool {
 			return extCertSpec.Domain == d.config.Domain
 		})
 		if len(extCertSpecs) == 0 {
@@ -237,7 +237,7 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 		updateListenerCertificatesReq := jdlbapi.NewUpdateListenerCertificatesRequest(
 			d.config.RegionId,
 			cloudListenerId,
-			xslices.Map(extCertSpecs, func(extCertSpec jdlbmodel.ExtensionCertificateSpec) jdlbmodel.ExtCertificateUpdateSpec {
+			lo.Map(extCertSpecs, func(extCertSpec jdlbmodel.ExtensionCertificateSpec, _ int) jdlbmodel.ExtCertificateUpdateSpec {
 				return jdlbmodel.ExtCertificateUpdateSpec{
 					CertificateBindId: extCertSpec.CertificateBindId,
 					CertificateId:     &cloudCertId,

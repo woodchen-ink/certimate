@@ -6,10 +6,10 @@ import { type DeploymentProvider, deploymentProvidersMap } from "@/domain/provid
 
 export interface DeploymentProviderSelectProps
   extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
-  filter?: (record: DeploymentProvider) => boolean;
+  onFilter?: (value: string, option: DeploymentProvider) => boolean;
 }
 
-const DeploymentProviderSelect = ({ filter, ...props }: DeploymentProviderSelectProps) => {
+const DeploymentProviderSelect = ({ onFilter, ...props }: DeploymentProviderSelectProps) => {
   const { t } = useTranslation();
 
   const { token: themeToken } = theme.useToken();
@@ -17,8 +17,8 @@ const DeploymentProviderSelect = ({ filter, ...props }: DeploymentProviderSelect
   const options = useMemo<Array<{ key: string; value: string; label: string; data: DeploymentProvider }>>(() => {
     return Array.from(deploymentProvidersMap.values())
       .filter((provider) => {
-        if (filter) {
-          return filter(provider);
+        if (onFilter) {
+          return onFilter(provider.type, provider);
         }
 
         return true;
@@ -29,7 +29,7 @@ const DeploymentProviderSelect = ({ filter, ...props }: DeploymentProviderSelect
         label: t(provider.name),
         data: provider,
       }));
-  }, [filter]);
+  }, [onFilter]);
 
   const renderOption = (key: string) => {
     const provider = deploymentProvidersMap.get(key);

@@ -9,7 +9,7 @@ import { ClientResponseError } from "pocketbase";
 import CertificateDetailDrawer from "@/components/certificate/CertificateDetailDrawer";
 import Show from "@/components/Show";
 import { type CertificateModel } from "@/domain/certificate";
-import { type WorkflowLogModel } from "@/domain/workflowLog";
+import { WorkflowLogLevel, type WorkflowLogModel } from "@/domain/workflowLog";
 import { WORKFLOW_RUN_STATUSES, type WorkflowRunModel } from "@/domain/workflowRun";
 import { useBrowserTheme } from "@/hooks";
 import { listByWorkflowRunId as listCertificatesByWorkflowRunId } from "@/repository/certificate";
@@ -125,7 +125,7 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
           {Object.entries(record.data).map(([key, value]) => (
             <div key={key} className="flex space-x-2" style={{ wordBreak: "break-word" }}>
               <div className="whitespace-nowrap">{key}:</div>
-              <div className={!showWhitespace ? "whitespace-pre-line" : ""}>{JSON.stringify(value)}</div>
+              <div className={showWhitespace ? "whitespace-normal" : "whitespace-pre-line"}>{JSON.stringify(value)}</div>
             </div>
           ))}
         </details>
@@ -138,10 +138,14 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
         <div
           className={mergeCls(
             "font-mono",
-            record.level === "DEBUG" ? "text-stone-400" : "",
-            record.level === "WARN" ? "text-yellow-600" : "",
-            record.level === "ERROR" ? "text-red-600" : "",
-            !showWhitespace ? "whitespace-pre-line" : ""
+            record.level < WorkflowLogLevel.Info
+              ? "text-stone-400"
+              : record.level < WorkflowLogLevel.Warn
+                ? ""
+                : record.level < WorkflowLogLevel.Error
+                  ? "text-warning"
+                  : "text-error",
+            { ["whitespace-pre-line"]: !showWhitespace }
           )}
         >
           {message}
@@ -235,7 +239,7 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
               style={{ color: "inherit" }}
               bordered={false}
               defaultActiveKey={listData.map((group) => group.id)}
-              expandIcon={({ isActive }) => <IconChevronRight className={mergeCls(isActive ? "" : "rotate-90", "transition-transform")} size="1.25em" />}
+              expandIcon={({ isActive }) => <IconChevronRight className={mergeCls(isActive ? "rotate-90" : "", "transition-transform")} size="1.25em" />}
               items={listData.map((group) => {
                 return {
                   key: group.id,
@@ -293,7 +297,7 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
     {
       key: "$action",
       align: "end",
-      width: 120,
+      width: 32,
       render: (_, record) => (
         <div className="flex items-center justify-end">
           <CertificateDetailDrawer
@@ -339,7 +343,7 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
         dataSource={tableData}
         loading={tableLoading}
         locale={{
-          emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />,
+          emptyText: <Empty description={t("common.text.nodata")} image={Empty.PRESENTED_IMAGE_SIMPLE} />,
         }}
         pagination={false}
         rowKey={(record) => record.id}

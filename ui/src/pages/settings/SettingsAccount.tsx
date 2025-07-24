@@ -22,10 +22,10 @@ const SettingsAccount = () => {
       <h2>{t("settings.account.password.title")}</h2>
       <SettingsAccountPassword className="md:max-w-160" />
 
-      <Divider />
+      {/* <Divider />
 
       <h2>{t("settings.account.2fa.title")}</h2>
-      <div>TODO ...</div>
+      <div>TODO ...</div> */}
     </>
   );
 };

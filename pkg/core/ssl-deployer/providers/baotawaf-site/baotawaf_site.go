@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/samber/lo"
+
 	"github.com/certimate-go/certimate/pkg/core"
 	btwafsdk "github.com/certimate-go/certimate/pkg/sdk3rd/btwaf"
-	xtypes "github.com/certimate-go/certimate/pkg/utils/types"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -80,9 +81,9 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		}
 
 		getSiteListReq := &btwafsdk.GetSiteListRequest{
-			SiteName: xtypes.ToPtr(d.config.SiteName),
-			Page:     xtypes.ToPtr(getSitListPage),
-			PageSize: xtypes.ToPtr(getSitListPageSize),
+			SiteName: lo.ToPtr(d.config.SiteName),
+			Page:     lo.ToPtr(getSitListPage),
+			PageSize: lo.ToPtr(getSitListPageSize),
 		}
 		getSiteListResp, err := d.sdkClient.GetSiteList(getSiteListReq)
 		d.logger.Debug("sdk request 'bt.GetSiteList'", slog.Any("request", getSiteListReq), slog.Any("response", getSiteListResp))
@@ -111,14 +112,14 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 
 	// 修改站点配置
 	modifySiteReq := &btwafsdk.ModifySiteRequest{
-		SiteId: xtypes.ToPtr(siteId),
-		Type:   xtypes.ToPtr("openCert"),
+		SiteId: lo.ToPtr(siteId),
+		Type:   lo.ToPtr("openCert"),
 		Server: &btwafsdk.SiteServerInfo{
-			ListenSSLPorts: xtypes.ToPtr([]int32{d.config.SitePort}),
+			ListenSSLPorts: lo.ToPtr([]int32{d.config.SitePort}),
 			SSL: &btwafsdk.SiteServerSSLInfo{
-				IsSSL:      xtypes.ToPtr(int32(1)),
-				FullChain:  xtypes.ToPtr(certPEM),
-				PrivateKey: xtypes.ToPtr(privkeyPEM),
+				IsSSL:      lo.ToPtr(int32(1)),
+				FullChain:  lo.ToPtr(certPEM),
+				PrivateKey: lo.ToPtr(privkeyPEM),
 			},
 		},
 	}

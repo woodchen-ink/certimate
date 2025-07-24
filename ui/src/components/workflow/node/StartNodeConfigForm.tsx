@@ -40,7 +40,7 @@ const StartNodeConfigForm = forwardRef<StartNodeConfigFormInstance, StartNodeCon
         .string()
         .nullish()
         .refine((v) => {
-          if (fieldTrigger !== WORKFLOW_TRIGGERS.AUTO) return true;
+          if (fieldTrigger !== WORKFLOW_TRIGGERS.SCHEDULED) return true;
           return validCronExpression(v!);
         }, t("workflow_node.start.form.trigger_cron.errmsg.invalid")),
     });
@@ -58,7 +58,7 @@ const StartNodeConfigForm = forwardRef<StartNodeConfigFormInstance, StartNodeCon
     }, [fieldTriggerCron]);
 
     const handleTriggerChange = (value: string) => {
-      if (value === WORKFLOW_TRIGGERS.AUTO) {
+      if (value === WORKFLOW_TRIGGERS.SCHEDULED) {
         formInst.setFieldValue("triggerCron", formProps.initialValues?.triggerCron || initFormModel().triggerCron);
       } else {
         formInst.setFieldValue("triggerCron", undefined);
@@ -89,7 +89,7 @@ const StartNodeConfigForm = forwardRef<StartNodeConfigFormInstance, StartNodeCon
       <Form className={className} style={style} {...formProps} disabled={disabled} layout="vertical" scrollToFirstError onValuesChange={handleFormChange}>
         <Form.Item name="trigger" label={t("workflow_node.start.form.trigger.label")} rules={[formRule]}>
           <Radio.Group onChange={(e) => handleTriggerChange(e.target.value)}>
-            <Radio value={WORKFLOW_TRIGGERS.AUTO}>{t("workflow_node.start.form.trigger.option.auto.label")}</Radio>
+            <Radio value={WORKFLOW_TRIGGERS.SCHEDULED}>{t("workflow_node.start.form.trigger.option.scheduled.label")}</Radio>
             <Radio value={WORKFLOW_TRIGGERS.MANUAL}>{t("workflow_node.start.form.trigger.option.manual.label")}</Radio>
           </Radio.Group>
         </Form.Item>
@@ -97,7 +97,7 @@ const StartNodeConfigForm = forwardRef<StartNodeConfigFormInstance, StartNodeCon
         <Form.Item
           name="triggerCron"
           label={t("workflow_node.start.form.trigger_cron.label")}
-          hidden={fieldTrigger !== WORKFLOW_TRIGGERS.AUTO}
+          hidden={fieldTrigger !== WORKFLOW_TRIGGERS.SCHEDULED}
           rules={[formRule]}
           tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.start.form.trigger_cron.tooltip") }}></span>}
           extra={
@@ -118,7 +118,7 @@ const StartNodeConfigForm = forwardRef<StartNodeConfigFormInstance, StartNodeCon
           <Input placeholder={t("workflow_node.start.form.trigger_cron.placeholder")} />
         </Form.Item>
 
-        <Show when={fieldTrigger === WORKFLOW_TRIGGERS.AUTO}>
+        <Show when={fieldTrigger === WORKFLOW_TRIGGERS.SCHEDULED}>
           <Form.Item>
             <Alert type="info" message={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.start.form.trigger_cron.guide") }}></span>} />
           </Form.Item>

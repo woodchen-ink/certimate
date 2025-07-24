@@ -225,8 +225,8 @@ require (
 	modernc.org/sqlite v1.38.0 // indirect
 )
 
-replace github.com/Edgio/edgio-api v0.0.0-workspace => ./pkg/sdk3rd/edgio/edgio-api@v0.0.0-workspace
+replace github.com/Edgio/edgio-api v0.0.0-workspace => ./pkg/forks/github.com/Edgio/edgio-api@v0.0.0-workspace
 
-replace gitlab.ecloud.com/ecloud/ecloudsdkcore v1.0.0 => ./pkg/sdk3rd/cmcc/ecloudsdkcore@v1.0.0
+replace gitlab.ecloud.com/ecloud/ecloudsdkcore v1.0.0 => ./pkg/forks/gitlab.ecloud.com/ecloud/ecloudsdkcore@v1.0.0
 
-replace gitlab.ecloud.com/ecloud/ecloudsdkclouddns v1.0.1 => ./pkg/sdk3rd/cmcc/ecloudsdkclouddns@v1.0.1
+replace gitlab.ecloud.com/ecloud/ecloudsdkclouddns v1.0.1 => ./pkg/forks/gitlab.ecloud.com/ecloud/ecloudsdkclouddns@v1.0.1

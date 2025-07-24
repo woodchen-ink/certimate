@@ -64,10 +64,10 @@ const WorkflowList = () => {
           return "-";
         } else if (trigger === WORKFLOW_TRIGGERS.MANUAL) {
           return <Typography.Text>{t("workflow.props.trigger.manual")}</Typography.Text>;
-        } else if (trigger === WORKFLOW_TRIGGERS.AUTO) {
+        } else if (trigger === WORKFLOW_TRIGGERS.SCHEDULED) {
           return (
             <div className="flex max-w-full flex-col gap-1">
-              <Typography.Text>{t("workflow.props.trigger.auto")}</Typography.Text>
+              <Typography.Text>{t("workflow.props.trigger.scheduled")}</Typography.Text>
               <Typography.Text type="secondary">{record.triggerCron || "\u00A0"}</Typography.Text>
             </div>
           );

@@ -36,7 +36,7 @@
   "workflow.props.name": "Name",
   "workflow.props.description": "Description",
   "workflow.props.trigger": "Trigger",
-  "workflow.props.trigger.auto": "Scheduled",
+  "workflow.props.trigger.scheduled": "Scheduled",
   "workflow.props.trigger.manual": "Manual",
   "workflow.props.last_run_at": "Last run at",
   "workflow.props.state": "Active",

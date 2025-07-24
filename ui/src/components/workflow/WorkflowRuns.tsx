@@ -64,8 +64,8 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
       title: t("workflow_run.props.trigger"),
       ellipsis: true,
       render: (_, record) => {
-        if (record.trigger === WORKFLOW_TRIGGERS.AUTO) {
-          return t("workflow_run.props.trigger.auto");
+        if (record.trigger === WORKFLOW_TRIGGERS.SCHEDULED) {
+          return t("workflow_run.props.trigger.scheduled");
         } else if (record.trigger === WORKFLOW_TRIGGERS.MANUAL) {
           return t("workflow_run.props.trigger.manual");
         }
@@ -202,6 +202,10 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
           }
           return [...prev];
         });
+
+        if (cb.record.id === detailDrawerProps.data?.id) {
+          setDetailRecord({ ...detailDrawerProps.data, ...cb.record });
+        }
 
         if (cb.record.status !== WORKFLOW_RUN_STATUSES.PENDING && cb.record.status !== WORKFLOW_RUN_STATUSES.RUNNING) {
           unsubscribeWorkflowRun(item.id);

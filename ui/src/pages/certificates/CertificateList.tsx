@@ -49,14 +49,14 @@ const CertificateList = () => {
       render: (_, record) => <Typography.Text>{record.subjectAltNames}</Typography.Text>,
     },
     {
-      key: "expiry",
+      key: "validity",
       title: t("certificate.props.validity"),
       sorter: true,
-      sortOrder: sorter.columnKey === "expiry" ? sorter.order : undefined,
+      sortOrder: sorter.columnKey === "validity" ? sorter.order : undefined,
       render: (_, record) => {
-        const total = dayjs(record.expireAt).diff(dayjs(record.created), "d") + 1;
-        const isExpired = dayjs().isAfter(dayjs(record.expireAt));
-        const leftHours = dayjs(record.expireAt).diff(dayjs(), "h");
+        const total = dayjs(record.validityNotAfter).diff(dayjs(record.created), "d") + 1;
+        const isExpired = dayjs().isAfter(dayjs(record.validityNotAfter));
+        const leftHours = dayjs(record.validityNotAfter).diff(dayjs(), "h");
         const leftDays = Math.round(leftHours / 24);
 
         return (
@@ -83,7 +83,7 @@ const CertificateList = () => {
             )}
 
             <Typography.Text ellipsis type="secondary">
-              {t("certificate.props.validity.expiration", { date: dayjs(record.expireAt).format("YYYY-MM-DD") })}
+              {t("certificate.props.validity.expiration", { date: dayjs(record.validityNotAfter).format("YYYY-MM-DD") })}
             </Typography.Text>
           </div>
         );
@@ -103,7 +103,7 @@ const CertificateList = () => {
       key: "source",
       title: t("certificate.props.source"),
       render: (_, record) => {
-        const workflowId = record.workflowId;
+        const workflowId = record.workflowRef;
         return (
           <div className="flex max-w-full flex-col gap-1 truncate">
             <Typography.Text ellipsis>{t(`certificate.props.source.${record.source}`)}</Typography.Text>
@@ -117,7 +117,7 @@ const CertificateList = () => {
                 }
               }}
             >
-              {record.expand?.workflowId?.name ?? <span className="font-mono">{t(`#${workflowId}`)}</span>}
+              {record.expand?.workflowRef?.name ?? <span className="font-mono">{t(`#${workflowId}`)}</span>}
             </Typography.Link>
           </div>
         );
@@ -218,7 +218,7 @@ const CertificateList = () => {
     () => {
       const { columnKey: sorterKey, order: sorterOrder } = sorter;
       let sort: string | undefined;
-      sort = sorterKey === "expiry" ? "expireAt" : "";
+      sort = sorterKey === "validity" ? "validityNotAfter" : "";
       sort = sort && (sorterOrder === "ascend" ? `${sort}` : sorterOrder === "descend" ? `-${sort}` : undefined);
 
       return listCertificates({

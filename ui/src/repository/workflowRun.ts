@@ -16,7 +16,7 @@ export const list = async (request: ListRequest) => {
 
   const filters: string[] = [];
   if (request.workflowId) {
-    filters.push(pb.filter("workflowId={:workflowId}", { workflowId: request.workflowId }));
+    filters.push(pb.filter("workflowRef={:workflowId}", { workflowId: request.workflowId }));
   }
 
   const page = request.page || 1;
@@ -25,7 +25,7 @@ export const list = async (request: ListRequest) => {
     filter: filters.join(" && "),
     sort: "-created",
     requestKey: null,
-    expand: request.expand ? "workflowId" : undefined,
+    expand: request.expand ? "workflowRef" : undefined,
   });
 };
 

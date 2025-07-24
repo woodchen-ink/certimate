@@ -26,7 +26,7 @@
   "certificate.props.validity.filter.expired": "Expired",
   "certificate.props.brand": "Brand",
   "certificate.props.source": "Source",
-  "certificate.props.source.workflow": "Workflow",
+  "certificate.props.source.request": "Request",
   "certificate.props.source.upload": "Upload",
   "certificate.props.certificate": "Certificate chain",
   "certificate.props.private_key": "Private key",

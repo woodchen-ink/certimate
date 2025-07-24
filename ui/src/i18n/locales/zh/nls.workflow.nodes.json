@@ -15,7 +15,7 @@
   "workflow_node.start.default_name": "开始",
   "workflow_node.start.form.trigger.label": "触发方式",
   "workflow_node.start.form.trigger.placeholder": "请选择触发方式",
-  "workflow_node.start.form.trigger.option.auto.label": "定时触发",
+  "workflow_node.start.form.trigger.option.scheduled.label": "定时触发",
   "workflow_node.start.form.trigger.option.manual.label": "手动触发",
   "workflow_node.start.form.trigger_cron.label": "Cron 表达式",
   "workflow_node.start.form.trigger_cron.placeholder": "请输入 Cron 表达式",

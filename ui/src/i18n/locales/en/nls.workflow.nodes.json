@@ -15,7 +15,7 @@
   "workflow_node.start.default_name": "Start",
   "workflow_node.start.form.trigger.label": "Trigger",
   "workflow_node.start.form.trigger.placeholder": "Please select trigger",
-  "workflow_node.start.form.trigger.option.auto.label": "Scheduled",
+  "workflow_node.start.form.trigger.option.scheduled.label": "Scheduled",
   "workflow_node.start.form.trigger.option.manual.label": "Manual",
   "workflow_node.start.form.trigger_cron.label": "Cron expression",
   "workflow_node.start.form.trigger_cron.placeholder": "Please enter cron expression",

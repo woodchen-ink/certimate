@@ -54,7 +54,7 @@ func (s *CertificateService) InitSchedule(ctx context.Context) error {
 		if settingsContent != nil && settingsContent.ExpiredCertificatesMaxDaysRetention != 0 {
 			ret, err := s.certificateRepo.DeleteWhere(
 				context.Background(),
-				dbx.NewExp(fmt.Sprintf("expireAt<DATETIME('now', '-%d days')", settingsContent.ExpiredCertificatesMaxDaysRetention)),
+				dbx.NewExp(fmt.Sprintf("validityNotAfter<DATETIME('now', '-%d days')", settingsContent.ExpiredCertificatesMaxDaysRetention)),
 			)
 			if err != nil {
 				app.GetLogger().Error("failed to delete expired certificates", "err", err)

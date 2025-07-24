@@ -239,7 +239,7 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
               style={{ color: "inherit" }}
               bordered={false}
               defaultActiveKey={listData.map((group) => group.id)}
-              expandIcon={({ isActive }) => <IconChevronRight className={mergeCls(isActive ? "" : "rotate-90", "transition-transform")} size="1.25em" />}
+              expandIcon={({ isActive }) => <IconChevronRight className={mergeCls(isActive ? "rotate-90" : "", "transition-transform")} size="1.25em" />}
               items={listData.map((group) => {
                 return {
                   key: group.id,

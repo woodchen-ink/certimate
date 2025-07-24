@@ -74,7 +74,7 @@ func (n *uploadNode) Process(ctx context.Context) error {
 	// 记录中间结果
 	n.outputs[outputKeyForNodeSkipped] = strconv.FormatBool(false)
 	n.outputs[outputKeyForCertificateValidity] = strconv.FormatBool(true)
-	n.outputs[outputKeyForCertificateDaysLeft] = strconv.FormatInt(int64(time.Until(certificate.ExpireAt).Hours()/24), 10)
+	n.outputs[outputKeyForCertificateDaysLeft] = strconv.FormatInt(int64(time.Until(certificate.ValidityNotAfter).Hours()/24), 10)
 
 	n.logger.Info("uploading completed")
 	return nil
@@ -95,7 +95,7 @@ func (n *uploadNode) checkCanSkip(ctx context.Context, lastOutput *domain.Workfl
 
 		lastCertificate, _ := n.certRepo.GetByWorkflowRunIdAndNodeId(ctx, lastOutput.RunId, lastOutput.NodeId)
 		if lastCertificate != nil {
-			daysLeft := int(time.Until(lastCertificate.ExpireAt).Hours() / 24)
+			daysLeft := int(time.Until(lastCertificate.ValidityNotAfter).Hours() / 24)
 			n.outputs[outputKeyForCertificateValidity] = strconv.FormatBool(daysLeft > 0)
 			n.outputs[outputKeyForCertificateDaysLeft] = strconv.FormatInt(int64(daysLeft), 10)
 

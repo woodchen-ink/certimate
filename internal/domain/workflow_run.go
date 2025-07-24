@@ -8,7 +8,7 @@ const CollectionNameWorkflowRun = "workflow_run"
 
 type WorkflowRun struct {
 	Meta
-	WorkflowId string                `json:"workflowId" db:"workflowId"`
+	WorkflowId string                `json:"workflowId" db:"workflowRef"`
 	Status     WorkflowRunStatusType `json:"status" db:"status"`
 	Trigger    WorkflowTriggerType   `json:"trigger" db:"trigger"`
 	StartedAt  time.Time             `json:"startedAt" db:"startedAt"`

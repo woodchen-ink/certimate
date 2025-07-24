@@ -23,16 +23,16 @@ type Certificate struct {
 	IssuerOrg         string                      `json:"issuerOrg" db:"issuerOrg"`
 	IssuerCertificate string                      `json:"issuerCertificate" db:"issuerCertificate"`
 	KeyAlgorithm      CertificateKeyAlgorithmType `json:"keyAlgorithm" db:"keyAlgorithm"`
-	EffectAt          time.Time                   `json:"effectAt" db:"effectAt"`
-	ExpireAt          time.Time                   `json:"expireAt" db:"expireAt"`
+	ValidityNotBefore time.Time                   `json:"validityNotBefore" db:"validityNotBefore"`
+	ValidityNotAfter  time.Time                   `json:"validityNotAfter" db:"validityNotAfter"`
 	ACMEAccountUrl    string                      `json:"acmeAccountUrl" db:"acmeAccountUrl"`
 	ACMECertUrl       string                      `json:"acmeCertUrl" db:"acmeCertUrl"`
 	ACMECertStableUrl string                      `json:"acmeCertStableUrl" db:"acmeCertStableUrl"`
 	ACMERenewed       bool                        `json:"acmeRenewed" db:"acmeRenewed"`
-	WorkflowId        string                      `json:"workflowId" db:"workflowId"`
+	WorkflowId        string                      `json:"workflowId" db:"workflowRef"`
+	WorkflowRunId     string                      `json:"workflowRunId" db:"workflowRunRef"`
+	WorkflowOutputId  string                      `json:"workflowOutputId" db:"workflowOutputRef"`
 	WorkflowNodeId    string                      `json:"workflowNodeId" db:"workflowNodeId"`
-	WorkflowRunId     string                      `json:"workflowRunId" db:"workflowRunId"`
-	WorkflowOutputId  string                      `json:"workflowOutputId" db:"workflowOutputId"`
 	DeletedAt         *time.Time                  `json:"deleted" db:"deleted"`
 }
 
@@ -40,8 +40,8 @@ func (c *Certificate) PopulateFromX509(certX509 *x509.Certificate) *Certificate 
 	c.SubjectAltNames = strings.Join(certX509.DNSNames, ";")
 	c.SerialNumber = strings.ToUpper(certX509.SerialNumber.Text(16))
 	c.IssuerOrg = strings.Join(certX509.Issuer.Organization, ";")
-	c.EffectAt = certX509.NotBefore
-	c.ExpireAt = certX509.NotAfter
+	c.ValidityNotBefore = certX509.NotBefore
+	c.ValidityNotAfter = certX509.NotAfter
 
 	switch certX509.PublicKeyAlgorithm {
 	case x509.RSA:
@@ -120,8 +120,8 @@ func (c *Certificate) PopulateFromPEM(certPEM, privkeyPEM string) *Certificate {
 type CertificateSourceType string
 
 const (
-	CertificateSourceTypeWorkflow = CertificateSourceType("workflow")
-	CertificateSourceTypeUpload   = CertificateSourceType("upload")
+	CertificateSourceTypeRequest = CertificateSourceType("request")
+	CertificateSourceTypeUpload  = CertificateSourceType("upload")
 )
 
 type CertificateKeyAlgorithmType string

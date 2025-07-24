@@ -20,7 +20,7 @@ type Workflow struct {
 	Content       *WorkflowNode         `json:"content" db:"content"`
 	Draft         *WorkflowNode         `json:"draft" db:"draft"`
 	HasDraft      bool                  `json:"hasDraft" db:"hasDraft"`
-	LastRunId     string                `json:"lastRunId" db:"lastRunId"`
+	LastRunId     string                `json:"lastRunId" db:"lastRunRef"`
 	LastRunStatus WorkflowRunStatusType `json:"lastRunStatus" db:"lastRunStatus"`
 	LastRunTime   time.Time             `json:"lastRunTime" db:"lastRunTime"`
 }
@@ -45,8 +45,8 @@ const (
 type WorkflowTriggerType string
 
 const (
-	WorkflowTriggerTypeAuto   = WorkflowTriggerType("auto")
-	WorkflowTriggerTypeManual = WorkflowTriggerType("manual")
+	WorkflowTriggerTypeScheduled = WorkflowTriggerType("scheduled")
+	WorkflowTriggerTypeManual    = WorkflowTriggerType("manual")
 )
 
 type WorkflowNode struct {
@@ -55,8 +55,8 @@ type WorkflowNode struct {
 	Name string           `json:"name"`
 
 	Config  map[string]any   `json:"config"`
-	Inputs  []WorkflowNodeIO `json:"inputs"`
-	Outputs []WorkflowNodeIO `json:"outputs"`
+	Inputs  []WorkflowNodeIO `json:"inputs,omitempty"`
+	Outputs []WorkflowNodeIO `json:"outputs,omitempty"`
 
 	Next     *WorkflowNode  `json:"next,omitempty"`
 	Branches []WorkflowNode `json:"branches,omitempty"`

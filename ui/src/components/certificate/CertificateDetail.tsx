@@ -45,7 +45,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
 
         <Form.Item label={t("certificate.props.validity")}>
           <Input
-            value={`${dayjs(data.effectAt).format("YYYY-MM-DD HH:mm:ss")} ~ ${dayjs(data.expireAt).format("YYYY-MM-DD HH:mm:ss")}`}
+            value={`${dayjs(data.validityNotBefore).format("YYYY-MM-DD HH:mm:ss")} ~ ${dayjs(data.validityNotAfter).format("YYYY-MM-DD HH:mm:ss")}`}
             variant="filled"
             placeholder=""
           />

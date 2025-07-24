@@ -40,14 +40,14 @@ const StartNode = ({ node, disabled }: StartNodeProps) => {
     return (
       <div className="flex items-center justify-between space-x-2">
         <Typography.Text className="truncate">
-          {config.trigger === WORKFLOW_TRIGGERS.AUTO
-            ? t("workflow.props.trigger.auto")
+          {config.trigger === WORKFLOW_TRIGGERS.SCHEDULED
+            ? t("workflow.props.trigger.scheduled")
             : config.trigger === WORKFLOW_TRIGGERS.MANUAL
               ? t("workflow.props.trigger.manual")
               : "\u00A0"}
         </Typography.Text>
         <Typography.Text className="truncate" type="secondary">
-          {config.trigger === WORKFLOW_TRIGGERS.AUTO ? config.triggerCron : ""}
+          {config.trigger === WORKFLOW_TRIGGERS.SCHEDULED ? config.triggerCron : ""}
         </Typography.Text>
       </div>
     );

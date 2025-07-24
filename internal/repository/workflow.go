@@ -18,13 +18,13 @@ func NewWorkflowRepository() *WorkflowRepository {
 	return &WorkflowRepository{}
 }
 
-func (r *WorkflowRepository) ListEnabledAuto(ctx context.Context) ([]*domain.Workflow, error) {
+func (r *WorkflowRepository) ListEnabledScheduled(ctx context.Context) ([]*domain.Workflow, error) {
 	records, err := app.GetApp().FindRecordsByFilter(
 		domain.CollectionNameWorkflow,
 		"enabled={:enabled} && trigger={:trigger}",
 		"-created",
 		0, 0,
-		dbx.Params{"enabled": true, "trigger": string(domain.WorkflowTriggerTypeAuto)},
+		dbx.Params{"enabled": true, "trigger": string(domain.WorkflowTriggerTypeScheduled)},
 	)
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func (r *WorkflowRepository) Save(ctx context.Context, workflow *domain.Workflow
 	record.Set("content", workflow.Content)
 	record.Set("draft", workflow.Draft)
 	record.Set("hasDraft", workflow.HasDraft)
-	record.Set("lastRunId", workflow.LastRunId)
+	record.Set("lastRunRef", workflow.LastRunId)
 	record.Set("lastRunStatus", string(workflow.LastRunStatus))
 	record.Set("lastRunTime", workflow.LastRunTime)
 	if err := app.GetApp().Save(record); err != nil {
@@ -124,7 +124,7 @@ func (r *WorkflowRepository) castRecordToModel(record *core.Record) (*domain.Wor
 		Content:       content,
 		Draft:         draft,
 		HasDraft:      record.GetBool("hasDraft"),
-		LastRunId:     record.GetString("lastRunId"),
+		LastRunId:     record.GetString("lastRunRef"),
 		LastRunStatus: domain.WorkflowRunStatusType(record.GetString("lastRunStatus")),
 		LastRunTime:   record.GetDateTime("lastRunTime").Time(),
 	}

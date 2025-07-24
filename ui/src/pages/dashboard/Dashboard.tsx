@@ -245,7 +245,7 @@ const WorkflowRunHistoryTable = ({ className, style }: { className?: string; sty
       key: "name",
       title: t("workflow.props.name"),
       render: (_, record) => {
-        const workflow = record.expand?.workflowId;
+        const workflow = record.expand?.workflowRef;
         return (
           <div className="max-w-full truncate">
             <Typography.Link
@@ -256,7 +256,7 @@ const WorkflowRunHistoryTable = ({ className, style }: { className?: string; sty
                 }
               }}
             >
-              {workflow?.name ?? <span className="font-mono">{t(`#${record.workflowId}`)}</span>}
+              {workflow?.name ?? <span className="font-mono">{t(`#${record.workflowRef}`)}</span>}
             </Typography.Link>
           </div>
         );

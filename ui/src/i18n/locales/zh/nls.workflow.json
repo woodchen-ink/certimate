@@ -36,7 +36,7 @@
   "workflow.props.name": "名称",
   "workflow.props.description": "描述",
   "workflow.props.trigger": "触发方式",
-  "workflow.props.trigger.auto": "定时",
+  "workflow.props.trigger.scheduled": "定时",
   "workflow.props.trigger.manual": "手动",
   "workflow.props.last_run_at": "最近执行时间",
   "workflow.props.state": "启用",

@@ -125,7 +125,7 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
           {Object.entries(record.data).map(([key, value]) => (
             <div key={key} className="flex space-x-2" style={{ wordBreak: "break-word" }}>
               <div className="whitespace-nowrap">{key}:</div>
-              <div className={!showWhitespace ? "whitespace-pre-line" : ""}>{JSON.stringify(value)}</div>
+              <div className={showWhitespace ? "whitespace-normal" : "whitespace-pre-line"}>{JSON.stringify(value)}</div>
             </div>
           ))}
         </details>
@@ -263,6 +263,94 @@ const WorkflowRunLogs = ({ runId, runStatus }: { runId: string; runStatus: strin
   );
 };
 
-const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {};
+const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
+  const { t } = useTranslation();
+
+  const { notification } = App.useApp();
+
+  const tableColumns: TableProps<CertificateModel>["columns"] = [
+    {
+      key: "$index",
+      align: "center",
+      fixed: "left",
+      width: 50,
+      render: (_, __, index) => index + 1,
+    },
+    {
+      key: "type",
+      title: t("workflow_run_artifact.props.type"),
+      render: () => t("workflow_run_artifact.props.type.certificate"),
+    },
+    {
+      key: "name",
+      title: t("workflow_run_artifact.props.name"),
+      render: (_, record) => {
+        return (
+          <div className="max-w-full truncate">
+            <Typography.Text delete={!!record.deleted} ellipsis>
+              {record.subjectAltNames}
+            </Typography.Text>
+          </div>
+        );
+      },
+    },
+    {
+      key: "$action",
+      align: "end",
+      width: 32,
+      render: (_, record) => (
+        <div className="flex items-center justify-end">
+          <CertificateDetailDrawer
+            data={record}
+            trigger={
+              <Tooltip title={t("common.button.view")}>
+                <Button color="primary" disabled={!!record.deleted} icon={<IconBrowserShare size="1.25em" />} variant="text" />
+              </Tooltip>
+            }
+          />
+        </div>
+      ),
+    },
+  ];
+  const [tableData, setTableData] = useState<CertificateModel[]>([]);
+  const { loading: tableLoading } = useRequest(
+    () => {
+      return listCertificatesByWorkflowRunId(runId);
+    },
+    {
+      refreshDeps: [runId],
+      onSuccess: (res) => {
+        setTableData(res.items);
+      },
+      onError: (err) => {
+        if (err instanceof ClientResponseError && err.isAbort) {
+          return;
+        }
+
+        console.error(err);
+        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+
+        throw err;
+      },
+    }
+  );
+
+  return (
+    <>
+      <Typography.Title level={5}>{t("workflow_run.artifacts")}</Typography.Title>
+      <Table<CertificateModel>
+        columns={tableColumns}
+        dataSource={tableData}
+        loading={tableLoading}
+        locale={{
+          emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />,
+        }}
+        pagination={false}
+        rowKey={(record) => record.id}
+        size="small"
+      />
+    </>
+  );
+};
 
 export default WorkflowRunDetail;

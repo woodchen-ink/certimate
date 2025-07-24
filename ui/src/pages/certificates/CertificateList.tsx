@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconCertificate, IconDotsVertical, IconExternalLink, IconReload, IconTrash } from "@tabler/icons-react";
+import { IconBrowserShare, IconCertificate, IconDotsVertical, IconExternalLink, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { App, Button, Dropdown, Input, Segmented, Skeleton, Table, type TableProps, Typography, theme } from "antd";
 import dayjs from "dayjs";
@@ -147,8 +147,23 @@ const CertificateList = () => {
             menu={{
               items: [
                 {
+                  key: "view",
+                  label: t("certificate.action.view.button"),
+                  icon: (
+                    <span className="anticon scale-125">
+                      <IconBrowserShare size="1em" />
+                    </span>
+                  ),
+                  onClick: () => {
+                    handleRecordDetailClick(record);
+                  },
+                },
+                {
+                  type: "divider",
+                },
+                {
                   key: "delete",
-                  label: t("common.button.delete"),
+                  label: t("certificate.action.delete.button"),
                   danger: true,
                   icon: (
                     <span className="anticon scale-125">

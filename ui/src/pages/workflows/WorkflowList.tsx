@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconCirclePlus, IconCopy, IconDotsVertical, IconHierarchy3, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
+import { IconCirclePlus, IconCopy, IconDotsVertical, IconEdit, IconHierarchy3, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { App, Button, Dropdown, Flex, Input, Segmented, Skeleton, Switch, Table, type TableProps, Typography, theme } from "antd";
 import dayjs from "dayjs";
@@ -134,8 +134,20 @@ const WorkflowList = () => {
             menu={{
               items: [
                 {
+                  key: "edit",
+                  label: t("workflow.action.edit.button"),
+                  icon: (
+                    <span className="anticon scale-125">
+                      <IconEdit size="1em" />
+                    </span>
+                  ),
+                  onClick: () => {
+                    handleRecordDetailClick(record);
+                  },
+                },
+                {
                   key: "duplicate",
-                  label: t("common.button.duplicate"),
+                  label: t("workflow.action.duplicate.button"),
                   icon: (
                     <span className="anticon scale-125">
                       <IconCopy size="1em" />
@@ -150,7 +162,7 @@ const WorkflowList = () => {
                 },
                 {
                   key: "delete",
-                  label: t("common.button.delete"),
+                  label: t("workflow.action.delete.button"),
                   danger: true,
                   icon: (
                     <span className="anticon scale-125">

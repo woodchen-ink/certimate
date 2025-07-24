@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconCirclePlus, IconCopy, IconDotsVertical, IconFingerprint, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
+import { IconCirclePlus, IconCopy, IconDotsVertical, IconEdit, IconFingerprint, IconPlus, IconReload, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { App, Avatar, Button, Dropdown, Input, Skeleton, Table, type TableProps, Tabs, Typography, theme } from "antd";
 import dayjs from "dayjs";
@@ -88,8 +88,20 @@ const AccessList = () => {
             menu={{
               items: [
                 {
+                  key: "edit",
+                  label: t("access.action.edit.button"),
+                  icon: (
+                    <span className="anticon scale-125">
+                      <IconEdit size="1em" />
+                    </span>
+                  ),
+                  onClick: () => {
+                    handleRecordDetailClick(record);
+                  },
+                },
+                {
                   key: "duplicate",
-                  label: t("common.button.duplicate"),
+                  label: t("access.action.duplicate.button"),
                   icon: (
                     <span className="anticon scale-125">
                       <IconCopy size="1em" />
@@ -104,7 +116,7 @@ const AccessList = () => {
                 },
                 {
                   key: "delete",
-                  label: t("common.button.delete"),
+                  label: t("access.action.delete.button"),
                   danger: true,
                   icon: (
                     <span className="anticon scale-125">

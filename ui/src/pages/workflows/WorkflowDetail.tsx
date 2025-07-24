@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { IconArrowBackUp, IconChevronDown, IconDots, IconHistory, IconPlayerPlay, IconRobot, IconTrash } from "@tabler/icons-react";
-import { Alert, App, Button, Card, Dropdown, Flex, Form, Input, Space, Tabs } from "antd";
+import { Alert, App, Button, Card, Dropdown, Flex, Form, Input, Segmented, Space, Tabs } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { isEqual } from "radash";
 import { z } from "zod";
@@ -194,55 +194,53 @@ const WorkflowDetail = () => {
 
   return (
     <div className="flex size-full flex-col">
-      <Card styles={{ body: { padding: 0 } }}>
-        <div className="px-6 py-4">
-          <div className="mx-auto max-w-320">
-            <div className="flex justify-between gap-2">
-              <div>
-                <h1>{workflow.name || "\u00A0"}</h1>
-                <p className="mb-0 text-base text-gray-500">{workflow.description || "\u00A0"}</p>
-              </div>
-              <Flex gap="small">
-                {initialized
-                  ? [
-                      <WorkflowBaseInfoModal key="edit" trigger={<Button>{t("common.button.edit")}</Button>} />,
-                      <Button key="enable" onClick={handleEnableChange}>
-                        {workflow.enabled ? t("workflow.action.disable.button") : t("workflow.action.enable.button")}
-                      </Button>,
-                      <Dropdown
-                        key="more"
-                        menu={{
-                          items: [
-                            {
-                              key: "delete",
-                              label: t("common.button.delete"),
-                              danger: true,
-                              icon: <IconTrash size="1.25em" />,
-                              onClick: () => {
-                                handleDeleteClick();
-                              },
-                            },
-                          ],
-                        }}
-                        trigger={["click"]}
-                      >
-                        <Button icon={<IconChevronDown size="1.25em" />} iconPosition="end">
-                          {t("common.button.more")}
-                        </Button>
-                      </Dropdown>,
-                    ]
-                  : []}
-              </Flex>
+      <div className="px-6 py-4">
+        <div className="relative mx-auto max-w-320">
+          <div className="flex justify-between gap-2">
+            <div>
+              <h1>{workflow.name || "\u00A0"}</h1>
+              <p className="mb-0 text-base text-gray-500">{workflow.description || "\u00A0"}</p>
             </div>
+            <Flex className="my-2" gap="small">
+              {initialized
+                ? [
+                    <WorkflowBaseInfoModal key="edit" trigger={<Button>{t("common.button.edit")}</Button>} />,
+                    <Button key="enable" onClick={handleEnableChange}>
+                      {workflow.enabled ? t("workflow.action.disable.button") : t("workflow.action.enable.button")}
+                    </Button>,
+                    <Dropdown
+                      key="more"
+                      menu={{
+                        items: [
+                          {
+                            key: "delete",
+                            label: t("common.button.delete"),
+                            danger: true,
+                            icon: <IconTrash size="1.25em" />,
+                            onClick: () => {
+                              handleDeleteClick();
+                            },
+                          },
+                        ],
+                      }}
+                      trigger={["click"]}
+                    >
+                      <Button icon={<IconChevronDown size="1.25em" />} iconPosition="end">
+                        {t("common.button.more")}
+                      </Button>
+                    </Dropdown>,
+                  ]
+                : []}
+            </Flex>
+          </div>
 
-            <Tabs
-              className="-mb-4"
-              activeKey={tabValue}
-              defaultActiveKey="orchestration"
-              items={[
+          <div className="absolute -bottom-12 left-1/2 z-1 -translate-x-1/2">
+            <Segmented
+              className="shadow"
+              options={[
                 {
-                  key: "orchestration",
-                  label: t("workflow.detail.orchestration.tab"),
+                  value: "orchestration",
+                  label: <span className="px-2 text-sm">{t("workflow.detail.orchestration.tab")}</span>,
                   icon: (
                     <span className="anticon scale-125" role="img">
                       <IconRobot size="1em" />
@@ -250,8 +248,8 @@ const WorkflowDetail = () => {
                   ),
                 },
                 {
-                  key: "runs",
-                  label: t("workflow.detail.runs.tab"),
+                  value: "runs",
+                  label: <span className="px-2 text-sm">{t("workflow.detail.runs.tab")}</span>,
                   icon: (
                     <span className="anticon scale-125" role="img">
                       <IconHistory size="1em" />
@@ -259,13 +257,16 @@ const WorkflowDetail = () => {
                   ),
                 },
               ]}
-              renderTabBar={(props, DefaultTabBar) => <DefaultTabBar {...props} style={{ margin: 0 }} />}
-              tabBarStyle={{ border: "none" }}
-              onChange={(key) => setTabValue(key as typeof tabValue)}
+              size="large"
+              value={tabValue}
+              defaultValue="orchestration"
+              onChange={(value) => {
+                setTabValue(value as typeof tabValue);
+              }}
             />
           </div>
         </div>
-      </Card>
+      </div>
 
       <Show when={tabValue === "orchestration"}>
         <div className="min-h-[360px] flex-1 overflow-hidden p-4">
@@ -280,7 +281,7 @@ const WorkflowDetail = () => {
             }}
             loading={!initialized}
           >
-            <div className="absolute inset-x-6 top-4 z-2 mx-auto flex max-w-320 items-center justify-between gap-4">
+            <div className="absolute inset-x-6 top-4 z-2 mx-auto flex max-w-320 items-center justify-between gap-4 pt-6">
               <div className="flex-1 overflow-hidden">
                 <Show when={workflow.hasDraft!}>
                   <Alert message={<div className="truncate">{t("workflow.detail.orchestration.draft.alert")}</div>} showIcon type="warning" />
@@ -316,14 +317,14 @@ const WorkflowDetail = () => {
               </div>
             </div>
 
-            <WorkflowElementsContainer className="pt-16" />
+            <WorkflowElementsContainer className="pt-24" />
           </Card>
         </div>
       </Show>
 
       <Show when={tabValue === "runs"}>
         <div className="p-4">
-          <div className="mx-auto max-w-320">
+          <div className="mx-auto max-w-320 pt-6">
             <WorkflowRuns workflowId={workflowId!} />
           </div>
         </div>

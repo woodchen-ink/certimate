@@ -9,8 +9,11 @@
   "workflow.search.placeholder": "Search by workflow name ...",
 
   "workflow.action.create.button": "Create workflow",
+  "workflow.action.edit.button": "Edit workflow",
+  "workflow.action.duplicate.button": "Duplicate workflow",
   "workflow.action.duplicate.modal.title": "Duplicate \"{{name}}\"",
   "workflow.action.duplicate.modal.content": "Are you sure to duplicate this workflow?",
+  "workflow.action.delete.button": "Delete workflow",
   "workflow.action.delete.modal.title": "Delete \"{{name}}\"",
   "workflow.action.delete.modal.content": "Are you sure want to delete this workflow? <br>This action cannot be undone.",
   "workflow.action.batch_delete.modal.title": "Delete workflows",

@@ -12,7 +12,7 @@ import {
   IconMenu2,
   IconSettings,
 } from "@tabler/icons-react";
-import { Alert, Button, Divider, Drawer, Layout, Menu, type MenuProps, theme } from "antd";
+import { Alert, Button, Drawer, Layout, Menu, type MenuProps, theme } from "antd";
 
 import AppLocale from "@/components/AppLocale";
 import AppTheme from "@/components/AppTheme";
@@ -103,7 +103,25 @@ const ConsoleLayout = () => {
         </Layout.Sider>
 
         <Layout className="flex flex-col overflow-hidden">
-          <Layout.Header className="border-b shadow-sm md:hidden" style={{ padding: 0, borderBottomColor: themeToken.colorBorderSecondary }}>
+          <Layout.Header
+            className="relative border-b shadow-sm md:hidden"
+            style={{
+              padding: 0,
+              borderBottomColor: themeToken.colorBorderSecondary,
+            }}
+          >
+            <div className="absolute inset-0 z-0">
+              <div
+                className="h-full w-full"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(255, 255, 255, 0.063) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.063) 1px, transparent 1px)",
+                  backgroundSize: "20px 20px",
+                }}
+              >
+                <div className="h-full w-full backdrop-blur-[1px]"></div>
+              </div>
+            </div>
             <div className="flex size-full items-center justify-between overflow-hidden px-4">
               <div className="flex items-center gap-4">
                 <SiderMenuDrawer trigger={<Button icon={<IconMenu2 size="1.25em" stroke="1.25" />} />} />

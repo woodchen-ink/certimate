@@ -53,7 +53,7 @@ func createNotifierProvider(options *notifierProviderOptions) (core.Notifier, er
 
 			return pDiscordBot.NewNotifierProvider(&pDiscordBot.NotifierProviderConfig{
 				BotToken:  access.BotToken,
-				ChannelId: xmaps.GetOrDefaultString(options.ProviderServiceConfig, "channelId", access.DefaultChannelId),
+				ChannelId: xmaps.GetOrDefaultString(options.ProviderServiceConfig, "channelId", access.ChannelId),
 			})
 		}
 
@@ -70,9 +70,9 @@ func createNotifierProvider(options *notifierProviderOptions) (core.Notifier, er
 				SmtpTls:         access.SmtpTls,
 				Username:        access.Username,
 				Password:        access.Password,
-				SenderAddress:   xmaps.GetOrDefaultString(options.ProviderServiceConfig, "senderAddress", access.DefaultSenderAddress),
-				SenderName:      xmaps.GetOrDefaultString(options.ProviderServiceConfig, "senderName", access.DefaultSenderName),
-				ReceiverAddress: xmaps.GetOrDefaultString(options.ProviderServiceConfig, "receiverAddress", access.DefaultReceiverAddress),
+				SenderAddress:   access.SenderAddress,
+				SenderName:      access.SenderName,
+				ReceiverAddress: xmaps.GetOrDefaultString(options.ProviderServiceConfig, "receiverAddress", access.ReceiverAddress),
 			})
 		}
 
@@ -99,7 +99,7 @@ func createNotifierProvider(options *notifierProviderOptions) (core.Notifier, er
 				ServerUrl: access.ServerUrl,
 				Username:  access.Username,
 				Password:  access.Password,
-				ChannelId: xmaps.GetOrDefaultString(options.ProviderServiceConfig, "channelId", access.DefaultChannelId),
+				ChannelId: xmaps.GetOrDefaultString(options.ProviderServiceConfig, "channelId", access.ChannelId),
 			})
 		}
 
@@ -112,7 +112,7 @@ func createNotifierProvider(options *notifierProviderOptions) (core.Notifier, er
 
 			return pSlackBot.NewNotifierProvider(&pSlackBot.NotifierProviderConfig{
 				BotToken:  access.BotToken,
-				ChannelId: xmaps.GetOrDefaultString(options.ProviderServiceConfig, "channelId", access.DefaultChannelId),
+				ChannelId: xmaps.GetOrDefaultString(options.ProviderServiceConfig, "channelId", access.ChannelId),
 			})
 		}
 
@@ -125,7 +125,7 @@ func createNotifierProvider(options *notifierProviderOptions) (core.Notifier, er
 
 			return pTelegramBot.NewNotifierProvider(&pTelegramBot.NotifierProviderConfig{
 				BotToken: access.BotToken,
-				ChatId:   xmaps.GetOrDefaultInt64(options.ProviderServiceConfig, "chatId", access.DefaultChatId),
+				ChatId:   xmaps.GetOrDefaultInt64(options.ProviderServiceConfig, "chatId", access.ChatId),
 			})
 		}
 
@@ -158,7 +158,7 @@ func createNotifierProvider(options *notifierProviderOptions) (core.Notifier, er
 
 			return pWebhook.NewNotifierProvider(&pWebhook.NotifierProviderConfig{
 				WebhookUrl:               access.Url,
-				WebhookData:              xmaps.GetOrDefaultString(options.ProviderServiceConfig, "webhookData", access.DefaultDataForNotification),
+				WebhookData:              xmaps.GetOrDefaultString(options.ProviderServiceConfig, "webhookData", access.DataStringForNotification),
 				Method:                   access.Method,
 				Headers:                  mergedHeaders,
 				AllowInsecureConnections: access.AllowInsecureConnections,

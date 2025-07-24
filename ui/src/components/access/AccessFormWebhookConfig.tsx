@@ -25,7 +25,7 @@ const initFormModel = (): AccessFormWebhookConfigFieldValues => {
     method: "POST",
     headers: "Content-Type: application/json",
     allowInsecureConnections: false,
-    defaultDataForDeployment: JSON.stringify(
+    dataForDeployment: JSON.stringify(
       {
         name: "${DOMAINS}",
         cert: "${CERTIFICATE}",
@@ -34,7 +34,7 @@ const initFormModel = (): AccessFormWebhookConfigFieldValues => {
       null,
       2
     ),
-    defaultDataForNotification: JSON.stringify(
+    dataForNotification: JSON.stringify(
       {
         subject: "${SUBJECT}",
         message: "${MESSAGE}",
@@ -65,7 +65,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
         }
         return true;
       }, t("access.form.webhook_headers.errmsg.invalid")),
-    defaultDataForDeployment: z
+    dataForDeployment: z
       .string()
       .nullish()
       .refine((v) => {
@@ -78,8 +78,8 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
         } catch {
           return false;
         }
-      }, t("access.form.webhook_default_data.errmsg.json_invalid")),
-    defaultDataForNotification: z
+      }, t("access.form.webhook_data.errmsg.json_invalid")),
+    dataForNotification: z
       .string()
       .nullish()
       .refine((v) => {
@@ -92,7 +92,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
         } catch {
           return false;
         }
-      }, t("access.form.webhook_default_data.errmsg.json_invalid")),
+      }, t("access.form.webhook_data.errmsg.json_invalid")),
     allowInsecureConnections: z.boolean().nullish(),
   });
   const formRule = createSchemaFieldRule(formSchema);
@@ -105,27 +105,27 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
   };
 
   const handleWebhookDataForDeploymentBlur = () => {
-    const value = formInst.getFieldValue("defaultDataForDeployment");
+    const value = formInst.getFieldValue("dataForDeployment");
     try {
       const json = JSON.stringify(JSON.parse(value), null, 2);
-      formInst.setFieldValue("defaultDataForDeployment", json);
+      formInst.setFieldValue("dataForDeployment", json);
     } catch {
       return;
     }
   };
 
   const handleWebhookDataForNotificationBlur = () => {
-    const value = formInst.getFieldValue("defaultDataForNotification");
+    const value = formInst.getFieldValue("dataForNotification");
     try {
       const json = JSON.stringify(JSON.parse(value), null, 2);
-      formInst.setFieldValue("defaultDataForNotification", json);
+      formInst.setFieldValue("dataForNotification", json);
     } catch {
       return;
     }
   };
 
   const handlePresetDataForDeploymentClick = () => {
-    formInst.setFieldValue("defaultDataForDeployment", initFormModel().defaultDataForDeployment);
+    formInst.setFieldValue("dataForDeployment", initFormModel().dataForDeployment);
   };
 
   const handlePresetDataForNotificationClick = (key: string) => {
@@ -135,7 +135,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
         formInst.setFieldValue("method", "POST");
         formInst.setFieldValue("headers", "Content-Type: application/json\r\nAuthorization: Bearer <your-gotify-token>");
         formInst.setFieldValue(
-          "defaultDataForNotification",
+          "dataForNotification",
           JSON.stringify(
             {
               title: "${SUBJECT}",
@@ -153,7 +153,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
         formInst.setFieldValue("method", "POST");
         formInst.setFieldValue("headers", "Content-Type: application/json\r\nAuthorization: Bearer <your-gotify-token>");
         formInst.setFieldValue(
-          "defaultDataForNotification",
+          "dataForNotification",
           JSON.stringify(
             {
               title: "${SUBJECT}",
@@ -171,7 +171,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
         formInst.setFieldValue("method", "POST");
         formInst.setFieldValue("headers", "Content-Type: application/json");
         formInst.setFieldValue(
-          "defaultDataForNotification",
+          "dataForNotification",
           JSON.stringify(
             {
               topic: "<your-ntfy-topic>",
@@ -190,7 +190,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
         formInst.setFieldValue("method", "POST");
         formInst.setFieldValue("headers", "Content-Type: application/json");
         formInst.setFieldValue(
-          "defaultDataForNotification",
+          "dataForNotification",
           JSON.stringify(
             {
               token: "<your-pushover-token>",
@@ -209,7 +209,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
         formInst.setFieldValue("method", "POST");
         formInst.setFieldValue("headers", "Content-Type: application/json");
         formInst.setFieldValue(
-          "defaultDataForNotification",
+          "dataForNotification",
           JSON.stringify(
             {
               token: "<your-pushplus-token>",
@@ -227,7 +227,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
         formInst.setFieldValue("method", "POST");
         formInst.setFieldValue("headers", "Content-Type: application/json");
         formInst.setFieldValue(
-          "defaultDataForNotification",
+          "dataForNotification",
           JSON.stringify(
             {
               title: "${SUBJECT}",
@@ -244,7 +244,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
         formInst.setFieldValue("method", "POST");
         formInst.setFieldValue("headers", "Content-Type: application/json");
         formInst.setFieldValue(
-          "defaultDataForNotification",
+          "dataForNotification",
           JSON.stringify(
             {
               text: "${SUBJECT}",
@@ -259,7 +259,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
       default:
         formInst.setFieldValue("method", "POST");
         formInst.setFieldValue("headers", "Content-Type: application/json");
-        formInst.setFieldValue("defaultDataForNotification", initFormModel().defaultDataForNotification);
+        formInst.setFieldValue("dataForNotification", initFormModel().dataForNotification);
         break;
     }
   };
@@ -308,7 +308,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
           <label className="mb-1 block">
             <div className="flex w-full items-center justify-between gap-4">
               <div className="max-w-full grow truncate">
-                <span>{t("access.form.webhook_default_data_for_deployment.label")}</span>
+                <span>{t("access.form.webhook_data_for_deployment.label")}</span>
               </div>
               <div className="text-right">
                 <Button size="small" type="link" onClick={handlePresetDataForDeploymentClick}>
@@ -317,20 +317,20 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
               </div>
             </div>
           </label>
-          <Form.Item name="defaultDataForDeployment" rules={[formRule]}>
+          <Form.Item name="dataForDeployment" rules={[formRule]}>
             <CodeInput
               height="auto"
               minHeight="64px"
               maxHeight="256px"
               language="json"
-              placeholder={t("access.form.webhook_default_data_for_deployment.placeholder")}
+              placeholder={t("access.form.webhook_data_for_deployment.placeholder")}
               onBlur={handleWebhookDataForDeploymentBlur}
             />
           </Form.Item>
         </Form.Item>
 
         <Form.Item>
-          <Alert type="info" message={<span dangerouslySetInnerHTML={{ __html: t("access.form.webhook_default_data_for_deployment.guide") }}></span>} />
+          <Alert type="info" message={<span dangerouslySetInnerHTML={{ __html: t("access.form.webhook_data_for_deployment.guide") }}></span>} />
         </Form.Item>
       </Show>
 
@@ -339,7 +339,7 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
           <label className="mb-1 block">
             <div className="flex w-full items-center justify-between gap-4">
               <div className="max-w-full grow truncate">
-                <span>{t("access.form.webhook_default_data_for_notification.label")}</span>
+                <span>{t("access.form.webhook_data_for_notification.label")}</span>
               </div>
               <div className="text-right">
                 <Dropdown
@@ -360,20 +360,20 @@ const AccessFormWebhookConfig = ({ form: formInst, formName, disabled, initialVa
               </div>
             </div>
           </label>
-          <Form.Item name="defaultDataForNotification" rules={[formRule]}>
+          <Form.Item name="dataForNotification" rules={[formRule]}>
             <CodeInput
               height="auto"
               minHeight="64px"
               maxHeight="256px"
               language="json"
-              placeholder={t("access.form.webhook_default_data_for_notification.placeholder")}
+              placeholder={t("access.form.webhook_data_for_notification.placeholder")}
               onBlur={handleWebhookDataForNotificationBlur}
             />
           </Form.Item>
         </Form.Item>
 
         <Form.Item>
-          <Alert type="info" message={<span dangerouslySetInnerHTML={{ __html: t("access.form.webhook_default_data_for_notification.guide") }}></span>} />
+          <Alert type="info" message={<span dangerouslySetInnerHTML={{ __html: t("access.form.webhook_data_for_notification.guide") }}></span>} />
         </Form.Item>
       </Show>
 

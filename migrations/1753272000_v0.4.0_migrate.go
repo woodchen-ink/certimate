@@ -83,6 +83,89 @@ func init() {
 			}
 		}
 
+		// update collection `access`
+		{
+			collection, err := app.FindCollectionByNameOrId("4yzbv8urny5ja1e")
+			if err != nil {
+				return err
+			}
+
+			records, err := app.FindAllRecords(collection)
+			if err != nil {
+				return err
+			}
+
+			for _, record := range records {
+				changed := false
+
+				provider := record.GetString("provider")
+				config := make(map[string]any)
+				if err := record.UnmarshalJSONField("config", &config); err != nil {
+					return err
+				}
+
+				switch provider {
+				case "discordbot", "mattermost", "slackbot":
+					if _, ok := config["defaultChannelId"]; ok {
+						config["channelId"] = config["defaultChannelId"]
+						delete(config, "defaultChannelId")
+						record.Set("config", config)
+						changed = true
+					}
+
+				case "email":
+					if _, ok := config["defaultSenderAddress"]; ok {
+						config["senderAddress"] = config["defaultSenderAddress"]
+						delete(config, "defaultSenderAddress")
+						record.Set("config", config)
+						changed = true
+					}
+					if _, ok := config["defaultSenderName"]; ok {
+						config["senderName"] = config["defaultSenderName"]
+						delete(config, "defaultSenderName")
+						record.Set("config", config)
+						changed = true
+					}
+					if _, ok := config["defaultReceiverAddress"]; ok {
+						config["receiverAddress"] = config["defaultReceiverAddress"]
+						delete(config, "defaultReceiverAddress")
+						record.Set("config", config)
+						changed = true
+					}
+
+				case "telegrambot":
+					if _, ok := config["defaultChatId"]; ok {
+						config["chatId"] = config["defaultChatId"]
+						delete(config, "defaultChatId")
+						record.Set("config", config)
+						changed = true
+					}
+
+				case "webhook":
+					if _, ok := config["defaultDataForDeployment"]; ok {
+						config["dataForDeployment"] = config["defaultDataForDeployment"]
+						delete(config, "defaultDataForDeployment")
+						record.Set("config", config)
+						changed = true
+					}
+					if _, ok := config["defaultDataForNotification"]; ok {
+						config["dataForNotification"] = config["defaultDataForNotification"]
+						delete(config, "defaultDataForNotification")
+						record.Set("config", config)
+						changed = true
+					}
+				}
+
+				if changed {
+					if err := app.Save(record); err != nil {
+						return err
+					}
+
+					tracer.Printf("record #%s in collection '%s' updated", record.Id, collection.Name)
+				}
+			}
+		}
+
 		tracer.Printf("done")
 		return nil
 	}, func(app core.App) error {

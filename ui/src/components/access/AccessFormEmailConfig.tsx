@@ -23,6 +23,9 @@ const initFormModel = (): AccessFormEmailConfigFieldValues => {
     smtpTls: true,
     username: "",
     password: "",
+    senderAddress: "",
+    senderName: "",
+    receiverAddress: "",
   };
 };
 
@@ -47,15 +50,9 @@ const AccessFormEmailConfig = ({ form: formInst, formName, disabled, initialValu
       .string()
       .min(1, t("access.form.email_password.placeholder"))
       .max(256, t("common.errmsg.string_max", { max: 256 })),
-    defaultSenderAddress: z
-      .string()
-      .nullish()
-      .refine((v) => {
-        if (!v) return true;
-        return validEmailAddress(v);
-      }, t("common.errmsg.email_invalid")),
-    defaultSenderName: z.string().nullish(),
-    defaultReceiverAddress: z
+    senderAddress: z.email(t("common.errmsg.email_invalid")),
+    senderName: z.string().nullish(),
+    receiverAddress: z
       .string()
       .nullish()
       .refine((v) => {
@@ -112,16 +109,16 @@ const AccessFormEmailConfig = ({ form: formInst, formName, disabled, initialValu
         <Input.Password autoComplete="new-password" placeholder={t("access.form.email_password.placeholder")} />
       </Form.Item>
 
-      <Form.Item name="defaultSenderAddress" label={t("access.form.email_default_sender_address.label")} rules={[formRule]}>
-        <Input type="email" allowClear placeholder={t("access.form.email_default_sender_address.placeholder")} />
+      <Form.Item name="senderAddress" label={t("access.form.email_sender_address.label")} rules={[formRule]}>
+        <Input type="email" allowClear placeholder={t("access.form.email_sender_address.placeholder")} />
       </Form.Item>
 
-      <Form.Item name="defaultSenderName" label={t("access.form.email_default_sender_name.label")} rules={[formRule]}>
-        <Input allowClear placeholder={t("access.form.email_default_sender_name.placeholder")} />
+      <Form.Item name="senderName" label={t("access.form.email_sender_name.label")} rules={[formRule]}>
+        <Input allowClear placeholder={t("access.form.email_sender_name.placeholder")} />
       </Form.Item>
 
-      <Form.Item name="defaultReceiverAddress" label={t("access.form.email_default_receiver_address.label")} rules={[formRule]}>
-        <Input type="email" allowClear placeholder={t("access.form.email_default_receiver_address.placeholder")} />
+      <Form.Item name="receiverAddress" label={t("access.form.email_receiver_address.label")} rules={[formRule]}>
+        <Input type="email" allowClear placeholder={t("access.form.email_receiver_address.placeholder")} />
       </Form.Item>
     </Form>
   );

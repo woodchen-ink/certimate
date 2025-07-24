@@ -1523,7 +1523,7 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 
 			deployer, err := pWebhook.NewSSLDeployerProvider(&pWebhook.SSLDeployerProviderConfig{
 				WebhookUrl:               access.Url,
-				WebhookData:              xmaps.GetOrDefaultString(options.ProviderServiceConfig, "webhookData", access.DefaultDataForDeployment),
+				WebhookData:              xmaps.GetOrDefaultString(options.ProviderServiceConfig, "webhookData", access.DataStringForDeployment),
 				Method:                   access.Method,
 				Headers:                  mergedHeaders,
 				AllowInsecureConnections: access.AllowInsecureConnections,

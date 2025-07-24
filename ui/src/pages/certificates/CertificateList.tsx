@@ -137,51 +137,51 @@ const CertificateList = () => {
       fixed: "right",
       width: 64,
       render: (_, record) => (
-        <div
-          className="flex items-center justify-end"
-          onClick={(e) => {
-            e.stopPropagation();
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: "view",
+                label: t("certificate.action.view.button"),
+                icon: (
+                  <span className="anticon scale-125">
+                    <IconBrowserShare size="1em" />
+                  </span>
+                ),
+                onClick: () => {
+                  handleRecordDetailClick(record);
+                },
+              },
+              {
+                type: "divider",
+              },
+              {
+                key: "delete",
+                label: t("certificate.action.delete.button"),
+                danger: true,
+                icon: (
+                  <span className="anticon scale-125">
+                    <IconTrash size="1em" />
+                  </span>
+                ),
+                onClick: () => {
+                  handleRecordDeleteClick(record);
+                },
+              },
+            ],
           }}
+          trigger={["click"]}
         >
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  key: "view",
-                  label: t("certificate.action.view.button"),
-                  icon: (
-                    <span className="anticon scale-125">
-                      <IconBrowserShare size="1em" />
-                    </span>
-                  ),
-                  onClick: () => {
-                    handleRecordDetailClick(record);
-                  },
-                },
-                {
-                  type: "divider",
-                },
-                {
-                  key: "delete",
-                  label: t("certificate.action.delete.button"),
-                  danger: true,
-                  icon: (
-                    <span className="anticon scale-125">
-                      <IconTrash size="1em" />
-                    </span>
-                  ),
-                  onClick: () => {
-                    handleRecordDeleteClick(record);
-                  },
-                },
-              ],
-            }}
-            trigger={["click"]}
-          >
-            <Button icon={<IconDotsVertical size="1.25em" />} type="text" />
-          </Dropdown>
-        </div>
+          <Button icon={<IconDotsVertical size="1.25em" />} type="text" />
+        </Dropdown>
       ),
+      onCell: () => {
+        return {
+          onClick: (e) => {
+            e.stopPropagation();
+          },
+        };
+      },
     },
   ];
   const tableRowSelection: TableProps<CertificateModel>["rowSelection"] = {
@@ -404,7 +404,7 @@ const CertificateList = () => {
               ) : (
                 <Empty
                   title={t("certificate.nodata.title")}
-                  description={getErrMsg(loadedError ?? t("certificate.nodata.description"))}
+                  description={loadedError ? getErrMsg(loadedError) : t("certificate.nodata.description")}
                   icon={<IconCertificate size={24} />}
                   extra={
                     loadedError ? (

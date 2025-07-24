@@ -106,7 +106,7 @@ const DeploymentProviderPicker = ({ className, style, autoFocus, onFilter, place
           />
 
           <div className="flex-1">
-            <Show when={providers.length > 0} fallback={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("common.text.nodata")} />}>
+            <Show when={providers.length > 0} fallback={<Empty description={t("common.text.nodata")} image={Empty.PRESENTED_IMAGE_SIMPLE} />}>
               <div
                 className={mergeCls("grid w-full gap-2", `grid-cols-${providerCols}`, {
                   "gap-4": gap === "large",

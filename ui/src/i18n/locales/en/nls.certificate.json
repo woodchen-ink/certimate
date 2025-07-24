@@ -3,7 +3,7 @@
   "certificate.page.subtitle": "SSL certificates contain the website's public key and the website's identity, along with related information. They are generated from the execution output of workflows.",
 
   "certificate.nodata.title": "No Certificates",
-  "certificate.nodata.description": "Add a workflow to generate certificates!",
+  "certificate.nodata.description": "It looks like you don't have any certificates. Get started by running a workflow.",
   "certificate.nodata.button": "Go to workflows",
 
   "certificate.search.placeholder": "Search by certificate name or serial number ...",

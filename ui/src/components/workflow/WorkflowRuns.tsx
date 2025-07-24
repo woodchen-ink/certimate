@@ -11,6 +11,7 @@ import Empty from "@/components/Empty";
 import WorkflowStatusTag from "@/components/workflow/WorkflowStatusTag";
 import { WORKFLOW_TRIGGERS } from "@/domain/workflow";
 import { WORKFLOW_RUN_STATUSES, type WorkflowRunModel } from "@/domain/workflowRun";
+import { useAppSettings } from "@/hooks";
 import {
   list as listWorkflowRuns,
   remove as removeWorkflowRun,
@@ -31,15 +32,19 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
 
   const { modal, notification } = App.useApp();
 
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const { appSettings: globalAppSettings } = useAppSettings();
 
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(globalAppSettings.defaultPerPage!);
+
+  const [tableData, setTableData] = useState<WorkflowRunModel[]>([]);
+  const [tableTotal, setTableTotal] = useState<number>(0);
   const tableColumns: TableProps<WorkflowRunModel>["columns"] = [
     {
       key: "$index",
       align: "center",
       fixed: "left",
-      width: 50,
+      width: 48,
       render: (_, __, index) => (page - 1) * pageSize + index + 1,
     },
     {
@@ -106,7 +111,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
 
         return (
           <div className="flex items-center justify-end">
-            <Tooltip title={t("common.button.view")}>
+            <Tooltip title={t("workflow_run.action.view.button")}>
               <Button
                 color="primary"
                 icon={<IconBrowserShare size="1.25em" />}
@@ -129,7 +134,7 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
                 }}
               />
             </Tooltip>
-            <Tooltip title={t("common.button.delete")}>
+            <Tooltip title={t("workflow_run.action.delete.button")}>
               <Button
                 color="danger"
                 danger
@@ -145,10 +150,15 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
           </div>
         );
       },
+      onCell: () => {
+        return {
+          onClick: (e) => {
+            e.stopPropagation();
+          },
+        };
+      },
     },
   ];
-  const [tableData, setTableData] = useState<WorkflowRunModel[]>([]);
-  const [tableTotal, setTableTotal] = useState<number>(0);
 
   const {
     loading,
@@ -206,6 +216,11 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
     };
   }, [tableData]);
 
+  const handlePaginationChange = (page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
+  };
+
   const { setData: setDetailRecord, setOpen: setDetailOpen, ...detailDrawerProps } = WorkflowRunDetailDrawer.useProps();
 
   const handleRecordDetailClick = (workflowRun: WorkflowRunModel) => {
@@ -259,7 +274,8 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
 
   return (
     <div className={className} style={style}>
-      <Alert className="mb-4" message={<span dangerouslySetInnerHTML={{ __html: t("workflow_run.table.alert") }}></span>} showIcon type="info" />
+      <Alert className="mb-4" message={<span dangerouslySetInnerHTML={{ __html: t("workflow_run.deletion.alert") }}></span>} showIcon type="info" />
+      <Alert className="mb-4" message={<span dangerouslySetInnerHTML={{ __html: t("workflow_run.cancellation.alert") }}></span>} showIcon type="info" />
 
       <Table<WorkflowRunModel>
         columns={tableColumns}
@@ -269,7 +285,11 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
           emptyText: loading ? (
             <Skeleton />
           ) : (
-            <Empty title={t("common.text.nodata")} description={loadedError ? getErrMsg(loadedError) : undefined} icon={<IconHistory size={24} />} />
+            <Empty
+              title={t("common.text.nodata")}
+              description={loadedError ? getErrMsg(loadedError) : t("workflow_run.nodata.description")}
+              icon={<IconHistory size={24} />}
+            />
           ),
         }}
         pagination={{
@@ -277,14 +297,8 @@ const WorkflowRuns = ({ className, style, workflowId }: WorkflowRunsProps) => {
           pageSize: pageSize,
           total: tableTotal,
           showSizeChanger: true,
-          onChange: (page: number, pageSize: number) => {
-            setPage(page);
-            setPageSize(pageSize);
-          },
-          onShowSizeChange: (page: number, pageSize: number) => {
-            setPage(page);
-            setPageSize(pageSize);
-          },
+          onChange: handlePaginationChange,
+          onShowSizeChange: handlePaginationChange,
         }}
         rowClassName="cursor-pointer"
         rowKey={(record) => record.id}

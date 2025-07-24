@@ -343,7 +343,7 @@ const WorkflowRunArtifacts = ({ runId }: { runId: string }) => {
         dataSource={tableData}
         loading={tableLoading}
         locale={{
-          emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />,
+          emptyText: <Empty description={t("common.text.nodata")} image={Empty.PRESENTED_IMAGE_SIMPLE} />,
         }}
         pagination={false}
         rowKey={(record) => record.id}

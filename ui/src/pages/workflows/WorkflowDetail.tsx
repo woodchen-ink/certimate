@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { IconArrowBackUp, IconChevronDown, IconDots, IconHistory, IconPlayerPlay, IconRobot, IconTrash } from "@tabler/icons-react";
-import { Alert, App, Button, Card, Dropdown, Flex, Form, Input, Segmented, Space, Tabs } from "antd";
+import { Alert, App, Button, Card, Dropdown, Flex, Form, Input, Segmented, Space } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { isEqual } from "radash";
 import { z } from "zod";

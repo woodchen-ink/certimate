@@ -4,7 +4,7 @@
 
   "access.nodata": "No credentials",
   "access.nodata.title": "No credentials",
-  "access.nodata.description": "Add a credential to store authentication information.",
+  "access.nodata.description": "It looks like you don't have any credentials. Get started by adding one.",
   "access.nodata.button": "Create credential",
 
   "access.search.placeholder": "Search by credential name ...",

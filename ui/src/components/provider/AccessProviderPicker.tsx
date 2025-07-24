@@ -86,7 +86,7 @@ const AccessProviderPicker = ({ className, style, autoFocus, placeholder, showOp
       <Input.Search ref={keywordInputRef} placeholder={placeholder ?? t("common.text.search")} onChange={(e) => setKeyword(e.target.value.trim())} />
 
       <div className="mt-4">
-        <Show when={providers.length > 0} fallback={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}>
+        <Show when={providers.length > 0} fallback={<Empty description={t("common.text.nodata")} image={Empty.PRESENTED_IMAGE_SIMPLE} />}>
           <div
             className={mergeCls("grid w-full gap-2", `grid-cols-${providerCols}`, {
               "gap-4": gap === "large",

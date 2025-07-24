@@ -3,7 +3,7 @@
   "workflow.page.subtitle": "工作流是自动化流程的节点集合。当满足触发条件时，工作流开始顺序执行各节点以完成复杂的任务。",
 
   "workflow.nodata.title": "暂无工作流",
-  "workflow.nodata.description": "请先新建工作流以执行证书申请、部署等任务",
+  "workflow.nodata.description": "当前未找到工作流。请先创建。",
   "workflow.nodata.button": "新建工作流",
 
   "workflow.search.placeholder": "按工作流名称搜索……",

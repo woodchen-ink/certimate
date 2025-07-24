@@ -78,63 +78,63 @@ const AccessList = () => {
       fixed: "right",
       width: 64,
       render: (_, record) => (
-        <div
-          className="flex items-center justify-end"
-          onClick={(e) => {
-            e.stopPropagation();
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: "edit",
+                label: t("access.action.edit.button"),
+                icon: (
+                  <span className="anticon scale-125">
+                    <IconEdit size="1em" />
+                  </span>
+                ),
+                onClick: () => {
+                  handleRecordDetailClick(record);
+                },
+              },
+              {
+                key: "duplicate",
+                label: t("access.action.duplicate.button"),
+                icon: (
+                  <span className="anticon scale-125">
+                    <IconCopy size="1em" />
+                  </span>
+                ),
+                onClick: () => {
+                  handleRecordDuplicateClick(record);
+                },
+              },
+              {
+                type: "divider",
+              },
+              {
+                key: "delete",
+                label: t("access.action.delete.button"),
+                danger: true,
+                icon: (
+                  <span className="anticon scale-125">
+                    <IconTrash size="1em" />
+                  </span>
+                ),
+                onClick: () => {
+                  handleRecordDeleteClick(record);
+                },
+              },
+            ],
           }}
+          trigger={["click"]}
         >
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  key: "edit",
-                  label: t("access.action.edit.button"),
-                  icon: (
-                    <span className="anticon scale-125">
-                      <IconEdit size="1em" />
-                    </span>
-                  ),
-                  onClick: () => {
-                    handleRecordDetailClick(record);
-                  },
-                },
-                {
-                  key: "duplicate",
-                  label: t("access.action.duplicate.button"),
-                  icon: (
-                    <span className="anticon scale-125">
-                      <IconCopy size="1em" />
-                    </span>
-                  ),
-                  onClick: () => {
-                    handleRecordDuplicateClick(record);
-                  },
-                },
-                {
-                  type: "divider",
-                },
-                {
-                  key: "delete",
-                  label: t("access.action.delete.button"),
-                  danger: true,
-                  icon: (
-                    <span className="anticon scale-125">
-                      <IconTrash size="1em" />
-                    </span>
-                  ),
-                  onClick: () => {
-                    handleRecordDeleteClick(record);
-                  },
-                },
-              ],
-            }}
-            trigger={["click"]}
-          >
-            <Button icon={<IconDotsVertical size="1.25em" />} type="text" />
-          </Dropdown>
-        </div>
+          <Button icon={<IconDotsVertical size="1.25em" />} type="text" />
+        </Dropdown>
       ),
+      onCell: () => {
+        return {
+          onClick: (e) => {
+            e.stopPropagation();
+          },
+        };
+      },
     },
   ];
   const tableRowSelection: TableProps<AccessModel>["rowSelection"] = {

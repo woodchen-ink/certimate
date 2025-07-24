@@ -1,9 +1,9 @@
 ﻿{
-  "access.page.title": "授权管理",
-  "access.page.subtitle": "授权中存储有用于访问特定第三方应用程序或服务的身份验证信息（如账号密码、API 密钥、OAuth 令牌等）。",
+  "access.page.title": "授权凭据",
+  "access.page.subtitle": "授权凭据中存储有用于访问特定第三方应用程序或服务的身份验证信息（如账号密码、API 密钥、OAuth 令牌等）。",
 
   "access.nodata.title": "暂无授权",
-  "access.nodata.description": "新建一个授权并存储身份验证信息吧～",
+  "access.nodata.description": "当前未找到授权信息。请先创建。",
   "access.nodata.button": "新建授权",
 
   "access.search.placeholder": "按授权名称搜索……",

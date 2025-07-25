@@ -2,7 +2,6 @@ package email
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"log/slog"
 	"net"
@@ -12,6 +11,7 @@ import (
 	"github.com/domodwyer/mailyak/v3"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	xtls "github.com/certimate-go/certimate/pkg/utils/tls"
 )
 
 type NotifierProviderConfig struct {
@@ -79,7 +79,7 @@ func (n *NotifierProvider) Notify(ctx context.Context, subject string, message s
 
 	var yak *mailyak.MailYak
 	if n.config.SmtpTls {
-		yakWithTls, err := mailyak.NewWithTLS(smtpAddr, smtpAuth, newTlsConfig())
+		yakWithTls, err := mailyak.NewWithTLS(smtpAddr, smtpAuth, xtls.NewCompatibleConfig())
 		if err != nil {
 			return nil, err
 		}
@@ -99,20 +99,4 @@ func (n *NotifierProvider) Notify(ctx context.Context, subject string, message s
 	}
 
 	return &core.NotifyResult{}, nil
-}
-
-func newTlsConfig() *tls.Config {
-	var suiteIds []uint16
-	for _, suite := range tls.CipherSuites() {
-		suiteIds = append(suiteIds, suite.ID)
-	}
-	for _, suite := range tls.InsecureCipherSuites() {
-		suiteIds = append(suiteIds, suite.ID)
-	}
-
-	// 为兼容国内部分低版本 TLS 的 SMTP 服务商
-	return &tls.Config{
-		MinVersion:   tls.VersionTLS10,
-		CipherSuites: suiteIds,
-	}
 }

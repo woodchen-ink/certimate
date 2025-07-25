@@ -2,7 +2,6 @@ package nodeprocessor
 
 import (
 	"context"
-	"crypto/tls"
 	"crypto/x509"
 	"fmt"
 	"log/slog"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/domain"
 	xhttp "github.com/certimate-go/certimate/pkg/utils/http"
+	xtls "github.com/certimate-go/certimate/pkg/utils/tls"
 )
 
 type monitorNode struct {
@@ -117,10 +117,7 @@ func (n *monitorNode) Process(ctx context.Context) error {
 
 func (n *monitorNode) tryRetrievePeerCertificates(ctx context.Context, addr, domain, requestPath string) ([]*x509.Certificate, error) {
 	transport := xhttp.NewDefaultTransport()
-	if transport.TLSClientConfig == nil {
-		transport.TLSClientConfig = &tls.Config{}
-	}
-	transport.TLSClientConfig.InsecureSkipVerify = true
+	transport.TLSClientConfig = xtls.NewInsecureConfig()
 
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -138,6 +135,7 @@ func (n *monitorNode) tryRetrievePeerCertificates(ctx context.Context, addr, dom
 		return nil, err
 	}
 
+	req.Header.Set("Host", domain)
 	req.Header.Set("User-Agent", "certimate")
 	resp, err := client.Do(req)
 	if err != nil {

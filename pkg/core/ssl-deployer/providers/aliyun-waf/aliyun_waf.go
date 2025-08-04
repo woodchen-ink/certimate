@@ -134,7 +134,7 @@ func (d *SSLDeployerProvider) deployToWAF3(ctx context.Context, certPEM string, 
 			ResourceManagerResourceGroupId: xtypes.ToPtrOrZeroNil(d.config.ResourceGroupId),
 			InstanceId:                     tea.String(d.config.InstanceId),
 			RegionId:                       tea.String(d.config.Region),
-			CertId:                         tea.String(upres.CertId),
+			CertId:                         tea.String(upres.ExtendedData["CertIdentifier"].(string)),
 			TLSVersion:                     tea.String("tlsv1"),
 			EnableTLSv3:                    tea.Bool(false),
 		}

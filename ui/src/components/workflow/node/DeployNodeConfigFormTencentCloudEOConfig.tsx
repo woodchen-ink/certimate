@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Form, type FormInstance, Input } from "antd";
+import { Form, type FormInstance, Input, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod/v4";
 
@@ -10,6 +10,7 @@ type DeployNodeConfigFormTencentCloudEOConfigFieldValues = Nullish<{
   endpoint?: string;
   zoneId: string;
   domains: string;
+  deployToAllDomains?: boolean;
 }>;
 
 export type DeployNodeConfigFormTencentCloudEOConfigProps = {
@@ -40,9 +41,14 @@ const DeployNodeConfigFormTencentCloudEOConfig = ({
     zoneId: z
       .string(t("workflow_node.deploy.form.tencentcloud_eo_zone_id.placeholder"))
       .nonempty(t("workflow_node.deploy.form.tencentcloud_eo_zone_id.placeholder")),
+    deployToAllDomains: z.boolean().nullish(),
     domains: z
       .string(t("workflow_node.deploy.form.tencentcloud_eo_domains.placeholder"))
       .refine((v) => {
+        const deployToAllDomains = formInst.getFieldValue('deployToAllDomains');
+        // 如果启用了"部署到全部网站"，则域名字段可以为空
+        if (deployToAllDomains) return true;
+        // 否则必须填写有效域名
         if (!v) return false;
         return String(v)
           .split(MULTIPLE_INPUT_SEPARATOR)
@@ -83,17 +89,36 @@ const DeployNodeConfigFormTencentCloudEOConfig = ({
       </Form.Item>
 
       <Form.Item
-        name="domains"
-        label={t("workflow_node.deploy.form.tencentcloud_eo_domains.label")}
-        rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_eo_domains.tooltip") }}></span>}
+        name="deployToAllDomains"
+        label={t("workflow_node.deploy.form.tencentcloud_eo_deploy_to_all_domains.label")}
+        valuePropName="checked"
+        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_eo_deploy_to_all_domains.tooltip") }}></span>}
       >
-        <MultipleSplitValueInput
-          modalTitle={t("workflow_node.deploy.form.tencentcloud_eo_domains.multiple_input_modal.title")}
-          placeholder={t("workflow_node.deploy.form.tencentcloud_eo_domains.placeholder")}
-          placeholderInModal={t("workflow_node.deploy.form.tencentcloud_eo_domains.multiple_input_modal.placeholder")}
-          splitOptions={{ trim: true, removeEmpty: true }}
-        />
+        <Switch />
+      </Form.Item>
+
+      <Form.Item
+        dependencies={['deployToAllDomains']}
+      >
+        {({ getFieldValue }) => {
+          const deployToAllDomains = getFieldValue('deployToAllDomains');
+          return (
+            <Form.Item
+              name="domains"
+              label={t("workflow_node.deploy.form.tencentcloud_eo_domains.label")}
+              rules={[formRule]}
+              tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_eo_domains.tooltip") }}></span>}
+              style={{ display: deployToAllDomains ? 'none' : 'block' }}
+            >
+              <MultipleSplitValueInput
+                modalTitle={t("workflow_node.deploy.form.tencentcloud_eo_domains.multiple_input_modal.title")}
+                placeholder={t("workflow_node.deploy.form.tencentcloud_eo_domains.placeholder")}
+                placeholderInModal={t("workflow_node.deploy.form.tencentcloud_eo_domains.multiple_input_modal.placeholder")}
+                splitOptions={{ trim: true, removeEmpty: true }}
+              />
+            </Form.Item>
+          );
+        }}
       </Form.Item>
     </Form>
   );

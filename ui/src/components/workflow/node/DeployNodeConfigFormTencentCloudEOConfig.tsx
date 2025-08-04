@@ -43,13 +43,14 @@ const DeployNodeConfigFormTencentCloudEOConfig = ({
       .nonempty(t("workflow_node.deploy.form.tencentcloud_eo_zone_id.placeholder")),
     deployToAllDomains: z.boolean().nullish(),
     domains: z
-      .string(t("workflow_node.deploy.form.tencentcloud_eo_domains.placeholder"))
+      .string()
+      .nullish()
       .refine((v) => {
         const deployToAllDomains = formInst.getFieldValue('deployToAllDomains');
         // 如果启用了"部署到全部网站"，则域名字段可以为空
         if (deployToAllDomains) return true;
         // 否则必须填写有效域名
-        if (!v) return false;
+        if (!v || v.trim() === '') return false;
         return String(v)
           .split(MULTIPLE_INPUT_SEPARATOR)
           .every((e) => validDomainName(e, { allowWildcard: true }));
@@ -57,7 +58,12 @@ const DeployNodeConfigFormTencentCloudEOConfig = ({
   });
   const formRule = createSchemaFieldRule(formSchema);
 
-  const handleFormChange = (_: unknown, values: z.infer<typeof formSchema>) => {
+  const handleFormChange = (changedValues: any, values: z.infer<typeof formSchema>) => {
+    // 当启用"部署到全部域名"时，清空域名字段
+    if (changedValues.deployToAllDomains === true) {
+      formInst.setFieldValue('domains', '');
+      values.domains = '';
+    }
     onValuesChange?.(values);
   };
 

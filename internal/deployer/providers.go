@@ -1208,11 +1208,12 @@ func createSSLDeployerProvider(options *deployerProviderOptions) (core.SSLDeploy
 
 			case domain.DeploymentProviderTypeTencentCloudEO:
 				deployer, err := pTencentCloudEO.NewSSLDeployerProvider(&pTencentCloudEO.SSLDeployerProviderConfig{
-					SecretId:  access.SecretId,
-					SecretKey: access.SecretKey,
-					Endpoint:  xmaps.GetString(options.ProviderServiceConfig, "endpoint"),
-					ZoneId:    xmaps.GetString(options.ProviderServiceConfig, "zoneId"),
-					Domains:   xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "domains"), ";"), func(s string) bool { return s != "" }),
+					SecretId:           access.SecretId,
+					SecretKey:          access.SecretKey,
+					Endpoint:           xmaps.GetString(options.ProviderServiceConfig, "endpoint"),
+					ZoneId:             xmaps.GetString(options.ProviderServiceConfig, "zoneId"),
+					Domains:            xslices.Filter(strings.Split(xmaps.GetString(options.ProviderServiceConfig, "domains"), ";"), func(s string) bool { return s != "" }),
+					DeployToAllDomains: xmaps.GetBool(options.ProviderServiceConfig, "deployToAllDomains"),
 				})
 				return deployer, err
 
